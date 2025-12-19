@@ -1,0 +1,7 @@
+@if (hasCombatants()) {
+    <ul>
+    @for (combatant of sortedCombatants(); track combatant.id) {
+        <li>{{combatant.name}}{{combatant.id === activeCombatantId() ? '- active' : ''}}</li>
+    }
+    </ul>
+}
