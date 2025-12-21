@@ -4,4 +4,6 @@
         <li>{{combatant.name}}{{combatant.id === activeCombatantId() ? '- active' : ''}}</li>
     }
     </ul>
+} @else {
+    <p>No combatants available.</p>
 }
