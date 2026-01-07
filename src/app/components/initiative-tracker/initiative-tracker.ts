@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { EncounterStore } from '../../services/encounter.store';
 
 @Component({
@@ -7,7 +7,7 @@ import { EncounterStore } from '../../services/encounter.store';
     templateUrl: './initiative-tracker.html',
     styleUrl: './initiative-tracker.css'
 })
-export class InitiativeTracker {
+export class InitiativeTracker implements OnInit {
     private readonly encounterStore = inject(EncounterStore);
 
     readonly sortedCombatants = this.encounterStore.sorted;
@@ -23,4 +23,17 @@ export class InitiativeTracker {
         }
         return activeCombatant.id;
     });
+
+    ngOnInit(): void {
+        // Initial load of encounter data
+        this.encounterStore.getEncounter('goblin-ambush');
+    }
+
+    onNextTurn() {
+        this.encounterStore.next();
+    }
+
+    onPreviousTurn() {
+        this.encounterStore.prev();
+    }
 }

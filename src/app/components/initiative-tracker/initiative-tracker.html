@@ -1,9 +1,11 @@
 @if (hasCombatants()) {
     <ul>
     @for (combatant of sortedCombatants(); track combatant.id) {
-        <li>{{combatant.name}}{{combatant.id === activeCombatantId() ? '- active' : ''}}</li>
+        <li>{{combatant.name}}{{combatant.id === activeCombatantId() ? ' - active' : ''}}</li>
     }
     </ul>
+    <button type="button" (click)="onPreviousTurn()">Previous Turn</button>
+    <button type="button" (click)="onNextTurn()">Next Turn</button>
 } @else {
     <p>No combatants available.</p>
 }
