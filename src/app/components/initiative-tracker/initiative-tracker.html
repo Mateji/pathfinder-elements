@@ -1,7 +1,7 @@
 @if (hasCombatants()) {
-    <ul>
+    <ul class="combatant-list">
     @for (combatant of sortedCombatants(); track combatant.id) {
-        <li>{{combatant.name}}{{combatant.id === activeCombatantId() ? ' - active' : ''}}</li>
+        <li><div class="combatant-container"><span class="material-symbols-outlined">person</span><span>{{combatant.name}}{{combatant.id === activeCombatantId() ? ' - active' : ''}}</span></div></li>
     }
     </ul>
     <button type="button" (click)="onPreviousTurn()">Previous Turn</button>

@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
@@ -7,6 +8,11 @@ import { RouterOutlet } from '@angular/router';
     templateUrl: './app.html',
     styleUrl: './app.css'
 })
-export class App {
-    protected readonly title = signal('pathfinder-elements');
+export class App implements OnInit {
+    private _titleService = inject(Title);
+    
+    ngOnInit(): void {
+        this._titleService.setTitle('Adventure Manager');
+    }
+
 }

@@ -4,7 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build"
+    "build": "ng build",
+    "build:icons": "svgstore -o src/assets/icons/icons.svg src/assets/icons/*.svg"
   },
   "dependencies": {
     "@angular/animations": "^21.0.3",
@@ -23,6 +24,7 @@
     "@angular/cli": "^21.0.2",
     "@angular/compiler-cli": "^21.0.3",
     "@biomejs/biome": "^2.3.10",
+    "svgstore-cli": "^2.0.1",
     "typescript": "^5.9.3"
   }
 }

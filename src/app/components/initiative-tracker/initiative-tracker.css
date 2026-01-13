@@ -1,0 +1,13 @@
+.combatant-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.combatant-list li {
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+}
+
+.combatant-container {
+    display: flex;
+}
