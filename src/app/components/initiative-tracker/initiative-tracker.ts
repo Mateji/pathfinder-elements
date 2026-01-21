@@ -1,9 +1,10 @@
 import { Component, computed, inject, OnInit } from '@angular/core';
 import { EncounterStore } from '../../services/encounter.store';
+import { Icon } from "../icon/icon";
 
 @Component({
     selector: 'app-initiative-tracker',
-    imports: [],
+    imports: [Icon],
     templateUrl: './initiative-tracker.html',
     styleUrl: './initiative-tracker.css'
 })

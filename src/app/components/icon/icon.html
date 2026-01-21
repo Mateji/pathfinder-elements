@@ -1,0 +1,24 @@
+<svg
+    class="icon-badge"
+    [attr.width]="size"
+    [attr.height]="size"
+    viewBox="0 0 100 100"
+    [style.color]="fill || null">
+    <!-- icon behind -->
+    <g [attr.transform]="'translate(10 10) scale(0.15625)'">
+        <!-- 0.15625 = 80 / 512 (because game-icons are 512 viewBox) -->
+        <use [attr.href]="spriteHref"></use>
+    </g>
+
+    <!-- number on top -->
+    @if (value !== null && value !== undefined) {
+    <text
+        x="50"
+        y="58"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        class="icon-number">
+        {{ value }}
+    </text>
+    }
+</svg>

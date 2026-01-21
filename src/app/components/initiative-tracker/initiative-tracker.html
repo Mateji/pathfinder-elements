@@ -1,11 +1,19 @@
 @if (hasCombatants()) {
-    <ul class="combatant-list">
+<ul class="combatant-list">
     @for (combatant of sortedCombatants(); track combatant.id) {
-        <li><div class="combatant-container"><span class="material-symbols-outlined">person</span><span>{{combatant.name}}{{combatant.id === activeCombatantId() ? ' - active' : ''}}</span></div></li>
+    <li>
+        <div class="combatant-container"><span
+                class="material-symbols-outlined">person</span><span>{{combatant.name}}{{combatant.id ===
+                activeCombatantId() ? ' - active' : ''}}</span><app-icon name="shield" fill="red" [value]="combatant.defense.ac"></app-icon></div>
+    </li>
     }
-    </ul>
-    <button type="button" (click)="onPreviousTurn()">Previous Turn</button>
-    <button type="button" (click)="onNextTurn()">Next Turn</button>
+</ul>
+<button type="button" (click)="onPreviousTurn()">Previous Turn</button>
+<button type="button" (click)="onNextTurn()">Next Turn</button>
 } @else {
-    <p>No combatants available.</p>
+<p>No combatants available.</p>
 }
+
+<svg width="64" height="64" style="color: red">
+    <use href="/assets/icons.svg#shield" width="100%" height="100%"></use>
+</svg>
