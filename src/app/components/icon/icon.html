@@ -4,11 +4,13 @@
     [attr.height]="size"
     viewBox="0 0 100 100"
     [style.color]="fill || null">
-    <!-- icon behind -->
-    <g [attr.transform]="'translate(10 10) scale(0.15625)'">
-        <!-- 0.15625 = 80 / 512 (because game-icons are 512 viewBox) -->
-        <use [attr.href]="spriteHref"></use>
-    </g>
+    <use
+        [attr.href]="spriteHref"
+        [attr.xlink:href]="spriteHref"
+        x="10"
+        y="10"
+        width="80"
+        height="80"></use>
 
     <!-- number on top -->
     @if (value !== null && value !== undefined) {

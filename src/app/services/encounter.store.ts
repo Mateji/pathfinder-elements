@@ -4,7 +4,7 @@ import { EncounterService } from './encounter-service';
 
 interface EncounterState {
     combatants: Combatant[];
-    activeIndex: number; // Index in initiative-sorted Liste
+    activeIndex: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -16,38 +16,103 @@ export class EncounterStore {
         activeIndex: 0
     });
 
-    readonly sorted = computed(() => [...this.state().combatants].sort((a, b) => b.initiative - a.initiative));
-    readonly active = computed(() => this.sorted()[this.state().activeIndex] ?? null);
+    readonly sorted = computed(() => {
+        const combatants = this.state().combatants;
 
-    getEncounter(name: string): void {
-        this._encounterService.getEncounter(name).subscribe((combatants) => {
-            this.setCombatants(combatants);
+        return [...combatants].sort((leftCombatant, rightCombatant) => {
+            if (leftCombatant.initiative !== rightCombatant.initiative) {
+                return rightCombatant.initiative - leftCombatant.initiative;
+            }
+
+            return leftCombatant.name.localeCompare(rightCombatant.name);
+        });
+    });
+
+    readonly active = computed(() => {
+        const activeIndex = this.state().activeIndex;
+        const sortedCombatants = this.sorted();
+
+        return sortedCombatants[activeIndex] ?? null;
+    });
+
+    loadEncounter(encounterName: string): void {
+        this._encounterService.getEncounter(encounterName).subscribe({
+            next: (combatants) => {
+                this.setCombatants(combatants);
+            },
+            error: () => {
+                this.setCombatants([]);
+            }
         });
     }
 
-    // commands
-    setCombatants(list: Combatant[]) {
-        this.state.update((state) => ({ ...state, combatants: list, activeIndex: 0 }));
+    getEncounter(encounterName: string): void {
+        this.loadEncounter(encounterName);
     }
 
-    next() {
-        this.state.update((state) => {
-            const length = this.sorted().length;
-            if (!length) return state;
-            return { ...state, activeIndex: (state.activeIndex + 1) % length };
+    setCombatants(combatants: Combatant[]): void {
+        this.state.update((currentState) => {
+            return {
+                ...currentState,
+                combatants,
+                activeIndex: 0
+            };
         });
     }
 
-    prev() {
-        this.state.update((state) => {
-            const length = this.sorted().length;
-            if (!length) return state;
-            return { ...state, activeIndex: (state.activeIndex - 1 + length) % length };
+    nextTurn(): void {
+        this.state.update((currentState) => {
+            const combatantCount = this.sorted().length;
+
+            if (combatantCount === 0) {
+                return currentState;
+            }
+
+            return {
+                ...currentState,
+                activeIndex: (currentState.activeIndex + 1) % combatantCount
+            };
         });
     }
 
-    jumpTo(id: string) {
-        const index = this.sorted().findIndex((combatant) => combatant.id === id);
-        if (index >= 0) this.state.update((state) => ({ ...state, activeIndex: index }));
+    previousTurn(): void {
+        this.state.update((currentState) => {
+            const combatantCount = this.sorted().length;
+
+            if (combatantCount === 0) {
+                return currentState;
+            }
+
+            return {
+                ...currentState,
+                activeIndex: (currentState.activeIndex - 1 + combatantCount) % combatantCount
+            };
+        });
+    }
+
+    jumpToCombatant(combatantId: string): void {
+        const sortedCombatants = this.sorted();
+        const nextActiveIndex = sortedCombatants.findIndex((combatant) => combatant.id === combatantId);
+
+        if (nextActiveIndex >= 0) {
+            this.state.update((currentState) => {
+                return {
+                    ...currentState,
+                    activeIndex: nextActiveIndex
+                };
+            });
+        }
+    }
+
+    next(): void {
+        this.nextTurn();
+    }
+
+    prev(): void {
+        this.previousTurn();
+    }
+
+    jumpTo(combatantId: string): void {
+        this.jumpToCombatant(combatantId);
     }
 }

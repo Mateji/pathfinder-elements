@@ -26,15 +26,14 @@ export class InitiativeTracker implements OnInit {
     });
 
     ngOnInit(): void {
-        // Initial load of encounter data
-        this.encounterStore.getEncounter('goblin-ambush');
+        this.encounterStore.loadEncounter('goblin-ambush');
     }
 
-    onNextTurn() {
-        this.encounterStore.next();
+    onNextTurn(): void {
+        this.encounterStore.nextTurn();
     }
 
-    onPreviousTurn() {
-        this.encounterStore.prev();
+    onPreviousTurn(): void {
+        this.encounterStore.previousTurn();
     }
 }
