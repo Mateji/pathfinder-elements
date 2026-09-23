@@ -29,11 +29,11 @@ export class Icon {
     public get numberFontSize(): number {
         const text = String(this.value ?? '');
         if (text.length <= 2) {
-            return 34;
+            return 46;
         }
         if (text.length === 3) {
-            return 28;
+            return 38;
         }
-        return 22;
+        return 30;
     }
 }

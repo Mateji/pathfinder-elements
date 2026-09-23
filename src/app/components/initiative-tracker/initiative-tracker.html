@@ -5,7 +5,7 @@
         <div class="combatant-container">
             <span class="material-symbols-outlined">person</span>
             <span>{{ combatant.name }}</span>
-            <app-icon name="shield" fill="red" [value]="combatant.defense.ac"></app-icon>
+            <app-icon class="combatant-ac-badge" name="shield" fill="red" [size]="42" [value]="combatant.defense.ac"></app-icon>
         </div>
     </li>
     }

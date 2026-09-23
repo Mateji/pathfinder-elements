@@ -14,6 +14,10 @@
     gap: 8px;
 }
 
+.combatant-ac-badge {
+    flex-shrink: 0;
+}
+
 .combatant-row.active-combatant {
     border-color: #2f7d32;
     background-color: #e9f7ea;
