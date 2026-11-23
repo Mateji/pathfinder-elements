@@ -1,0 +1,61 @@
+# DOMAIN MODEL — Fachmodell (konzeptioneller Entwurf)
+
+**Version:** 0.2 · **Status:** Architekturvorschlag mit festgelegten fachlichen Invarianten; keine fertige Datenbankschema-Definition.
+
+## Begriffstrennung
+
+| Objekt | Verantwortlichkeit | Quelle/Status |
+| --- | --- | --- |
+| `User` | Eigentümer der privaten Daten; zunächst ein Konto, später mehrere | FESTGELEGT |
+| `CharacterTemplate` (PC) | Wiederverwendbare PC-Kampfdaten, ohne komplettes Character Sheet | FESTGELEGT |
+| `MonsterTemplate` | Wiederverwendbarer NPC/Monster-Statblock und Angriffe | FESTGELEGT |
+| `EncounterTemplate` | Planung eines Kampfes; referenziert Bibliothekseinträge | FESTGELEGT |
+| `EncounterEntry` | Ein geplanter Teilnehmer, ggf. einer von mehreren identischen Monstern | FESTGELEGT |
+| `Combat` | Gestarteter, pausierter oder abgeschlossener Kampf mit stabilem Snapshot | FESTGELEGT |
+| `Combatant` | Individuelle Instanz innerhalb eines Combat mit eigenen HP/Initiative/Zuständen | FESTGELEGT |
+| `AttackDefinition` | Werte/Typen/Sequenzen eines Angriffs; ggf. Natur-/Fern-/Nahkampf | FESTGELEGT |
+| `ConditionDefinition` | PF1E-Regeln für einen Zustand inkl. Bonusarten und Duration-Semantik | VORSCHLAG |
+| `AppliedCondition` | Konkreter Zustand und Ablaufzeitpunkt auf einem Combatant | FESTGELEGT |
+| `CombatAction` | Bestätigter Befehl mit Ergebnis, Zeitpunkt und ausführender Figur | FESTGELEGT |
+| `CombatEvent` | Unveränderbarer Protokolleintrag einer bestätigten Zustandsänderung | VORSCHLAG |
+| `InitiativeEntry` | Rolle innerhalb der aktuellen Initiativefolge, nicht nur statischer Index | VORSCHLAG |
+
+### Wichtig: Vorlage vs. Instanz vs. Snapshot
+
+- **Bibliotheksvorlage:** kanonische kampfrelevante Daten. Anpassungen sind in noch nicht gestarteten Encountern sichtbar.
+- **EncounterEntry:** referenziert Bibliotheksvorlage über stabile ID, ist einzeln identifizierbar (auch bei mehrfachen gleichen Monstern) und speichert nur geplante Abweichungen; Anzahl im Editor standardmäßig 1.
+- **Combatant:** bei Kampfstart aus Vorlage/EncounterEntry erzeugter Snapshot, damit laufende und abgeschlossene Kämpfe durch spätere Bibliotheksänderungen nicht nachträglich mutieren.
+- **Overrides:** brauchen eine nachvollziehbare Regel, welche Felder aus der Bibliothek aktualisiert und welche nur in der Vorbereitung lokal überschrieben werden; Details `OPEN_QUESTIONS.md`.
+
+## Combatant-Kerndaten
+
+- `id`, `combatId`, `sourceTemplateId?`, `sourceEncounterEntryId?`, `displayName`, `side` (PC/NPC), `color`, `shortLabel`.
+- `maxHitPoints`, `currentHitPoints`, `temporaryHitPoints` getrennt; negative aktuelle HP zulässig.
+- `initiativeRoll`, `initiativeModifier`, `currentInitiativePosition` bzw. explizite Initiative-Sortierung; `hasActedThisRound`, `readiedAction?`, `delayState?` (genaue Modellierung noch zu designen).
+- Verteidigung: RK (normal/touch/flat-footed), Saves (Fort/Ref/Will), für Zustandsberechnung notwendige Einzelwerte/Bonusarten.
+- Angriffe: eine oder mehrere Definitionen; volle Sequenzen mit individuellen Angriffsschritten, Schadenstypen, Critical Threat/Multiplier.
+- Aktive Zustände mit Anfangs-/Ablaufpunkt und ggf. manuelle Overrides.
+- `location`/Positionsnotiz optional reservieren, semantische Ausgestaltung **OFFEN**.
+
+## Domain-Invarianten
+
+1. Jede `Combatant.id` ist innerhalb/über Kämpfe eindeutig; gleiche Monster teilen **keinen** Kampfzustand.
+2. Ein begonnenes/abgeschlossenes Combat ändert sich nicht durch spätere Bibliotheksänderungen.
+3. Max-HP ist Basiswert, Current-HP und Temp-HP sind unabhängig; Temp-HP werden nach Regelreihenfolge verbraucht.
+4. Eine geplante/gewürfelte Angriffsaktion ist zunächst **nicht bestätigt**. Solange nicht bestätigt, hat sie keinen dauerhaften HP-/Status-Effekt.
+5. Nur eine bestätigte zustandsändernde Aktion darf in Combat-Log/Undo-Historie aufgenommen werden.
+6. Schreibaktionen erfolgen transaktional; parallele Updates erkennen Versionskonflikte oder verwenden geeignete Sperr-/Versionsstrategien.
+7. Initiative ist **dynamisch**: Ready/Delay können Zugfolge und künftige Runden verändern; Liste nicht allein aus ursprünglichem Wurf rekonstruieren.
+8. Modifikatorberechnung muss PF1E-Bonustypen und Stack-Regeln respektieren; fehlende Attribute => kein behaupteter automatischer Effekt.
+9. Konditionsabläufe definieren einen präzisen Runden-/Zug-Zeitpunkt und sind testbar.
+10. Alle privaten Aggregate gehören einem Benutzer; Besitzprüfung erfolgt serverseitig.
+
+## Rechnen vs. Persistieren
+
+- **Backend-Domäne:** autoritative PF1E-Regeln und Zustandsübergänge, Würfelwürfe, HP-Änderungen, Undo.
+- **Frontend:** UI-Signals, Eingabeentwürfe, Anzeige und lokale Validierung; keine zweite konkurrierende PF1E-Regelengine.
+- **Backend** speichert bestätigte Änderungen; ein Request sollte eine eindeutige `actionId`/Idempotency-ID tragen.
+
+## Offene fachliche Grenzfälle
+
+Mehrere Ziele für volle Angriffe; Angriff auf sich selbst; AOOs und freie Aktionen außerhalb regulärer Züge; Zustandsbeginn zum Zeitpunkt der Aktion statt Rundenende; Stack-Regeln für gleiche Bonusarten; zwei gleichzeitige Tabs; Undo nach nachfolgenden abhängigen Aktionen; Import-Versionierung; Feldkonflikte bei Vorlagenupdates. Diese Themen vor dem jeweiligen Implementierungspaket entscheiden und mit Tests dokumentieren.

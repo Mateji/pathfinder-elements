@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/PathfinderElements.Api/PathfinderElements.Api.csproj" />
+  <Project Path="tests/PathfinderElements.Api.IntegrationTests/PathfinderElements.Api.IntegrationTests.csproj" />
+</Solution>
