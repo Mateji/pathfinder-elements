@@ -15,7 +15,11 @@
 
 ### Repository-Struktur
 
-Der Angular-Workspace einschließlich npm-Lockfile, Build-Konfiguration und Assets liegt unter `frontend/`. Frontend-Befehle laufen in diesem Verzeichnis. Das spätere ASP.NET-Core-Projekt erhält mit `backend/` ein eigenes Verzeichnis. Die gemeinsame `compose.yaml` liegt im Repository-Root neben `README.md` und `AGENTS.md`. Die Projektdokumentation liegt unter `docs/`.
+Der Angular-Workspace einschließlich npm-Lockfile, Build-Konfiguration und Assets liegt unter `frontend/`. Frontend-Befehle laufen in diesem Verzeichnis. Die ASP.NET-Core-Solution liegt unter `backend/`. Die gemeinsame `compose.yaml` liegt im Repository-Root neben `README.md` und `AGENTS.md`. Die Projektdokumentation liegt unter `docs/`.
+
+### Lokaler Stand in M1
+
+Im Repository-Root startet Docker Compose die API und PostgreSQL 17. Der API-Port bindet standardmäßig an `127.0.0.1:5080`. Der Datenbankport ist ausschließlich im Compose-Netz erreichbar. Ein benanntes Volume speichert die Daten. Für die lokale Entwicklung führt der API-Host offene EF-Core-Migrationen beim Start aus. Der Liveness-Endpunkt prüft die Erreichbarkeit der API, der Readiness-Endpunkt zusätzlich die Datenbankverbindung. [Betrieb und Persistenztest](../backend/README.md)
 
 ### Dienste
 

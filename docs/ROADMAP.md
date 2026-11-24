@@ -20,7 +20,7 @@
 ## M1 — Infrastruktur, Login, Persistenz
 
 - [x] ASP.NET Core 10 Web API als modularen Monolithen initialisieren.
-- [ ] PostgreSQL + EF Core-Migrationen + Docker Compose + lokale Entwicklung einrichten.
+- [x] PostgreSQL + EF Core-Migrationen + Docker Compose + lokale Entwicklung einrichten.
 - [ ] HTTPS-Reverse-Proxy-Integration mit existierendem Serverkonzept vorsehen.
 - [ ] Login für 1 administrativ angelegtes Konto, serverseitige Autorisierung, Ownership-Konzept.
 - [ ] Grundlegende API-/Integrationstests, Healthcheck, Backup-/Restore-Runbook.
@@ -29,6 +29,8 @@
 **Abnahme:** Private API über Login geschützt; App + DB per Compose reproduzierbar; Beispielentität persistiert über Container-Neustart; i18n-Testschirm in beiden Sprachen.
 
 **Schritt 1, geprüft am 23.11.2026.** Release-Build der Backend-Solution im SDK-Container mit .NET 10.0.404 erfolgreich. Ein Integrationstest startet den API-Host und prüft für `GET /health/live` HTTP 200 mit leerem Antwortkörper. Der Angular-Produktionsbuild lief ebenfalls erfolgreich.
+
+**Schritt 2, geprüft am 23.11.2026.** Compose startete die API und PostgreSQL 17 mit frischem benanntem Volume. Die API wendete die erste EF-Core-Migration an. Der automatisierte Test schrieb einen synthetischen Datensatz und las ihn nach Neuerstellung des DB-Containers wieder aus. Während des Datenbankstopps lieferten Readiness HTTP 503 und Liveness HTTP 200, nach dem Neustart lieferte Readiness wieder HTTP 200. Der Backend-Release-Build, der Liveness-Integrationstest und der Angular-Produktionsbuild waren erfolgreich.
 
 ## M2 — Bibliothek
 

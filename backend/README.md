@@ -2,6 +2,26 @@
 
 Die ASP.NET Core 10 Web API stellt einen Liveness-Endpunkt bereit. `GET /health/live` antwortet mit HTTP 200 und leerem Body, sobald der API-Host Anfragen verarbeiten kann.
 
+`GET /health/ready` prüft über EF Core, ob eine PostgreSQL-Verbindung möglich ist. Erfolg ergibt HTTP 200, eine fehlende Konfiguration oder nicht erreichbare Datenbank HTTP 503. Beide Antworten haben einen leeren Body.
+
+## Lokale Entwicklung mit Compose
+
+Im Repository-Root für ein neues Volume einmalig ein Passwort in der ignorierten `.env` hinterlegen. Der folgende Befehl hängt den Eintrag an eine bestehende Datei an. Vorher prüfen, ob sie bereits einen Eintrag für `POSTGRES_PASSWORD` enthält.
+
+```sh
+(umask 077 && printf 'POSTGRES_PASSWORD=%s\n' "$(openssl rand -hex 32)" >> .env)
+docker compose up --build -d
+curl -i http://127.0.0.1:5080/health/ready
+```
+
+Compose startet PostgreSQL 17, wartet auf dessen Healthcheck und startet die API. Die API wendet offene EF-Core-Migrationen vor dem ersten HTTP-Request an. Der API-Port ist an Loopback gebunden. PostgreSQL ist über das Compose-Netz erreichbar. Die erste Migration legt die technische Tabelle `application_metadata` mit einem eindeutigen Textschlüssel und einem Textwert an. Der Abnahmetest verwendet sie für einen synthetischen Datensatz.
+
+`docker compose down` beendet die Entwicklungsumgebung und erhält das benannte Volume samt Passwort des initialisierten Datenbankbenutzers. Beim nächsten Start dasselbe Passwort verwenden.
+
+### Automatischer Persistenztest
+
+Vom Repository-Root aus `backend/scripts/test-persistence.sh` ausführen. Der Test benötigt Docker Compose, Bash, curl und OpenSSL. Er erstellt ein eigenes Compose-Projekt mit zufälligem Passwort und dynamischem API-Port. Er prüft die migrierte Datenbank, schreibt einen Datensatz, stoppt PostgreSQL und vergleicht Readiness (503) und Liveness (200). Anschließend erzeugt er den DB-Container neu und prüft Readiness und gespeicherten Wert. Das Testprojekt und sein Volume werden beim Beenden entfernt.
+
 ## Lokal bauen und testen
 
 Im Verzeichnis `backend/` mit dem .NET-10-SDK ausführen:

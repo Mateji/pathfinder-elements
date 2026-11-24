@@ -2,7 +2,7 @@
 
 **Stand:** 19.11.2026 · **Status:** Arbeitsfassung, fachliche Anforderungen weitgehend abgestimmt · **Regelwerk:** Pathfinder First Edition (PF1E)
 
-Der Initiative Tracker liegt als Angular-21-Anwendung unter `frontend/`. Unter `backend/` liegt die ASP.NET Core 10 Web API mit ihrem Liveness-Endpunkt. Die Spezifikation liegt unter `docs/`. Die Compose-Dienste folgen im M1-Persistenzschritt. [Backend starten und testen](backend/README.md)
+Der Initiative Tracker liegt als Angular-21-Anwendung unter `frontend/`. Unter `backend/` liegt die ASP.NET Core 10 Web API mit ihrem Liveness-Endpunkt. Die Spezifikation liegt unter `docs/`. Für die lokale Entwicklung startet Docker Compose die API und PostgreSQL. [Backend starten und testen](backend/README.md)
 
 ## Frontend lokal starten
 
