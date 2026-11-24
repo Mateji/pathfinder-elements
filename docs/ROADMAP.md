@@ -1,6 +1,6 @@
 # ROADMAP — Iterative Entwicklung mit Codex
 
-**Version:** 0.2 · **Stand:** 23.11.2026 · **Status:** M0-Testsockel offen, M1 begonnen.
+**Version:** 0.2 · **Stand:** 24.11.2026 · **Status:** M0-Testsockel offen, M1 begonnen.
 
 **Arbeitstakt:** Jeder Meilenstein in kleine, einzeln reviewbare Aufgaben zerlegen. Vor jedem Meilenstein Repository auditen und offene fachliche Fragen klären. Keine „implementiere das ganze Projekt“-Aufträge.
 
@@ -21,7 +21,7 @@
 
 - [x] ASP.NET Core 10 Web API als modularen Monolithen initialisieren.
 - [x] PostgreSQL + EF Core-Migrationen + Docker Compose + lokale Entwicklung einrichten.
-- [ ] HTTPS-Reverse-Proxy-Integration mit existierendem Serverkonzept vorsehen.
+- [x] HTTPS-Reverse-Proxy-Integration mit existierendem Serverkonzept vorsehen.
 - [ ] Login für 1 administrativ angelegtes Konto, serverseitige Autorisierung, Ownership-Konzept.
 - [ ] Grundlegende API-/Integrationstests, Healthcheck, Backup-/Restore-Runbook.
 - [ ] DE/EN-i18n-Technik entscheiden und Grundgerüst etablieren.
@@ -31,6 +31,8 @@
 **Schritt 1, geprüft am 23.11.2026.** Release-Build der Backend-Solution im SDK-Container mit .NET 10.0.404 erfolgreich. Ein Integrationstest startet den API-Host und prüft für `GET /health/live` HTTP 200 mit leerem Antwortkörper. Der Angular-Produktionsbuild lief ebenfalls erfolgreich.
 
 **Schritt 2, geprüft am 23.11.2026.** Compose startete die API und PostgreSQL 17 mit frischem benanntem Volume. Die API wendete die erste EF-Core-Migration an. Der automatisierte Test schrieb einen synthetischen Datensatz und las ihn nach Neuerstellung des DB-Containers wieder aus. Während des Datenbankstopps lieferten Readiness HTTP 503 und Liveness HTTP 200, nach dem Neustart lieferte Readiness wieder HTTP 200. Der Backend-Release-Build, der Liveness-Integrationstest und der Angular-Produktionsbuild waren erfolgreich.
+
+**Schritt 3, geprüft am 24.11.2026.** Die [Caddy-Vorlage](../deploy/caddy/pathfinder.caddy) nutzt den bestehenden API-Loopback-Port. Im lokalen Test mit Caddy, API, PostgreSQL und vertrauenswürdig eingebundener lokaler Caddy-CA lieferte HTTP eine Weiterleitung (308) auf HTTPS. Über HTTPS antwortete Liveness mit 200 und Readiness mit 404. Direkt am lokalen API-Port lieferte Readiness weiterhin 200. Compose-Konfiguration, Backend-Release-Build, Liveness-Integrationstest und Angular-Produktionsbuild waren erfolgreich. Domain, Caddy-Betriebsort und öffentlicher Zertifikatstest bleiben Teil der Servereinrichtung. [HTTPS-Einrichtung](../backend/README.md#https-mit-caddy-auf-dem-linux-host)
 
 ## M2 — Bibliothek
 

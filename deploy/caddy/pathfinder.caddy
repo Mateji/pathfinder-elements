@@ -1,0 +1,9 @@
+pathfinder.example.com {
+	handle /health/live {
+		reverse_proxy 127.0.0.1:5080
+	}
+
+	handle {
+		respond 404
+	}
+}

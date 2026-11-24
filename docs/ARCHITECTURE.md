@@ -21,6 +21,8 @@ Der Angular-Workspace einschließlich npm-Lockfile, Build-Konfiguration und Asse
 
 Im Repository-Root startet Docker Compose die API und PostgreSQL 17. Der API-Port bindet standardmäßig an `127.0.0.1:5080`. Der Datenbankport ist ausschließlich im Compose-Netz erreichbar. Ein benanntes Volume speichert die Daten. Für die lokale Entwicklung führt der API-Host offene EF-Core-Migrationen beim Start aus. Der Liveness-Endpunkt prüft die Erreichbarkeit der API, der Readiness-Endpunkt zusätzlich die Datenbankverbindung. [Betrieb und Persistenztest](../backend/README.md)
 
+Für Caddy auf demselben Linux-Host gibt es eine HTTPS-Vorlage für den Liveness-Endpunkt. Die konkrete Domain und der Betriebsort von Caddy bleiben in OQ-15 offen. [HTTPS-Einrichtung](../backend/README.md#https-mit-caddy-auf-dem-linux-host)
+
 ### Dienste
 
 ```text
