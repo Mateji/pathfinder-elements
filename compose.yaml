@@ -20,11 +20,16 @@ services:
       Database__Username: pathfinder
       Database__Password: ${POSTGRES_PASSWORD:?PostgreSQL-Passwort setzen}
       Database__MigrateOnStartup: "true"
+      Auth__KeyDirectory: /var/lib/pathfinder/keys
+      Auth__TrustedProxy: ${AUTH_TRUSTED_PROXY:-}
     depends_on:
       db:
         condition: service_healthy
     ports:
       - "127.0.0.1:${API_PORT:-5080}:8080"
+    volumes:
+      - auth_keys:/var/lib/pathfinder/keys
 
 volumes:
   postgres_data:
+  auth_keys:

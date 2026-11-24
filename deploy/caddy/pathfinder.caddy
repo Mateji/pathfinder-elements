@@ -1,5 +1,6 @@
 pathfinder.example.com {
-	handle /health/live {
+	@api path /health/live /api/auth/*
+	handle @api {
 		reverse_proxy 127.0.0.1:5080
 	}
 

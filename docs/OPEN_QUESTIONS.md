@@ -16,7 +16,7 @@
 | OQ-10 | mittel | Soll NPC-Initiative bei erneutem Start einer Vorlage neu gewürfelt werden? Welche Reroll-Bedienung? | M4 |
 | OQ-11 | mittel | Wie verhält sich Kampfende/Abbruch/Neustart bei demselben vorbereiteten Encounter? | M3/M4 |
 | OQ-12 | mittel | Reihung und Farbvergabe: automatische Farbpalette vs. individuelle Farben; persistente Kurzlabels? | M3/M7 |
-| OQ-13 | hoch | Welche Login-/Session-/Passwortwiederherstellungsstrategie bei nur einem User und öffentlich erreichbarer Installation? | M1 |
+| OQ-13 | entschieden | ASP.NET Core Identity, zwölf Stunden absolute Sitzungsdauer, Kontoanlage und Passwort-Reset per Server-CLI. [D-026](DECISIONS.md#d-026--login-und-wiederherstellung-für-release-1--24112026--f) | M1 |
 | OQ-14 | mittel | Konkretes i18n-Verfahren: Angular build-time locale builds oder runtime locale switch; wie lokalisiert man Domänendaten und Regelbegriffe? | M1/M2 |
 | OQ-15 | mittel | API-Betrieb: Caddy bereits auf Host? Welche Domain/Netzwerke/Containergrenzen/Backup-Retention? | M1 |
 | OQ-16 | hoch | Konfliktverhalten bei zwei Browser-Tabs oder wiederholten Mobilfunk-Requests: Fehlermeldung, Neu laden, Konfliktlösung? | M1/M4 |

@@ -22,7 +22,7 @@
 - [x] ASP.NET Core 10 Web API als modularen Monolithen initialisieren.
 - [x] PostgreSQL + EF Core-Migrationen + Docker Compose + lokale Entwicklung einrichten.
 - [x] HTTPS-Reverse-Proxy-Integration mit existierendem Serverkonzept vorsehen.
-- [ ] Login für 1 administrativ angelegtes Konto, serverseitige Autorisierung, Ownership-Konzept.
+- [x] Login für 1 administrativ angelegtes Konto, serverseitige Autorisierung, Ownership-Konzept.
 - [ ] Grundlegende API-/Integrationstests, Healthcheck, Backup-/Restore-Runbook.
 - [ ] DE/EN-i18n-Technik entscheiden und Grundgerüst etablieren.
 
@@ -33,6 +33,8 @@
 **Schritt 2, geprüft am 23.11.2026.** Compose startete die API und PostgreSQL 17 mit frischem benanntem Volume. Die API wendete die erste EF-Core-Migration an. Der automatisierte Test schrieb einen synthetischen Datensatz und las ihn nach Neuerstellung des DB-Containers wieder aus. Während des Datenbankstopps lieferten Readiness HTTP 503 und Liveness HTTP 200, nach dem Neustart lieferte Readiness wieder HTTP 200. Der Backend-Release-Build, der Liveness-Integrationstest und der Angular-Produktionsbuild waren erfolgreich.
 
 **Schritt 3, geprüft am 24.11.2026.** Die [Caddy-Vorlage](../deploy/caddy/pathfinder.caddy) nutzt den bestehenden API-Loopback-Port. Im lokalen Test mit Caddy, API, PostgreSQL und vertrauenswürdig eingebundener lokaler Caddy-CA lieferte HTTP eine Weiterleitung (308) auf HTTPS. Über HTTPS antwortete Liveness mit 200 und Readiness mit 404. Direkt am lokalen API-Port lieferte Readiness weiterhin 200. Compose-Konfiguration, Backend-Release-Build, Liveness-Integrationstest und Angular-Produktionsbuild waren erfolgreich. Domain, Caddy-Betriebsort und öffentlicher Zertifikatstest bleiben Teil der Servereinrichtung. [HTTPS-Einrichtung](../backend/README.md#https-mit-caddy-auf-dem-linux-host)
+
+**Schritt 4, geprüft am 24.11.2026.** ASP.NET Core Identity schützt die API standardmäßig. Anmeldung und Abmeldung verlangen einen CSRF-Token. Die Cookie-Sitzung läuft spätestens nach zwölf Stunden ab. Ein lokaler HTTPS-Test über Caddy und PostgreSQL bestätigte die Kontoanlage per CLI, die Ablehnung eines zweiten Kontos, die Sitzung nach Neuerstellung des API-Containers und den Widerruf der alten Sitzung nach Passwort-Reset. Alle fünf Backend-Integrationstests und der Angular-Produktionsbuild liefen erfolgreich. Das [Ownership-Konzept](ARCHITECTURE.md#ownership-für-private-ressourcen) dokumentiert die Besitzerprüfungen für kommende Fachendpunkte. Die Angular-Demo hat weiterhin keine Login-Maske. [Konto und HTTP-Vertrag](../backend/README.md#konto-einrichten-und-passwort-zurücksetzen)
 
 ## M2 — Bibliothek
 

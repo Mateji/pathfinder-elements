@@ -33,6 +33,10 @@
 
 Der Angular-Workspace und das künftige Backend benötigen getrennte Arbeitsverzeichnisse. Die Alternative, Angular im Repository-Root zu belassen und nur das Backend zu gruppieren, würde frontendbezogene und projektweite Konfiguration am selben Ort bündeln. Der freigegebene Aufbau legt Angular unter `frontend/` und ASP.NET Core unter `backend/` ab. npm-Befehle laufen dadurch unter `frontend/`, Compose-Befehle im Root.
 
+### D-026 · Login und Wiederherstellung für Release 1 · 24.11.2026 · F
+
+ASP.NET Core Identity speichert das einzelne Konto in PostgreSQL. Eine sichere Cookie-Sitzung läuft spätestens zwölf Stunden nach der Anmeldung ab. Der Serveradministrator legt das Konto an und setzt das Passwort bei Bedarf über die CLI zurück. Ein Passwort-Reset macht bestehende Sitzungen ungültig. Ein längerer Login wurde zugunsten einer kürzeren Gültigkeit auf gemeinsam genutzten Geräten verworfen. Passwort-Reset per E-Mail würde für das Einzelkonto zusätzlichen Mailbetrieb erfordern. Die UI und die API nutzen im Betrieb dieselbe Origin.
+
 ## Regeln für neue Entscheidungen
 
-Neue Architektur-/Fachentscheidungen erhalten `D-025` aufwärts mit Datum, Problem, Alternativen, Begründung und Auswirkungen. `V` wird erst nach ausdrücklicher Prüfung in `F` überführt. Kein stillschweigendes Umschreiben früherer Entscheidungen.
+Neue Architektur-/Fachentscheidungen erhalten fortlaufende IDs mit Datum, Problem, Alternativen, Begründung und Auswirkungen. `V` wird erst nach ausdrücklicher Prüfung in `F` überführt. Kein stillschweigendes Umschreiben früherer Entscheidungen.

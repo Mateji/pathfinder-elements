@@ -24,7 +24,7 @@ Vom Repository-Root aus `backend/scripts/test-persistence.sh` ausführen. Der Te
 
 ## HTTPS mit Caddy auf dem Linux-Host
 
-Die [Caddy-Vorlage](../deploy/caddy/pathfinder.caddy) setzt voraus, dass Caddy und Docker Compose auf demselben Linux-Host laufen und Caddy den Host-Loopback erreicht. Die Vorlage leitet `/health/live` an die API weiter. Readiness bleibt für lokale Betriebsprüfungen am API-Port erreichbar.
+Die [Caddy-Vorlage](../deploy/caddy/pathfinder.caddy) setzt voraus, dass Caddy und Docker Compose auf demselben Linux-Host laufen und Caddy den Host-Loopback erreicht. Die Vorlage leitet `/health/live` und `/api/auth/*` an die API weiter. Readiness bleibt für lokale Betriebsprüfungen am API-Port erreichbar.
 
 1. Die Vorlage als Site-Block in die vorhandene Caddy-Konfiguration übernehmen. `pathfinder.example.com` durch den vorgesehenen DNS-Namen ersetzen. Bei abweichendem `API_PORT` auch den Upstream-Port im Site-Block anpassen.
 2. Die DNS-Einträge auf den Server zeigen lassen. Caddy braucht für das hier vorgesehene automatische HTTPS erreichbare TCP-Ports 80 und 443 sowie ein persistentes, beschreibbares Datenverzeichnis für Zertifikate. [Caddy-Dokumentation zu HTTPS](https://caddyserver.com/docs/automatic-https)
@@ -37,7 +37,39 @@ curl -i https://pathfinder.example.com/health/live
 curl -i https://pathfinder.example.com/health/ready
 ```
 
-Die tatsächliche Domain und der Caddy-Betriebsort sind in [OQ-15](../docs/OPEN_QUESTIONS.md) offen. Die Freigabe privater API-Routen und die vertrauenswürdige Auswertung von Forwarded Headers gehören zur folgenden Login-Integration.
+Für die Anmeldung braucht die API das HTTPS-Schema von Caddy. Setze `AUTH_TRUSTED_PROXY` in `.env` auf die einzelne Quell-IP, unter der die API Caddys Verbindung sieht. Bei einem nativen Linux-Host mit der Compose-Bridge und dem Loopback-Upstream ist das das Gateway der Bridge. Die folgende Abfrage zeigt die Adresse des laufenden Stacks.
+
+```sh
+docker inspect --format '{{range .NetworkSettings.Networks}}{{.Gateway}}{{end}}' "$(docker compose ps -q api)"
+```
+
+Nach einer Änderung von `.env` übernimmt `docker compose up -d api` den Wert. Nach einer Neuerstellung des Compose-Netzes die Gateway-Adresse erneut prüfen. Die tatsächliche Domain und der Caddy-Betriebsort sind in [OQ-15](../docs/OPEN_QUESTIONS.md) offen.
+
+## Konto einrichten und Passwort zurücksetzen
+
+Nach dem Start des API-Containers und der Migration die folgenden Befehle im Repository-Root in Bash ausführen. Identity verlangt mindestens zwölf Zeichen, darunter Groß- und Kleinbuchstaben, eine Ziffer und ein Sonderzeichen. `read -s` liest das Passwort ohne Anzeige, die CLI erhält es über stdin.
+
+```bash
+read -rsp 'Passwort für das neue Konto: ' pathfinder_password
+printf '\n'
+printf '%s\n' "$pathfinder_password" | docker compose exec -T api dotnet PathfinderElements.Api.dll account create spielleitung
+unset pathfinder_password
+```
+
+Für einen Reset denselben Ablauf mit `account reset-password` anstelle von `account create spielleitung` ausführen. Der Reset widerruft die bestehenden Sitzungen und hebt eine etwaige Kontosperre auf. Das benannte Volume `auth_keys` enthält die Schlüssel, mit denen Identity die Sitzungs-Cookies schützt. Erhalte das Volume über Container-Neuerstellungen hinweg.
+
+### HTTP-Vertrag der Anmeldung
+
+Alle Pfade liegen unter `/api/auth` und benötigen HTTPS. Cookies werden durch den Browser für dieselbe Origin mitgeführt.
+
+| Methode und Pfad | Verhalten |
+| --- | --- |
+| `GET /csrf` | Gibt `{ "token": "…" }` zurück und setzt das CSRF-Cookie. |
+| `POST /login` | Nimmt JSON mit `username` und `password` sowie den Token im Header `X-CSRF-TOKEN` entgegen. Antwortet bei Erfolg mit 204 und setzt das Sitzungs-Cookie. Abgelehnte Zugangsdaten ergeben 401. |
+| `GET /session` | Liefert `userId` und `username` für die aktive Sitzung, andernfalls 401. |
+| `POST /logout` | Löscht das Sitzungs-Cookie und antwortet mit 204. Vorher mit aktiver Sitzung einen neuen CSRF-Token abrufen und im Header mitsenden. |
+
+Ein fehlender oder ungültiger CSRF-Token ergibt bei den POST-Endpunkten HTTP 400. Fünf falsche Passworteingaben sperren das Konto für 15 Minuten. Die API begrenzt zusätzlich Login- und Token-Anfragen und liefert bei Überschreitung HTTP 429. Die Angular-Demo verwendet synthetische Daten und hat derzeit keine Login-Maske.
 
 ## Lokal bauen und testen
 
@@ -48,7 +80,7 @@ dotnet build PathfinderElements.slnx --configuration Release
 dotnet test PathfinderElements.slnx --configuration Release --no-build
 ```
 
-Der Integrationstest startet den API-Einstiegspunkt mit `WebApplicationFactory` und prüft die HTTP-Antwort.
+Die Integrationstests starten den API-Einstiegspunkt mit `WebApplicationFactory` und prüfen Healthcheck, Anmeldung, Sitzungsablauf, Passwort-Reset und CSRF-Schutz.
 
 ## API starten
 

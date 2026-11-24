@@ -69,14 +69,27 @@ Keine eigenständigen Deployments pro Modul. Fachlogik sitzt weder im Controller
 - Nicht gestartete Entwürfe, laufender Combat und abgeschlossene Aufzeichnung werden getrennt modelliert.
 - Backups und Restore-Prozedur für DB, Migrationsprozess, Healthchecks und Log-Ausgabe für Docker dokumentieren.
 
-## Authentication & Security (Architekturvorschlag)
+## Authentication & Security
 
-- ASP.NET Core Identity und sichere serverseitig validierte Cookie-Session, UI/API unter derselben Origin.
+- ASP.NET Core Identity speichert das administrativ eingerichtete Konto in PostgreSQL. Die sichere Cookie-Sitzung gilt maximal zwölf Stunden. Die API validiert den Security Stamp und verwirft Sitzungen nach einem Passwort-Reset. UI und API sind im Betrieb unter derselben Origin vorgesehen. [D-026](DECISIONS.md#d-026--login-und-wiederherstellung-für-release-1--24112026--f)
 - HTTPS-only, `HttpOnly`, `Secure`, geeignete `SameSite`-Einstellung; Anti-CSRF für schreibende Requests; serverseitige Eingabevalidierung.
 - Kein Signup-Endpunkt in Release 1. Erstbenutzer über dokumentierten Admin-/Provisioning-Prozess mit Secret außerhalb von Git anlegen.
 - Passwort-Rate-Limit/Brute-Force-Schutz, sichere Logs ohne Session-Cookies/Secrets; DB nicht aus dem Internet erreichbar.
 - Multi-User-Schutz von Beginn an: `OwnerUserId` an Root-Aggregaten; API filtert und autorisiert serverseitig.
 - Eine öffentlich erreichbare Admin-Oberfläche nur mit sicheren Defaults und minimalen Rechten.
+
+### Ownership für private Ressourcen
+
+PC-Vorlagen, Monstervorlagen, vorbereitete Encounter und Kämpfe erhalten beim Anlegen eine verpflichtende `OwnerUserId` aus der serverseitig authentifizierten Benutzeridentität. Die API begrenzt Listen und Einzelzugriffe auf diesen Besitzer. Änderungen und Löschvorgänge verwenden denselben Besitzerfilter. Referenzen auf andere private Ressourcen werden ebenfalls im Besitzkontext geprüft, etwa beim Hinzufügen einer Monstervorlage zu einem Encounter. Untergeordnete Daten wie Kampfaktionen werden über den zugehörigen Kampf autorisiert.
+
+Die ersten Persistenzmodelle für private Ressourcen setzen diese Regeln mit den jeweiligen Fachfunktionen um. Die vorhandene technische Tabelle `application_metadata` dient dem Persistenztest. Sie hat keinen privaten API-Endpunkt.
+
+**Akzeptanzfälle für private Endpunkte**
+
+- Ohne Sitzung liefert ein Aufruf einer privaten API-Ressource HTTP 401.
+- Mit Sitzung kann ein Benutzer eigene Ressourcen im erlaubten Umfang lesen und ändern.
+- Ein zweiter synthetischer Benutzer kann fremde Ressourcen weder in einer Liste sehen noch über ihre ID lesen, ändern, löschen oder referenzieren.
+- Die Besitzerzuordnung neuer Ressourcen stammt aus der Sitzung. Eine im Request gesendete fremde Besitzer-ID kann die Zuordnung nicht beeinflussen.
 
 ## Vorgehen mit dem bestehenden Angular-Code
 
@@ -90,7 +103,6 @@ Keine eigenständigen Deployments pro Modul. Fachlogik sitzt weder im Controller
 - konkrete Angular-Lokalisierungsbibliothek und Laufzeit-/Buildzeit-Sprachwechsel;
 - Backup-Zeitplan/Retention, Domain/DNS und Caddy-Betriebsort;
 - Concurrent-Tab-Policy; Datenmigration bisheriger JSON-Dateien;
-- genaue Auth-Session-Laufzeit und Recovery-Ablauf;
 - genaue Versionierung/Struktur von Persistenz-DTOs und Importformaten.
 
 **Diese Punkte sind technische ADRs vor dem jeweiligen Meilenstein, nicht stillschweigende Vorgaben.**
