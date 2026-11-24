@@ -67,7 +67,8 @@ Keine eigenständigen Deployments pro Modul. Fachlogik sitzt weder im Controller
 - Mutationen am Combat über explizite serverseitige Commands (z. B. `ApplyDamage`, `ConfirmAttack`, `EndTurn`, `UndoAction`), nicht unkontrollierte freie Patches auf alle Felder.
 - Jede Command-Anfrage besitzt Idempotency-/Action-ID und Combat-Version/Concurrency-Schutz. Backend schreibt Zustand und Log in **einer** Datenbanktransaktion.
 - Nicht gestartete Entwürfe, laufender Combat und abgeschlossene Aufzeichnung werden getrennt modelliert.
-- Backups und Restore-Prozedur für DB, Migrationsprozess, Healthchecks und Log-Ausgabe für Docker dokumentieren.
+- Migrationsprozess, Healthchecks und Log-Ausgabe für Docker dokumentieren.
+- PostgreSQL-Backups und Restore in ein separates Compose-Projekt sind dokumentiert. [Runbook](../backend/BACKUP_RESTORE.md)
 
 ## Authentication & Security
 

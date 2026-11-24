@@ -23,7 +23,7 @@
 - [x] PostgreSQL + EF Core-Migrationen + Docker Compose + lokale Entwicklung einrichten.
 - [x] HTTPS-Reverse-Proxy-Integration mit existierendem Serverkonzept vorsehen.
 - [x] Login für 1 administrativ angelegtes Konto, serverseitige Autorisierung, Ownership-Konzept.
-- [ ] Grundlegende API-/Integrationstests, Healthcheck, Backup-/Restore-Runbook.
+- [x] Grundlegende API-/Integrationstests, Healthcheck, Backup-/Restore-Runbook.
 - [ ] DE/EN-i18n-Technik entscheiden und Grundgerüst etablieren.
 
 **Abnahme:** Private API über Login geschützt; App + DB per Compose reproduzierbar; Beispielentität persistiert über Container-Neustart; i18n-Testschirm in beiden Sprachen.
@@ -35,6 +35,8 @@
 **Schritt 3, geprüft am 24.11.2026.** Die [Caddy-Vorlage](../deploy/caddy/pathfinder.caddy) nutzt den bestehenden API-Loopback-Port. Im lokalen Test mit Caddy, API, PostgreSQL und vertrauenswürdig eingebundener lokaler Caddy-CA lieferte HTTP eine Weiterleitung (308) auf HTTPS. Über HTTPS antwortete Liveness mit 200 und Readiness mit 404. Direkt am lokalen API-Port lieferte Readiness weiterhin 200. Compose-Konfiguration, Backend-Release-Build, Liveness-Integrationstest und Angular-Produktionsbuild waren erfolgreich. Domain, Caddy-Betriebsort und öffentlicher Zertifikatstest bleiben Teil der Servereinrichtung. [HTTPS-Einrichtung](../backend/README.md#https-mit-caddy-auf-dem-linux-host)
 
 **Schritt 4, geprüft am 24.11.2026.** ASP.NET Core Identity schützt die API standardmäßig. Anmeldung und Abmeldung verlangen einen CSRF-Token. Die Cookie-Sitzung läuft spätestens nach zwölf Stunden ab. Ein lokaler HTTPS-Test über Caddy und PostgreSQL bestätigte die Kontoanlage per CLI, die Ablehnung eines zweiten Kontos, die Sitzung nach Neuerstellung des API-Containers und den Widerruf der alten Sitzung nach Passwort-Reset. Alle fünf Backend-Integrationstests und der Angular-Produktionsbuild liefen erfolgreich. Das [Ownership-Konzept](ARCHITECTURE.md#ownership-für-private-ressourcen) dokumentiert die Besitzerprüfungen für kommende Fachendpunkte. Die Angular-Demo hat weiterhin keine Login-Maske. [Konto und HTTP-Vertrag](../backend/README.md#konto-einrichten-und-passwort-zurücksetzen)
+
+**Schritt 5, geprüft am 24.11.2026.** Der [Backup- und Restore-Ablauf](../backend/BACKUP_RESTORE.md) ist dokumentiert. Der Compose-Test stellte einen synthetischen Datensatz und ein Identity-Konto in einem frischen PostgreSQL-Volume wieder her. Liveness und Readiness lieferten danach HTTP 200. Beim vorherigen Ausfall der Quelldatenbank lieferte Readiness HTTP 503 und Liveness HTTP 200. Alle sechs Backend-Integrationstests und der Angular-Produktionsbuild waren erfolgreich. Backup-Zeitplan und Aufbewahrung bleiben in OQ-15 offen.
 
 ## M2 — Bibliothek
 

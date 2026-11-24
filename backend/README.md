@@ -20,7 +20,7 @@ Compose startet PostgreSQL 17, wartet auf dessen Healthcheck und startet die API
 
 ### Automatischer Persistenztest
 
-Vom Repository-Root aus `backend/scripts/test-persistence.sh` ausführen. Der Test benötigt Docker Compose, Bash, curl und OpenSSL. Er erstellt ein eigenes Compose-Projekt mit zufälligem Passwort und dynamischem API-Port. Er prüft die migrierte Datenbank, schreibt einen Datensatz, stoppt PostgreSQL und vergleicht Readiness (503) und Liveness (200). Anschließend erzeugt er den DB-Container neu und prüft Readiness und gespeicherten Wert. Das Testprojekt und sein Volume werden beim Beenden entfernt.
+Vom Repository-Root aus `backend/scripts/test-persistence.sh` ausführen. Der Test benötigt Docker Compose, Bash, curl und OpenSSL. Er startet zwei isolierte Compose-Projekte mit zufälligem Datenbankpasswort und dynamischen API-Ports. Er prüft Readiness (503) und Liveness (200) während des Datenbankstopps, die Daten nach Neuerstellung des DB-Containers und den Restore eines synthetischen Datensatzes und Kontos in ein frisches Volume. Die Testprojekte samt Volumes und der temporäre Dump werden beim Beenden entfernt. [Backup- und Restore-Runbook](BACKUP_RESTORE.md)
 
 ## HTTPS mit Caddy auf dem Linux-Host
 
@@ -80,7 +80,7 @@ dotnet build PathfinderElements.slnx --configuration Release
 dotnet test PathfinderElements.slnx --configuration Release --no-build
 ```
 
-Die Integrationstests starten den API-Einstiegspunkt mit `WebApplicationFactory` und prüfen Healthcheck, Anmeldung, Sitzungsablauf, Passwort-Reset und CSRF-Schutz.
+Die Integrationstests starten den API-Einstiegspunkt mit `WebApplicationFactory` und prüfen Liveness, Readiness ohne DB-Konfiguration, Anmeldung, Sitzungsablauf, Passwort-Reset und CSRF-Schutz.
 
 ## API starten
 
