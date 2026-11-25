@@ -196,9 +196,12 @@ Die Basisroute `/api/encounters` benötigt HTTPS und die Sitzung des Besitzers. 
 | `POST` | 201 mit leerem Encounter, `ETag` und `Location`. Der Body enthält `name`. |
 | `PUT /{id}` | 200 mit umbenanntem Encounter und neuem `ETag`. Der Body enthält `name`. |
 | `POST /{id}/participants` | 200 mit erweitertem Encounter und neuem `ETag`. Der Body enthält `kind`, `templateId` und optional `quantity`. |
+| `PUT /{id}/participants/{participantId}/color` | 200 mit aktualisiertem Encounter und neuem `ETag`. Der Body enthält `color` im Format `#RRGGBB`. |
 | `DELETE /{id}/participants/{participantId}` | 200 mit aktualisiertem Encounter und neuem `ETag`. |
 
-Encounter-Namen werden getrimmt und unterstützen bis zu 256 Zeichen. Für `kind` gilt `characters` oder `monsters`. PC-Vorlagen werden je Aufruf einmal hinzugefügt. Monster akzeptieren eine ganzzahlige Menge zwischen 1 und 100 mit Standardwert 1. Jede Kopie erhält eine eigene Teilnehmer-ID. Detailantworten enthalten je Teilnehmer `id`, `kind`, `templateId`, `name`, `maxHitPoints` und `isArchived`. Namen, Maximal-TP und Archivstatus werden beim Lesen aus der Bibliothek übernommen.
+Encounter-Namen werden getrimmt und unterstützen bis zu 256 Zeichen. Für `kind` gilt `characters` oder `monsters`. PC-Vorlagen werden je Aufruf einmal hinzugefügt. Monster akzeptieren eine ganzzahlige Menge zwischen 1 und 100 mit Standardwert 1. Jede Kopie erhält eine eigene Teilnehmer-ID. Detailantworten enthalten je Teilnehmer `id`, `number`, `color`, `kind`, `templateId`, `name`, `maxHitPoints` und `isArchived` und sind aufsteigend nach `number` sortiert. Namen, Maximal-TP und Archivstatus werden beim Lesen aus der Bibliothek übernommen.
+
+Die Standardfarben sind Rot `#C8192F`, Blau `#0057D9`, Gelb `#FFC400`, Grün `#007A3D`, Violett `#7231B8`, Orange `#E86000`, Türkis `#008EA1` und Magenta `#C20876`. Die Reihenfolge wiederholt sich ab Teilnehmer 9. Die API normalisiert sechsstellige RGB-Hexwerte in Großbuchstaben. `AddEncounterParticipantMarkers` ergänzt die Kennzeichnung für vorhandene Teilnehmer. Da für Bestandsdaten keine Hinzufügereihenfolge gespeichert war, nummeriert die Migration sie nach Typ, Vorlagenname und ID.
 
 Schreibzugriffe an einem gespeicherten Encounter verlangen den aktuellen `ETag` einschließlich Anführungszeichen als einzelnen `If-Match`-Wert. Ein fehlender Wert ergibt 428. Ein abweichender Wert oder eine konkurrierende Änderung ergibt 412. Änderungen an sichtbaren Bibliotheksdaten können den `ETag` beim nächsten Lesen ändern. Ungültige Eingaben ergeben 400. Bei einer fremden oder fehlenden Encounter- oder Teilnehmer-ID gilt 404. Eine fehlende, fremde oder archivierte Vorlage ergibt beim Hinzufügen 404 mit dem Fehlercode `templateUnavailable`.
 

@@ -21,7 +21,10 @@ const english = {
     quantity: 'Quantity',
     add: 'Add participants',
     remove: 'Remove',
-    removeParticipant: (name: string) => `Remove ${name}`,
+    removeParticipant: (name: string, number: number) => `Remove ${name} #${number}`,
+    color: 'Color',
+    changeColor: (name: string, number: number) => `Change color for ${name} #${number}`,
+    saveColor: 'Save color',
     maxHitPoints: (value: number) => `${value} max HP`,
     archived: 'Archived template',
     feedback: {
@@ -58,7 +61,10 @@ export const encounterMessages: { en: typeof english; de: typeof english } = {
         quantity: 'Anzahl',
         add: 'Teilnehmer hinzufügen',
         remove: 'Entfernen',
-        removeParticipant: (name) => `${name} entfernen`,
+        removeParticipant: (name, number) => `${name} #${number} entfernen`,
+        color: 'Farbe',
+        changeColor: (name, number) => `Farbe für ${name} #${number} ändern`,
+        saveColor: 'Farbe speichern',
         maxHitPoints: (value) => `${value} max. TP`,
         archived: 'Archivierte Vorlage',
         feedback: {

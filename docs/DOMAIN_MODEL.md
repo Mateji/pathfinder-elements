@@ -62,6 +62,8 @@ Ein gültiges Importdokument legt eigene PC- und Monstervorlagen an. Die API erm
 
 `PreparedEncounter` entspricht dem konzeptionellen `EncounterTemplate`. Er hat eine UUID, einen Besitzer, einen Namen und eine Version. `EncounterParticipant` entspricht `EncounterEntry`. Jede Kopie hat ihre eigene UUID und genau einen Fremdschlüssel zu einer PC- oder Monstervorlage. Die API prüft bei neuen Teilnehmern unter einer Datenbanksperre, dass die Vorlage aktiv ist und demselben Konto gehört. Sie liest Anzeigename, Maximal-TP und Archivstatus beim Öffnen aus der aktuellen Vorlage. Kampfdaten wie aktuelle TP entstehen beim späteren Kampfstart. [HTTP-Vertrag](../backend/README.md#http-vertrag-der-encounter-vorbereitung)
 
+Jeder Teilnehmer speichert eine feste `Number` und eine änderbare `Color` als RGB-Hexwert. Die Teilnehmernummer ergänzt die UUID als sichtbares Kurzlabel. Sie ist innerhalb eines Encounters eindeutig. `NextParticipantNumber` wird beim Hinzufügen unter derselben Versionsprüfung und in derselben Transaktion wie die Teilnehmer fortgeschrieben. [D-031](DECISIONS.md#d-031--nummern-und-farben-für-encounter-teilnehmer--25112026--f)
+
 ## Combatant-Kerndaten
 
 - `id`, `combatId`, `sourceTemplateId?`, `sourceEncounterEntryId?`, `displayName`, `side` (PC/NPC), `color`, `shortLabel`.

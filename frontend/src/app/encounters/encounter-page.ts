@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { I18nService } from '../i18n/i18n.service';
 import type { TemplateKind } from '../library/library-model';
+import type { EncounterParticipant } from './encounter-api';
 import { EncounterStore } from './encounter-store';
 
 @Component({
@@ -22,18 +23,13 @@ export class EncounterPage implements OnInit {
     readonly kind = signal<TemplateKind>('characters');
     readonly templateId = signal('');
     readonly quantity = signal<number | null>(1);
+    readonly colorEdit = signal<{ participantId: string; color: string } | null>(null);
     readonly maximumQuantity = 100;
     readonly templates = computed(() => this.store.choices()[this.kind()]);
     readonly hasSelection = computed(() => this.templates().some((template) => template.id === this.templateId()));
     readonly validQuantity = computed(() => {
         const quantity = this.quantity();
         return this.kind() === 'characters' || (quantity !== null && Number.isInteger(quantity) && quantity >= 1 && quantity <= this.maximumQuantity);
-    });
-    readonly participants = computed(() => {
-        const language = this.i18n.language();
-        return [...(this.store.encounter()?.participants ?? [])].sort((left, right) => {
-            return left.kind.localeCompare(right.kind) || left.name.localeCompare(right.name, language);
-        });
     });
 
     ngOnInit(): void {
@@ -55,6 +51,7 @@ export class EncounterPage implements OnInit {
         if (await this.store.open(id)) {
             this.renameName.set(this.store.encounter()?.name ?? '');
             this.selectTemplate('');
+            this.colorEdit.set(null);
         }
     }
 
@@ -63,6 +60,7 @@ export class EncounterPage implements OnInit {
             this.createName.set('');
             this.renameName.set(this.store.encounter()?.name ?? '');
             this.selectTemplate('');
+            this.colorEdit.set(null);
         }
     }
 
@@ -90,6 +88,28 @@ export class EncounterPage implements OnInit {
         const quantity = kind === 'monsters' ? this.quantity() ?? undefined : undefined;
         if (await this.store.add({ kind, templateId: this.templateId(), quantity })) {
             this.selectTemplate('');
+        }
+    }
+
+    toggleColorEditor(participant: EncounterParticipant): void {
+        const isOpen = this.colorEdit()?.participantId === participant.id;
+        this.colorEdit.set(isOpen ? null : { participantId: participant.id, color: participant.color.toLowerCase() });
+    }
+
+    setColorDraft(color: string): void {
+        this.colorEdit.update((edit) => edit ? { ...edit, color } : null);
+    }
+
+    async saveColor(): Promise<void> {
+        const edit = this.colorEdit();
+        if (edit && await this.store.changeColor(edit.participantId, edit.color)) {
+            this.colorEdit.set(null);
+        }
+    }
+
+    async remove(id: string): Promise<void> {
+        if (await this.store.remove(id) && this.colorEdit()?.participantId === id) {
+            this.colorEdit.set(null);
         }
     }
 }

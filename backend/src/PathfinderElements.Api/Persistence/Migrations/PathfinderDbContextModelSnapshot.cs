@@ -163,6 +163,12 @@ namespace PathfinderElements.Api.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("character_template_id");
 
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)")
+                        .HasColumnName("color");
+
                     b.Property<Guid>("EncounterId")
                         .HasColumnType("uuid")
                         .HasColumnName("encounter_id");
@@ -171,16 +177,25 @@ namespace PathfinderElements.Api.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("monster_template_id");
 
+                    b.Property<int>("Number")
+                        .HasColumnType("integer")
+                        .HasColumnName("number");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CharacterTemplateId");
 
-                    b.HasIndex("EncounterId");
-
                     b.HasIndex("MonsterTemplateId");
+
+                    b.HasIndex("EncounterId", "Number")
+                        .IsUnique();
 
                     b.ToTable("encounter_participants", null, t =>
                         {
+                            t.HasCheckConstraint("ck_encounter_participants_color", "color ~ '^#[0-9A-F]{6}$'");
+
+                            t.HasCheckConstraint("ck_encounter_participants_number", "number > 0");
+
                             t.HasCheckConstraint("ck_encounter_participants_one_template", "(character_template_id IS NULL) <> (monster_template_id IS NULL)");
                         });
                 });
@@ -197,6 +212,10 @@ namespace PathfinderElements.Api.Persistence.Migrations
                         .HasColumnType("character varying(256)")
                         .HasColumnName("name");
 
+                    b.Property<int>("NextParticipantNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("next_participant_number");
+
                     b.Property<string>("OwnerUserId")
                         .IsConcurrencyToken()
                         .IsRequired()
@@ -212,7 +231,10 @@ namespace PathfinderElements.Api.Persistence.Migrations
 
                     b.HasIndex("OwnerUserId");
 
-                    b.ToTable("prepared_encounters", (string)null);
+                    b.ToTable("prepared_encounters", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_prepared_encounters_next_participant_number", "next_participant_number > 0");
+                        });
                 });
 
             modelBuilder.Entity("PathfinderElements.Api.Library.CharacterTemplate", b =>

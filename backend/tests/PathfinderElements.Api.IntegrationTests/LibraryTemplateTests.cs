@@ -94,6 +94,10 @@ public sealed class LibraryTemplateTests
         var owner = new IdentityUser("upgrade-test");
         var characterId = Guid.NewGuid();
         var monsterId = Guid.NewGuid();
+        var encounterId = Guid.NewGuid();
+        var emptyEncounterId = Guid.NewGuid();
+        var characterParticipantId = Guid.NewGuid();
+        var monsterParticipantId = Guid.NewGuid();
         var statistics = new CombatStatistics(24, -1, 17, 9, 18, 4, -2, 0);
         await using var database = new PathfinderDbContext(options);
         await database.GetService<IMigrator>().MigrateAsync("AddLibraryTemplates");
@@ -107,7 +111,28 @@ public sealed class LibraryTemplateTests
                 touch_armor_class, flat_footed_armor_class, fortitude_save, reflex_save, will_save)
             VALUES ({monsterId}, {owner.Id}, 'Vorhandenes Monster', 24, -1, 17, 9, 18, 4, -2, 0);
             """);
+
+        await database.GetService<IMigrator>().MigrateAsync("AddPreparedEncounters");
+        await database.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO prepared_encounters (id, owner_user_id, name, version)
+            VALUES ({encounterId}, {owner.Id}, 'Vorhandener Encounter', gen_random_uuid()),
+                ({emptyEncounterId}, {owner.Id}, 'Leerer Encounter', gen_random_uuid());
+            INSERT INTO encounter_participants (id, encounter_id, character_template_id, monster_template_id)
+            VALUES ({monsterParticipantId}, {encounterId}, NULL, {monsterId}),
+                ({characterParticipantId}, {encounterId}, {characterId}, NULL);
+            """);
         await database.Database.MigrateAsync();
+
+        var markers = await database.Database.SqlQuery<string>($"""
+            SELECT concat_ws(':', id, COALESCE(character_template_id, monster_template_id), number, color)
+            FROM encounter_participants WHERE encounter_id = {encounterId} ORDER BY number
+            """).ToArrayAsync();
+        Assert.Equal(new[] { $"{characterParticipantId}:{characterId}:1:#C8192F", $"{monsterParticipantId}:{monsterId}:2:#0057D9" }, markers);
+        var nextParticipantNumbers = await database.Database.SqlQuery<int>($"""
+            SELECT next_participant_number FROM prepared_encounters
+            WHERE id IN ({encounterId}, {emptyEncounterId}) ORDER BY next_participant_number
+            """).ToArrayAsync();
+        Assert.Equal(new[] { 1, 3 }, nextParticipantNumbers);
 
         var character = await database.CharacterTemplates.SingleAsync();
         var monster = await database.MonsterTemplates.SingleAsync();

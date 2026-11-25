@@ -15,7 +15,7 @@
 | OQ-09 | mittel | Wie wird Initiativgleichstand bei manueller Reihenfolgenänderung dargestellt, ohne Rollwerte zu verfälschen? | M4 |
 | OQ-10 | mittel | Soll NPC-Initiative bei erneutem Start einer Vorlage neu gewürfelt werden? Welche Reroll-Bedienung? | M4 |
 | OQ-11 | mittel | Wie verhält sich Kampfende/Abbruch/Neustart bei demselben vorbereiteten Encounter? | M3/M4 |
-| OQ-12 | mittel | Sollen Teilnehmer automatisch eine Farbe aus einer Palette erhalten oder mit neutraler Farbe beginnen? Sollen sie feste Nummern je Encounter, feste Nummern je Vorlage oder bearbeitbare Kurzlabels erhalten? Wie erscheinen sie in der Teilnehmerliste? | M3/M7 |
+| OQ-12 | entschieden | Fortlaufende, feste Teilnehmernummer je Encounter. Die Standardfarben folgen einer kräftigen Palette und können einzeln geändert werden. [D-031](DECISIONS.md#d-031--nummern-und-farben-für-encounter-teilnehmer--25112026--f) | M3/M7 |
 | OQ-13 | entschieden | ASP.NET Core Identity, zwölf Stunden absolute Sitzungsdauer, Kontoanlage und Passwort-Reset per Server-CLI. [D-026](DECISIONS.md#d-026--login-und-wiederherstellung-für-release-1--24112026--f) | M1 |
 | OQ-14 | mittel | Die Bibliotheksoberfläche übersetzt Feldnamen, Status- und Validierungstexte. Namen, Schadensarten als Freitext und andere eingegebene Inhalte bleiben im Original. Wie werden kuratierte Inhalte und künftige PF1E-Regelbegriffe lokalisiert? [D-027](DECISIONS.md#d-027--ui-sprache-zur-laufzeit--25112026--v) | Bei kuratierten Inhalten und weiteren Regelfunktionen |
 | OQ-15 | mittel | API-Betrieb: Caddy bereits auf Host? Welche Domain/Netzwerke/Containergrenzen/Backup-Retention? | M1 |

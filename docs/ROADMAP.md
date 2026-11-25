@@ -62,15 +62,15 @@
 ## M3 — Encounter-Vorbereitung
 
 - [x] Encounter aus PCs/Monstern zusammenstellen; Mengenfunktion Default 1.
-- [ ] Stabile einzelne Teilnehmerinstanzen; Farbkennzeichnung und Kurzlabels.
+- [x] Stabile einzelne Teilnehmerinstanzen mit Farbkennzeichnung und festen Nummern. [D-031](DECISIONS.md#d-031--nummern-und-farben-für-encounter-teilnehmer--25112026--f)
 - [ ] Bibliotheksreferenzen mit restriktivem Fremdschlüssel nach D-028, Override-Konfliktregel, Kopieren und Wiederverwenden.
 - [ ] Start-HP je Teilnehmer mit Max-HP als Default; Starten und erneut vorbereiten.
 
 **Abnahme:** 3 PCs + 4 Goblins + 1 Ork; alle Goblins einzeln identifizierbar; Änderung einer Vorlage aktualisiert den vorbereiteten Encounter kontrolliert.
 
-**Zusammenstellung, geprüft am 25.11.2026.** Der Chrome-Test über HTTPS legte einen Encounter mit drei PCs, vier Goblins und einem Ork an. Er prüfte die Standardmenge 1, den Sprachwechsel bei offener Eingabe, das Umbenennen, Wiederöffnen und einzelne Entfernen bei 320, 768 und 1280 px. Die PostgreSQL-Tests prüften acht verschiedene Teilnehmer-IDs, aktuelle Bibliothekswerte, Archivierung und Löschsperre über die realen Fremdschlüssel. Sie prüften außerdem Besitzerisolation, CSRF und konkurrierende Änderungen. 13 Frontend-Tests, Angular-Produktionsbuild, 15 Backend-Tests im Standardlauf, 15 Tests im Compose-Lauf und die Caddy-Validierung waren erfolgreich. Farbvergabe und Kurzlabels für die Teilnehmer bleiben in OQ-12 offen. [HTTP-Vertrag](../backend/README.md#http-vertrag-der-encounter-vorbereitung)
+**Zusammenstellung, geprüft am 25.11.2026.** Der Chrome-Test über HTTPS legte einen Encounter mit drei PCs, vier Goblins und einem Ork an. Er prüfte die Standardmenge 1, den Sprachwechsel bei offener Eingabe, das Umbenennen, Wiederöffnen und einzelne Entfernen bei 320, 768 und 1280 px. Die PostgreSQL-Tests prüften acht verschiedene Teilnehmer-IDs, aktuelle Bibliothekswerte, Archivierung und Löschsperre über die realen Fremdschlüssel. Sie prüften außerdem Besitzerisolation, CSRF und konkurrierende Änderungen. 13 Frontend-Tests, Angular-Produktionsbuild, 15 Backend-Tests im Standardlauf, 15 Tests im Compose-Lauf und die Caddy-Validierung waren erfolgreich. [HTTP-Vertrag](../backend/README.md#http-vertrag-der-encounter-vorbereitung)
 
-**Einzelne Teilnehmer, geprüft am 25.11.2026.** Ein PostgreSQL-Test entfernt einen von vier Goblins aus demselben Encounter. Die drei übrigen Goblins behalten ihre IDs und schützen ihre gemeinsame Vorlage vor endgültigem Löschen. Für die Kennzeichnung steht die Entscheidung zu Farbvergabe und Kurzlabels aus. [OQ-12](OPEN_QUESTIONS.md)
+**Teilnehmerkennzeichnung, geprüft am 25.11.2026.** Chrome zeigte acht verschiedene Standardfarben und die Nummern 1 bis 8. Eine frei gewählte Farbe blieb nach dem Wiederöffnen gespeichert. Beim Entfernen eines Goblins blieben IDs, Nummern und Farben der übrigen Figuren erhalten. Teilnehmer 9 erhielt wieder die erste Farbe. Der Farbeditor war bei 320, 768 und 1280 px auf Deutsch und Englisch bedienbar. PostgreSQL prüfte das Upgrade leerer und befüllter Encounters, die Validierung der Farbe, Besitzerisolation, CSRF und Versionskonflikte. 13 Frontend-Tests, Angular-Produktionsbuild, 15 Backend-Tests im Standardlauf und 15 Tests im Compose-Lauf waren erfolgreich. [HTTP-Vertrag](../backend/README.md#http-vertrag-der-encounter-vorbereitung)
 
 ## M4 — Kampfablauf und zuverlässige Wiederaufnahme
 

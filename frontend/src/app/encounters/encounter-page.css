@@ -129,7 +129,7 @@ button.encounter-row[aria-pressed='true'] {
 
 .roster li {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     gap: 8px;
     padding-block: 9px;
@@ -137,11 +137,56 @@ button.encounter-row[aria-pressed='true'] {
     overflow-wrap: anywhere;
 }
 
+.participant-marker, .participant-actions, .color-form {
+    display: flex;
+    gap: 8px;
+}
+
+.participant-marker {
+    align-items: center;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.color-swatch {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #59665d;
+    border-radius: 5px;
+}
+
+.participant-actions {
+    flex-wrap: wrap;
+}
+
+.color-form {
+    grid-column: 2 / -1;
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.color-form input {
+    width: 88px;
+    padding: 4px 6px;
+    cursor: pointer;
+}
+
 .participant-meta {
     display: flex;
     flex-wrap: wrap;
     gap: 4px 12px;
     font-size: 0.86rem;
+}
+
+@media (max-width: 420px) {
+    .roster li {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .participant-actions, .color-form {
+        grid-column: 1 / -1;
+    }
 }
 
 .empty-detail {

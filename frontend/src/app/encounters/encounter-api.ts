@@ -12,6 +12,8 @@ export interface EncounterSummary {
 
 export interface EncounterParticipant {
     id: string;
+    number: number;
+    color: string;
     kind: TemplateKind;
     templateId: string;
     name: string;
@@ -70,9 +72,12 @@ export class EncounterApi {
         return this.write('POST', `${this.encounterPath(saved.encounter.id)}/participants`, selection, saved.etag);
     }
 
+    changeColor(saved: VersionedEncounter, participantId: string, color: string): Observable<VersionedEncounter> {
+        return this.write('PUT', `${this.participantPath(saved, participantId)}/color`, { color }, saved.etag);
+    }
+
     remove(saved: VersionedEncounter, participantId: string): Observable<VersionedEncounter> {
-        const path = `${this.encounterPath(saved.encounter.id)}/participants/${encodeURIComponent(participantId)}`;
-        return this.write('DELETE', path, null, saved.etag);
+        return this.write('DELETE', this.participantPath(saved, participantId), null, saved.etag);
     }
 
     private write(method: string, path: string, body: object | null, etag?: string): Observable<VersionedEncounter> {
@@ -83,5 +88,9 @@ export class EncounterApi {
 
     private encounterPath(id: string): string {
         return `${encountersPath}/${encodeURIComponent(id)}`;
+    }
+
+    private participantPath(saved: VersionedEncounter, participantId: string): string {
+        return `${this.encounterPath(saved.encounter.id)}/participants/${encodeURIComponent(participantId)}`;
     }
 }

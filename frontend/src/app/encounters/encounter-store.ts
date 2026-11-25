@@ -69,6 +69,11 @@ export class EncounterStore {
         return saved ? this.save(this.api.add(saved, selection)) : false;
     }
 
+    async changeColor(participantId: string, color: string): Promise<boolean> {
+        const saved = this.active();
+        return saved ? this.save(this.api.changeColor(saved, participantId, color)) : false;
+    }
+
     async remove(participantId: string): Promise<boolean> {
         const saved = this.active();
         return saved ? this.save(this.api.remove(saved, participantId)) : false;

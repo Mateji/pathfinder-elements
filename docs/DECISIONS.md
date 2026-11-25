@@ -59,6 +59,12 @@ M2 importiert PC- und Monstervorlagen aus JSON mit expliziter Schemaversion. Jed
 
 Die bestätigte Regel verhindert versehentliche Doppelimporte auch bei Wiederholung einer Netzwerkanfrage. Eine Zuordnung nach Namen wäre wegen erlaubter Namensgleichheit mehrdeutig. Der JSON-Export ist für später vorgesehen. Für M2 deckt das bestehende PostgreSQL-Verfahren Backup und Wiederherstellung ab. [HTTP-Vertrag des Imports](../backend/README.md#versionierter-json-import)
 
+### D-031 · Nummern und Farben für Encounter-Teilnehmer · 25.11.2026 · F
+
+Jeder Teilnehmer erhält beim Hinzufügen eine fortlaufende Nummer je Encounter. Die Nummer ist das dauerhafte Kurzlabel in der Teilnehmerliste. Entfernen hinterlässt eine Lücke und die nächste Vergabe zählt weiter. Die Liste folgt der aufsteigenden Nummer. Damit sind auch gleichnamige Figuren bei gleicher Farbe eindeutig erkennbar.
+
+Die Standardfarben folgen einer kräftigen Palette in fester Reihenfolge. Nach dem achten Eintrag wiederholt sich die Palette. Der GM kann jede Farbe einzeln frei ändern. Das gibt sofort sichtbare Kennzeichen und erlaubt die Zuordnung zu vorhandenen Markern am Tisch. [Farben und HTTP-Vertrag](../backend/README.md#http-vertrag-der-encounter-vorbereitung)
+
 ## Regeln für neue Entscheidungen
 
 Neue Architektur-/Fachentscheidungen erhalten fortlaufende IDs mit Datum, Problem, Alternativen, Begründung und Auswirkungen. `V` wird erst nach ausdrücklicher Prüfung in `F` überführt. Kein stillschweigendes Umschreiben früherer Entscheidungen.

@@ -1,6 +1,7 @@
 @let m = i18n.messages().encounters;
 @let session = store.session();
 @let encounter = store.encounter();
+@let editing = colorEdit();
 <section aria-labelledby="encounter-heading">
     <header class="page-heading">
         <h1 id="encounter-heading">{{ m.title }}</h1>
@@ -103,15 +104,19 @@
 
                     <div class="roster-heading">
                         <h3>{{ m.roster }}</h3>
-                        <span class="muted">{{ m.count(participants().length) }}</span>
+                        <span class="muted">{{ m.count(encounter.participants.length) }}</span>
                     </div>
-                    @if (participants().length === 0) {
+                    @if (encounter.participants.length === 0) {
                         <p class="muted">{{ m.noParticipants }}</p>
                     } @else {
                         <ul class="roster">
-                            @for (participant of participants(); track participant.id) {
+                            @for (participant of encounter.participants; track participant.id) {
                                 <li>
-                                    <div>
+                                    <span class="participant-marker">
+                                        <span class="color-swatch" [style.background-color]="participant.color" aria-hidden="true"></span>
+                                        <span>#{{ participant.number }}</span>
+                                    </span>
+                                    <div class="participant-details">
                                         <strong>{{ participant.name }}</strong>
                                         <div class="muted participant-meta">
                                             <span>{{ m.types[participant.kind] }}</span>
@@ -121,8 +126,25 @@
                                             }
                                         </div>
                                     </div>
-                                    <button type="button" [attr.aria-label]="m.removeParticipant(participant.name)" [disabled]="store.busy()"
-                                        (click)="store.remove(participant.id)">{{ m.remove }}</button>
+                                    <div class="participant-actions">
+                                        <button type="button" [attr.aria-label]="m.changeColor(participant.name, participant.number)"
+                                            [attr.aria-expanded]="editing?.participantId === participant.id" [disabled]="store.busy()"
+                                            (click)="toggleColorEditor(participant)">{{ m.color }}</button>
+                                        <button type="button" [attr.aria-label]="m.removeParticipant(participant.name, participant.number)"
+                                            [disabled]="store.busy()" (click)="remove(participant.id)">{{ m.remove }}</button>
+                                    </div>
+                                    @if (editing && editing.participantId === participant.id) {
+                                        <form class="color-form" (ngSubmit)="saveColor()">
+                                            <label class="form-field">
+                                                {{ m.color }}
+                                                <input type="color" name="participantColor" [ngModel]="editing.color" (ngModelChange)="setColorDraft($event)"
+                                                    [attr.aria-label]="m.changeColor(participant.name, participant.number)" [disabled]="store.busy()" />
+                                            </label>
+                                            <button type="submit" class="primary-button" [disabled]="store.busy() || editing.color === participant.color.toLowerCase()">
+                                                {{ m.saveColor }}
+                                            </button>
+                                        </form>
+                                    }
                                 </li>
                             }
                         </ul>

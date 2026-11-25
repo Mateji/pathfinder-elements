@@ -23,6 +23,7 @@ public sealed partial class LibraryApiTests
             (HttpMethod.Post, EncountersPath, new { name = "Private" }),
             (HttpMethod.Put, detail, new { name = "Private" }),
             (HttpMethod.Post, $"{detail}/participants", new { kind = "monsters", templateId = Guid.NewGuid() }),
+            (HttpMethod.Put, $"{detail}/participants/{Guid.NewGuid()}/color", new { color = "#0057D9" }),
             (HttpMethod.Delete, $"{detail}/participants/{Guid.NewGuid()}", null)
         };
         foreach (var (method, path, body) in requests)
@@ -57,7 +58,24 @@ public sealed partial class LibraryApiTests
         Assert.Equal(8, roster.Select(entry => entry.Id).Distinct().Count());
         Assert.Equal(3, roster.Count(entry => entry.Kind == "characters"));
         Assert.Equal(4, roster.Count(entry => entry.TemplateId == goblin.Id));
+        Assert.Equal(Enumerable.Range(1, 8), roster.Select(entry => entry.Number));
+        Assert.Equal(new[] { "#C8192F", "#0057D9", "#FFC400", "#007A3D", "#7231B8", "#E86000", "#008EA1", "#C20876" },
+            roster.Select(entry => entry.Color));
         var orcEntry = Assert.Single(roster, entry => entry.TemplateId == orc.Id);
+
+        var markedGoblin = roster.Single(entry => entry.Number == 4);
+        var colorPath = $"{path}/participants/{markedGoblin.Id}/color";
+        using var noColorCsrf = await SendAsync(client, HttpMethod.Put, colorPath, new { color = "#443322" }, etag: saved.Tag);
+        Assert.Equal(HttpStatusCode.BadRequest, noColorCsrf.StatusCode);
+        using var invalidColor = await SendAsync(client, HttpMethod.Put, colorPath, new { color = "red" }, csrf, saved.Tag);
+        Assert.Equal(HttpStatusCode.BadRequest, invalidColor.StatusCode);
+        var oldTag = saved.Tag;
+        using var recolored = await SendAsync(client, HttpMethod.Put, colorPath, new { color = "#123aef" }, csrf, oldTag);
+        saved = await ReadEncounterAsync(recolored);
+        Assert.Equal(roster.Select(entry => entry.Id == markedGoblin.Id ? entry with { Color = "#123AEF" } : entry), saved.Detail.Participants);
+        using var staleColor = await SendAsync(client, HttpMethod.Put, colorPath, new { color = "#443322" }, csrf, oldTag);
+        Assert.Equal(HttpStatusCode.PreconditionFailed, staleColor.StatusCode);
+        roster = saved.Detail.Participants;
 
         using var renamed = await SendAsync(client, HttpMethod.Put, path, new { name = "Am Nordtor" }, csrf, saved.Tag);
         saved = await ReadEncounterAsync(renamed);
@@ -77,6 +95,7 @@ public sealed partial class LibraryApiTests
         Assert.True(reopened.Headers.CacheControl?.NoStore);
         saved = await ReadEncounterAsync(reopened);
         Assert.Equal(roster.Select(entry => entry.Id), saved.Detail.Participants.Select(entry => entry.Id));
+        Assert.Equal(roster.Select(entry => (entry.Number, entry.Color)), saved.Detail.Participants.Select(entry => (entry.Number, entry.Color)));
         Assert.All(saved.Detail.Participants.Where(entry => entry.TemplateId == goblin.Id), entry =>
         {
             Assert.True(entry.IsArchived);
@@ -107,8 +126,18 @@ public sealed partial class LibraryApiTests
         using var stillReferenced = await SendAsync(client, HttpMethod.Delete, goblinPath, csrf: csrf, etag: GetTag(archived));
         Assert.Equal(HttpStatusCode.Conflict, stillReferenced.StatusCode);
 
+        using var restored = await SendAsync(client, HttpMethod.Put, $"{goblinPath}/archive", new { isArchived = false }, csrf, GetTag(archived));
+        restored.EnsureSuccessStatusCode();
+        using var refreshed = await client.GetAsync(path);
+        saved = await ReadEncounterAsync(refreshed);
+        saved = await AddAsync(client, path, new { kind = "monsters", templateId = goblin.Id }, saved.Tag, csrf);
+        Assert.Equal(new[] { 1, 2, 3, 4, 6, 7, 9 }, saved.Detail.Participants.Select(entry => entry.Number));
+        var newGoblin = saved.Detail.Participants[^1];
+        Assert.Equal("#C8192F", newGoblin.Color);
+        Assert.DoesNotContain(roster, entry => entry.Id == newGoblin.Id);
+
         var summaries = await client.GetFromJsonAsync<EncounterSummary[]>(EncountersPath);
-        Assert.Equal(new EncounterSummary(saved.Detail.Id, "Am Nordtor", 6), Assert.Single(summaries!));
+        Assert.Equal(new EncounterSummary(saved.Detail.Id, "Am Nordtor", 7), Assert.Single(summaries!));
     }
 
     [PostgreSqlFact]
@@ -160,6 +189,10 @@ public sealed partial class LibraryApiTests
         using var reopened = await client.GetAsync(path);
         saved = await ReadEncounterAsync(reopened);
         Assert.Equal(4, saved.Detail.Participants.Length);
+        Assert.Equal(Enumerable.Range(1, 4), saved.Detail.Participants.Select(entry => entry.Number));
+        var colorPath = $"{participants}/{saved.Detail.Participants[0].Id}/color";
+        using var foreignColor = await SendAsync(otherClient, HttpMethod.Put, colorPath, new { color = "#202020" }, otherCsrf, saved.Tag);
+        Assert.Equal(HttpStatusCode.NotFound, foreignColor.StatusCode);
     }
 
     private static async Task<(string Path, VersionedPreparedEncounter Saved)> CreateEncounterAsync(
@@ -189,6 +222,6 @@ public sealed partial class LibraryApiTests
 
     private sealed record EncounterSummary(Guid Id, string Name, int ParticipantCount);
     private sealed record EncounterDetail(Guid Id, string Name, EncounterParticipant[] Participants);
-    private sealed record EncounterParticipant(Guid Id, string Kind, Guid TemplateId, string Name, int MaxHitPoints, bool IsArchived);
+    private sealed record EncounterParticipant(Guid Id, int Number, string Color, string Kind, Guid TemplateId, string Name, int MaxHitPoints, bool IsArchived);
     private sealed record VersionedPreparedEncounter(EncounterDetail Detail, string Tag);
 }

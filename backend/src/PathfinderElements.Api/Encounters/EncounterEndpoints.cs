@@ -25,6 +25,7 @@ internal static class EncounterEndpoints
         encounters.MapPost("", CreateAsync);
         encounters.MapPut("/{id:guid}", RenameAsync);
         encounters.MapPost("/{id:guid}/participants", AddParticipantsAsync);
+        encounters.MapPut("/{id:guid}/participants/{participantId:guid}/color", ChangeParticipantColorAsync);
         encounters.MapDelete("/{id:guid}/participants/{participantId:guid}", RemoveParticipantAsync);
     }
 
@@ -134,22 +135,39 @@ internal static class EncounterEndpoints
             return Results.NotFound(new { code = "templateUnavailable" });
         }
 
-        for (var index = 0; index < quantity; index++)
-        {
-            database.EncounterParticipants.Add(new EncounterParticipant(id, request.TemplateId, isMonster));
-        }
-        encounter.MarkChanged();
+        var participants = encounter.CreateParticipants(request.TemplateId, isMonster, quantity);
+        // Reserve the numbers with the encounter version check before inserting the rows.
         if (!await SaveAsync(database, cancellationToken))
         {
             return VersionConflict();
         }
 
+        database.EncounterParticipants.AddRange(participants);
+        await database.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return await GetAsync(id, context, database);
     }
 
-    private static async Task<IResult> RemoveParticipantAsync(Guid id, Guid participantId, HttpContext context,
+    private static Task<IResult> ChangeParticipantColorAsync(Guid id, Guid participantId, ParticipantColorRequest request,
+        HttpContext context, PathfinderDbContext database)
+    {
+        var color = EncounterParticipant.NormalizeColor(request.Color);
+        if (color is null)
+        {
+            return Task.FromResult<IResult>(Results.ValidationProblem(new Dictionary<string, string[]> { ["color"] = ["invalidColor"] }));
+        }
+
+        return ChangeParticipantAsync(id, participantId, context, database, participant => participant.ChangeColor(color));
+    }
+
+    private static Task<IResult> RemoveParticipantAsync(Guid id, Guid participantId, HttpContext context,
         PathfinderDbContext database)
+    {
+        return ChangeParticipantAsync(id, participantId, context, database, participant => database.EncounterParticipants.Remove(participant));
+    }
+
+    private static async Task<IResult> ChangeParticipantAsync(Guid id, Guid participantId, HttpContext context,
+        PathfinderDbContext database, Action<EncounterParticipant> change)
     {
         var (encounter, error) = await FindForChangeAsync(id, context, database);
         if (encounter is null)
@@ -164,7 +182,7 @@ internal static class EncounterEndpoints
             return Results.NotFound();
         }
 
-        database.EncounterParticipants.Remove(participant);
+        change(participant);
         encounter.MarkChanged();
         if (!await SaveAsync(database, context.RequestAborted))
         {
@@ -189,8 +207,10 @@ internal static class EncounterEndpoints
     {
         return OwnedEncounters(context, database).Where(encounter => encounter.Id == id)
             .Select(encounter => new EncounterResponse(encounter.Id, encounter.Name, encounter.Version,
-                encounter.Participants.OrderBy(entry => entry.Id).Select(entry => new ParticipantResponse(
+                encounter.Participants.OrderBy(entry => entry.Number).Select(entry => new ParticipantResponse(
                     entry.Id,
+                    entry.Number,
+                    entry.Color,
                     entry.CharacterTemplateId != null ? "characters" : "monsters",
                     (entry.CharacterTemplateId ?? entry.MonsterTemplateId)!.Value,
                     entry.CharacterTemplateId != null ? entry.CharacterTemplate!.Name : entry.MonsterTemplate!.Name,
@@ -261,9 +281,12 @@ internal static class EncounterEndpoints
     [JsonNumberHandling(JsonNumberHandling.Strict)]
     internal sealed record AddParticipantsRequest(string? Kind, Guid TemplateId, int? Quantity);
 
+    [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+    internal sealed record ParticipantColorRequest(string? Color);
+
     internal sealed record EncounterResponse(Guid Id, string Name, [property: JsonIgnore] Guid Version,
         ParticipantResponse[] Participants);
 
-    internal sealed record ParticipantResponse(Guid Id, string Kind, Guid TemplateId, string Name, int MaxHitPoints,
+    internal sealed record ParticipantResponse(Guid Id, int Number, string Color, string Kind, Guid TemplateId, string Name, int MaxHitPoints,
         bool IsArchived);
 }
