@@ -1,18 +1,23 @@
+<h1>{{ messages().initiativeTracker }}</h1>
+
 @if (hasCombatants()) {
 <ul class="combatant-list">
     @for (combatant of sortedCombatants(); track combatant.id) {
     <li class="combatant-row" [class.active-combatant]="combatant.id === activeCombatantId()">
         <div class="combatant-container">
-            <span class="material-symbols-outlined">person</span>
+            <span class="material-symbols-outlined" aria-hidden="true">person</span>
             <span>{{ combatant.name }}</span>
-            <app-icon class="combatant-ac-badge" name="shield" fill="red" [size]="42" [value]="combatant.defense.ac"></app-icon>
+            <app-icon class="combatant-ac-badge" name="shield" fill="red" [size]="42" [value]="combatant.defense.ac"
+                [ariaLabel]="messages().armorClass(combatant.defense.ac)"></app-icon>
         </div>
     </li>
     }
 </ul>
 } @else {
-<p>No combatants available.</p>
+<p>{{ messages().noCombatants }}</p>
 }
 
-<button type="button" (click)="onPreviousTurn()" [disabled]="!hasCombatants()">Previous Turn</button>
-<button type="button" (click)="onNextTurn()" [disabled]="!hasCombatants()">Next Turn</button>
+<div class="turn-controls">
+    <button type="button" (click)="onPreviousTurn()" [disabled]="!hasCombatants()">{{ messages().previousTurn }}</button>
+    <button type="button" (click)="onNextTurn()" [disabled]="!hasCombatants()">{{ messages().nextTurn }}</button>
+</div>

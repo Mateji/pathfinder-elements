@@ -9,7 +9,7 @@
 - **Persistenz:** PostgreSQL mit EF-Core-Migrationen.
 - **Hosting:** öffentlich zugänglicher Linuxserver, **HTTPS** über Reverse Proxy (vorgesehen **Caddy**), Docker Compose.
 - **Accounts:** Login obligatorisch; zunächst nur ein administrativ eingerichtetes Konto; Daten von Anfang an einem Owner zuordnen; spätere Mehrbenutzer-/SaaS-Fähigkeit.
-- **Sprache:** Deutsch und Englisch. Technisches Übersetzungsverfahren wird vor UI-Umsetzung entschieden.
+- **Sprache:** Deutsch und Englisch.
 
 ## Vorgeschlagene Laufzeit-Topologie
 
@@ -58,7 +58,7 @@ Keine eigenständigen Deployments pro Modul. Fachlogik sitzt weder im Controller
 - Feature Stores über Angular Signals: Serverstatus, UI-Zustand, aktive Ansicht, Loading/Error; `computed` nur für Ableitungen.
 - Data-Access-Services für API; keine HTTP-Aufrufe in Presentational Components.
 - Eingaben für ausstehende Angriffe lokal halten, bestätigte Serverantwort ist autoritativ. Erfolg/Fehler sichtbar anzeigen.
-- Eine Strategie für übersetzte UI-Texte und formatierte Zahlen/Datumsangaben entwickeln; DE/EN ab Projektbeginn unterstützen.
+- UI-Texte aus dem typisierten Katalog der aktiven Sprache beziehen. Locale-sensitive Zahlen und Datumsangaben mit der aktiven Sprache explizit formatieren. [D-027](DECISIONS.md#d-027--ui-sprache-zur-laufzeit--25112026--v)
 
 ## API-Verträge und Konsistenz
 
@@ -101,7 +101,7 @@ Die ersten Persistenzmodelle für private Ressourcen setzen diese Regeln mit den
 
 ## Bewusst offen
 
-- konkrete Angular-Lokalisierungsbibliothek und Laufzeit-/Buildzeit-Sprachwechsel;
+- Lokalisierung kuratierter Bibliotheksinhalte und weiterer PF1E-Regelbegriffe (OQ-14).
 - Backup-Zeitplan/Retention, Domain/DNS und Caddy-Betriebsort;
 - Concurrent-Tab-Policy; Datenmigration bisheriger JSON-Dateien;
 - genaue Versionierung/Struktur von Persistenz-DTOs und Importformaten.

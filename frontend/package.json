@@ -5,6 +5,7 @@
         "ng": "ng",
         "start": "ng serve",
         "build": "ng build",
+        "test": "ng test --watch=false",
         "icons:optimize": "svgo -f src/icons --config svgo.config.cjs",
         "icons:sprite": "svgstore --inline -o src/assets/icons.svg \"src/icons/*.svg\" && node scripts/fix-sprite-xmlns.mjs",
         "icons:build": "npm run icons:optimize && npm run icons:sprite"
@@ -26,8 +27,10 @@
         "@angular/cli": "^21.0.2",
         "@angular/compiler-cli": "^21.0.3",
         "@biomejs/biome": "^2.3.10",
+        "jsdom": "^27.4.0",
         "svgo": "^4.0.0",
         "svgstore-cli": "^2.0.1",
-        "typescript": "^5.9.3"
+        "typescript": "^5.9.3",
+        "vitest": "~4.0.18"
     }
 }

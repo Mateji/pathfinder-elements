@@ -1,6 +1,7 @@
 import { Component, computed, inject, OnInit } from '@angular/core';
+import { I18nService } from '../../i18n/i18n.service';
 import { EncounterStore } from '../../services/encounter.store';
-import { Icon } from "../icon/icon";
+import { Icon } from '../icon/icon';
 
 @Component({
     selector: 'app-initiative-tracker',
@@ -10,6 +11,8 @@ import { Icon } from "../icon/icon";
 })
 export class InitiativeTracker implements OnInit {
     private readonly encounterStore = inject(EncounterStore);
+
+    readonly messages = inject(I18nService).messages;
 
     readonly sortedCombatants = this.encounterStore.sorted;
 

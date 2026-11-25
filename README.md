@@ -16,6 +16,10 @@ npm start
 
 Der Initiative Tracker ist unter `http://localhost:4200/` erreichbar. Der Produktionsbuild läuft aus `frontend/` mit `npm run build -- --configuration production`.
 
+Im Tracker lässt sich die UI-Sprache direkt zwischen Deutsch und Englisch umschalten. Die Auswahl bleibt in diesem Browser gespeichert. Ohne gespeicherte Auswahl startet der Tracker in der ersten unterstützten Browsersprache, sonst auf Englisch.
+
+Neue UI-Texte in beiden Sprachkatalogen unter `frontend/src/app/i18n/messages.ts` ergänzen. `npm test` führt aus `frontend/` die Angular-Tests mit Vitest aus. [Lokalisierung für M1](docs/DECISIONS.md#d-027--ui-sprache-zur-laufzeit--25112026--v)
+
 ## Lesereihenfolge
 
 1. [`AGENTS.md`](AGENTS.md) — dauerhafte Arbeitsanweisungen für Codex

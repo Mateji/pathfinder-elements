@@ -1,6 +1,6 @@
 # ROADMAP — Iterative Entwicklung mit Codex
 
-**Version:** 0.2 · **Stand:** 24.11.2026 · **Status:** M0-Testsockel offen, M1 begonnen.
+**Version:** 0.2 · **Stand:** 25.11.2026 · **Status:** M1 abgeschlossen, M0-Konventionen und Dokumentationsabgleich offen.
 
 **Arbeitstakt:** Jeder Meilenstein in kleine, einzeln reviewbare Aufgaben zerlegen. Vor jedem Meilenstein Repository auditen und offene fachliche Fragen klären. Keine „implementiere das ganze Projekt“-Aufträge.
 
@@ -15,7 +15,7 @@
 
 **Vorbereitung vor M1, geprüft am 23.11.2026.** Angular liegt unter `frontend/`. Dort liefen `npm ci` und `npm run build -- --configuration production` erfolgreich. Der Build benötigt für das eingebundene Schrift-Stylesheet Zugriff auf Google Fonts. Im Chromium-Test des Produktionsbuilds lieferte der Encounter-Request neun Teilnehmer. Die Reihenfolge, die aktive Markierung beim Vor- und Zurückschalten sowie das RK-Symbol aus dem SVG-Sprite wurden geprüft. `docker compose config` validierte den Platzhalter im Root.
 
-**Offene Testinfrastruktur.** Drei Erzeugungstests sind vorhanden. Für deren Ausführung fehlen ein npm-Testskript und ein Angular-Test-Target.
+**Frontend-Tests.** Seit M1, Schritt 6 führt `npm test` die vorhandenen Erzeugungstests und die DE/EN-Tests mit Angular und Vitest aus. Projektweite Test-, Lint- und Build-Konventionen bleiben Teil von M0.
 
 ## M1 — Infrastruktur, Login, Persistenz
 
@@ -24,7 +24,7 @@
 - [x] HTTPS-Reverse-Proxy-Integration mit existierendem Serverkonzept vorsehen.
 - [x] Login für 1 administrativ angelegtes Konto, serverseitige Autorisierung, Ownership-Konzept.
 - [x] Grundlegende API-/Integrationstests, Healthcheck, Backup-/Restore-Runbook.
-- [ ] DE/EN-i18n-Technik entscheiden und Grundgerüst etablieren.
+- [x] DE/EN-i18n-Technik entscheiden und Grundgerüst etablieren.
 
 **Abnahme:** Private API über Login geschützt; App + DB per Compose reproduzierbar; Beispielentität persistiert über Container-Neustart; i18n-Testschirm in beiden Sprachen.
 
@@ -37,6 +37,8 @@
 **Schritt 4, geprüft am 24.11.2026.** ASP.NET Core Identity schützt die API standardmäßig. Anmeldung und Abmeldung verlangen einen CSRF-Token. Die Cookie-Sitzung läuft spätestens nach zwölf Stunden ab. Ein lokaler HTTPS-Test über Caddy und PostgreSQL bestätigte die Kontoanlage per CLI, die Ablehnung eines zweiten Kontos, die Sitzung nach Neuerstellung des API-Containers und den Widerruf der alten Sitzung nach Passwort-Reset. Alle fünf Backend-Integrationstests und der Angular-Produktionsbuild liefen erfolgreich. Das [Ownership-Konzept](ARCHITECTURE.md#ownership-für-private-ressourcen) dokumentiert die Besitzerprüfungen für kommende Fachendpunkte. Die Angular-Demo hat weiterhin keine Login-Maske. [Konto und HTTP-Vertrag](../backend/README.md#konto-einrichten-und-passwort-zurücksetzen)
 
 **Schritt 5, geprüft am 24.11.2026.** Der [Backup- und Restore-Ablauf](../backend/BACKUP_RESTORE.md) ist dokumentiert. Der Compose-Test stellte einen synthetischen Datensatz und ein Identity-Konto in einem frischen PostgreSQL-Volume wieder her. Liveness und Readiness lieferten danach HTTP 200. Beim vorherigen Ausfall der Quelldatenbank lieferte Readiness HTTP 503 und Liveness HTTP 200. Alle sechs Backend-Integrationstests und der Angular-Produktionsbuild waren erfolgreich. Backup-Zeitplan und Aufbewahrung bleiben in OQ-15 offen.
+
+**Schritt 6, geprüft am 25.11.2026.** Der Initiative-Tracker dient als DE/EN-Testschirm. Im Chrome-Test des Produktionsbuilds wechselten die UI-Texte, der Seitentitel und die Dokumentsprache bei der Sprachwahl. Die neun Demo-Teilnehmer und der aktive Zug blieben beim Umschalten erhalten. Nach einem Neuladen stellte der Browser die Sprachwahl wieder her. Bei 320 px Breite waren beide Sprachen ohne horizontales Scrollen bedienbar. Die Sprachwahl funktionierte über die Tastatur. Der Angular-Produktionsbuild, sieben Angular-Tests und sechs Backend-Integrationstests waren erfolgreich. [Technische Entscheidung](DECISIONS.md#d-027--ui-sprache-zur-laufzeit--25112026--v)
 
 ## M2 — Bibliothek
 

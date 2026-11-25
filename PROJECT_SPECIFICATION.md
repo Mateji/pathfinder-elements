@@ -38,7 +38,7 @@ Vor Codeänderungen Repository prüfen, `AGENTS.md` und sämtliche `docs/*.md` l
 
 ## Offene Punkte (Auszug)
 
-Konkreter Zustandskatalog, Grenzen komplexer Angriffsfälle und Schadensresistenzen, Mechanik lokaler Encounter-Overrides, Undo nach Folgeaktionen, exakte Ready-Trigger-Bedienung, Positionsnotizen, UI-i18n-Methode, Session-/Backupdetails. Diese stehen in `docs/OPEN_QUESTIONS.md` mit Zuordnung zu Meilensteinen.
+Konkreter Zustandskatalog, Grenzen komplexer Angriffsfälle und Schadensresistenzen, Mechanik lokaler Encounter-Overrides, Undo nach Folgeaktionen, exakte Ready-Trigger-Bedienung, Positionsnotizen, Lokalisierung von Bibliotheksinhalten und Regelbegriffen, Session-/Backupdetails. Diese stehen in `docs/OPEN_QUESTIONS.md` mit Zuordnung zu Meilensteinen.
 
 ## Roadmap
 

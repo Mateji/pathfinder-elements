@@ -37,6 +37,12 @@ Der Angular-Workspace und das künftige Backend benötigen getrennte Arbeitsverz
 
 ASP.NET Core Identity speichert das einzelne Konto in PostgreSQL. Eine sichere Cookie-Sitzung läuft spätestens zwölf Stunden nach der Anmeldung ab. Der Serveradministrator legt das Konto an und setzt das Passwort bei Bedarf über die CLI zurück. Ein Passwort-Reset macht bestehende Sitzungen ungültig. Ein längerer Login wurde zugunsten einer kürzeren Gültigkeit auf gemeinsam genutzten Geräten verworfen. Passwort-Reset per E-Mail würde für das Einzelkonto zusätzlichen Mailbetrieb erfordern. Die UI und die API nutzen im Betrieb dieselbe Origin.
 
+### D-027 · UI-Sprache zur Laufzeit · 25.11.2026 · V
+
+Der Angular-Client bündelt typisierte DE/EN-Textkataloge in einem Build. Ein Angular-Signal hält die UI-Sprache, und Komponenten lesen den aktiven Katalog reaktiv. Damit bleibt der Zustand des laufenden Trackers beim Umschalten im Speicher. Angulars Buildzeit-Lokalisierung erzeugt separate Ausgaben je Sprache. Auch ein Laufzeitkatalog mit Angulars `loadTranslations()` würde für bereits angezeigte Texte einen Neuladevorgang erfordern. [Angular-Dokumentation zu den Locale-Builds](https://angular.dev/guide/i18n/deploy) · [Angular-Dokumentation zu `loadTranslations()`](https://angular.dev/api/localize/loadTranslations)
+
+Die Auswahl gilt pro Browser und Origin. Beim Start hat eine gespeicherte Auswahl Vorrang, danach folgt die erste unterstützte Browsersprache und schließlich Englisch. Das Dokument übernimmt die gewählte Sprache. Formatierungen für künftige Datums- und Dezimalfelder verwenden die aktive Sprache explizit. Stabile IDs, Werte und eingegebene Inhalte bleiben beim Sprachwechsel erhalten. Wie kuratierte Bibliotheksinhalte und weitere PF1E-Regelbegriffe lokalisiert werden, bleibt in OQ-14 für M2 offen.
+
 ## Regeln für neue Entscheidungen
 
 Neue Architektur-/Fachentscheidungen erhalten fortlaufende IDs mit Datum, Problem, Alternativen, Begründung und Auswirkungen. `V` wird erst nach ausdrücklicher Prüfung in `F` überführt. Kein stillschweigendes Umschreiben früherer Entscheidungen.

@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { InitiativeTracker } from './initiative-tracker';
@@ -8,7 +10,8 @@ describe('InitiativeTracker', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [InitiativeTracker]
+      imports: [InitiativeTracker],
+      providers: [provideHttpClient(), provideHttpClientTesting()]
     })
     .compileComponents();
 
@@ -19,5 +22,8 @@ describe('InitiativeTracker', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+    const http = TestBed.inject(HttpTestingController);
+    http.expectOne('assets/encounters/goblin-ambush.json').flush([]);
+    http.verify();
   });
 });

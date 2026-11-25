@@ -22,3 +22,14 @@
     border-color: #2f7d32;
     background-color: #e9f7ea;
 }
+
+.turn-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.turn-controls button {
+    min-height: 44px;
+    font: inherit;
+}

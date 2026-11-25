@@ -1,5 +1,7 @@
 <svg
     class="icon-badge"
+    [attr.role]="ariaLabel ? 'img' : null"
+    [attr.aria-label]="ariaLabel"
     [attr.width]="size"
     [attr.height]="size"
     viewBox="0 0 100 100"

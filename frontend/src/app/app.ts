@@ -1,6 +1,7 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DOCUMENT, effect, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { RouterOutlet } from '@angular/router';
+import { I18nService } from './i18n/i18n.service';
 
 @Component({
     selector: 'app-root',
@@ -8,11 +9,16 @@ import { RouterOutlet } from '@angular/router';
     templateUrl: './app.html',
     styleUrl: './app.css'
 })
-export class App implements OnInit {
-    private _titleService = inject(Title);
-    
-    ngOnInit(): void {
-        this._titleService.setTitle('Adventure Manager');
-    }
+export class App {
+    private readonly document = inject(DOCUMENT);
+    private readonly title = inject(Title);
 
+    readonly i18n = inject(I18nService);
+
+    constructor() {
+        effect(() => {
+            this.document.documentElement.lang = this.i18n.language();
+            this.title.setTitle(`${this.i18n.messages().initiativeTracker} | Pathfinder Elements`);
+        });
+    }
 }

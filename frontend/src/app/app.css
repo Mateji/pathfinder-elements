@@ -1,1 +1,11 @@
-/* Add application styles & imports to this file! */
+.app-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.app-header select {
+    min-height: 44px;
+    font: inherit;
+}

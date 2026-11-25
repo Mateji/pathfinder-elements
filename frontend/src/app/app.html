@@ -1,1 +1,11 @@
-<router-outlet />
+<header class="app-header">
+    <label for="language">{{ i18n.messages().language }}</label>
+    <select id="language" #languageSelect [value]="i18n.language()" (change)="i18n.setLanguage(languageSelect.value)">
+        <option value="de" lang="de">Deutsch</option>
+        <option value="en" lang="en">English</option>
+    </select>
+</header>
+
+<main>
+    <router-outlet />
+</main>

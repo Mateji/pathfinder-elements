@@ -13,6 +13,7 @@ describe('Icon', () => {
     .compileComponents();
 
     fixture = TestBed.createComponent(Icon);
+    fixture.componentRef.setInput('name', 'shield');
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
