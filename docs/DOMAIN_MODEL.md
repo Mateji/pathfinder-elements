@@ -27,6 +27,23 @@
 - **Combatant:** bei Kampfstart aus Vorlage/EncounterEntry erzeugter Snapshot, damit laufende und abgeschlossene Kämpfe durch spätere Bibliotheksänderungen nicht nachträglich mutieren.
 - **Overrides:** brauchen eine nachvollziehbare Regel, welche Felder aus der Bibliothek aktualisiert und welche nur in der Vorbereitung lokal überschrieben werden; Details `OPEN_QUESTIONS.md`.
 
+## Bibliotheksvorlagen in M2
+
+`CharacterTemplate` und `MonsterTemplate` sind eigenständige Bibliothekseinträge mit stabiler UUID, verpflichtendem `OwnerUserId` und einem Namen. Gleichlautende Namen sind möglich, weil die UUID den Eintrag identifiziert. Die Vorlage speichert den eingegebenen Namen. Die Lokalisierung kuratierter Inhalte bleibt in OQ-14 offen.
+
+Das Backend speichert die Vorlagen in `character_templates` und `monster_templates`. Beide Tabellen referenzieren ein vorhandenes Konto und indizieren den Besitzer für spätere Abfragen. Der Fremdschlüssel blockiert das Löschen eines Kontos mit vorhandenen Vorlagen.
+
+| Pflichtfelder des gemeinsamen `CombatStatistics`-Werts | Bedeutung |
+| --- | --- |
+| `MaxHitPoints` | Maximale TP/HP der Vorlage, mindestens 1 |
+| `InitiativeModifier` | Gesamter Initiative-Modifikator für den späteren NPC-Wurf und den Gleichstand bei PCs und NPCs |
+| `ArmorClass`, `TouchArmorClass`, `FlatFootedArmorClass` | Normale RK, Berührungs-RK und RK auf dem falschen Fuß als eigenständige Werte |
+| `FortitudeSave`, `ReflexSave`, `WillSave` | Gesamtmodifikatoren für Zähigkeit, Reflex und Wille |
+
+Initiative und Rettungswürfe können auch negative Modifikatoren haben. Die drei RK-Werte werden einzeln aus dem Charakterbogen oder Statblock übernommen. [PF1E-Bestiary zur Struktur von Statblocks](https://legacy.aonprd.com/bestiary/introduction.html)
+
+Ausgewürfelte Initiative, aktuelle und temporäre HP, Zustände und Zugfolge gehören zur Kampf-Instanz. Die Angular-Demo enthält bereits ausgewürfelte Initiative und keine Max-HP. Ihre Daten sind ein Beispiel für die Tracker-Anzeige. Das Importformat für Vorlagen wird in OQ-17 geklärt. Angriffsdefinitionen folgen im dafür vorgesehenen M2-Schritt. Welche Attributswerte, Bonustypen und situativen Modifikatoren die Zustandsautomatik braucht, bleibt in OQ-05 offen.
+
 ## Combatant-Kerndaten
 
 - `id`, `combatId`, `sourceTemplateId?`, `sourceEncounterEntryId?`, `displayName`, `side` (PC/NPC), `color`, `shortLabel`.

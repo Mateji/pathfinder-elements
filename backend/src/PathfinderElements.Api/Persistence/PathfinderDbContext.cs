@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using PathfinderElements.Api.Library;
 
 namespace PathfinderElements.Api.Persistence;
 
 public sealed class PathfinderDbContext(DbContextOptions<PathfinderDbContext> options) : IdentityUserContext<IdentityUser>(options)
 {
     public DbSet<ApplicationMetadata> ApplicationMetadata => Set<ApplicationMetadata>();
+    public DbSet<CharacterTemplate> CharacterTemplates => Set<CharacterTemplate>();
+    public DbSet<MonsterTemplate> MonsterTemplates => Set<MonsterTemplate>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -16,6 +19,8 @@ public sealed class PathfinderDbContext(DbContextOptions<PathfinderDbContext> op
         metadata.HasKey(entry => entry.Key);
         metadata.Property(entry => entry.Key).HasColumnName("key").HasMaxLength(128);
         metadata.Property(entry => entry.Value).HasColumnName("value");
+
+        LibraryMapping.Configure(modelBuilder);
     }
 }
 

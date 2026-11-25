@@ -20,7 +20,9 @@ Compose startet PostgreSQL 17, wartet auf dessen Healthcheck und startet die API
 
 ### Automatischer Persistenztest
 
-Vom Repository-Root aus `backend/scripts/test-persistence.sh` ausführen. Der Test benötigt Docker Compose, Bash, curl und OpenSSL. Er startet zwei isolierte Compose-Projekte mit zufälligem Datenbankpasswort und dynamischen API-Ports. Er prüft Readiness (503) und Liveness (200) während des Datenbankstopps, die Daten nach Neuerstellung des DB-Containers und den Restore eines synthetischen Datensatzes und Kontos in ein frisches Volume. Die Testprojekte samt Volumes und der temporäre Dump werden beim Beenden entfernt. [Backup- und Restore-Runbook](BACKUP_RESTORE.md)
+Vom Repository-Root aus `backend/scripts/test-persistence.sh` ausführen. Der Test benötigt Docker Compose, Bash, curl und OpenSSL. Er startet zwei isolierte Compose-Projekte mit zufälligem Datenbankpasswort und dynamischen API-Ports. Ein .NET-SDK-Container führt gegen die Testdatenbank den EF-Core-Integrationstest für Bibliotheksvorlagen aus. Das Skript prüft Readiness (503) und Liveness (200) während des Datenbankstopps sowie die Wiederherstellung des synthetischen Datensatzes, des Testkontos und zweier Bibliotheksvorlagen. Die Vorlagen werden nach Neuerstellung des DB-Containers und nach Restore in ein frisches Volume samt Besitzer und Kampfwerten geprüft. Die Testprojekte samt Volumes und der temporäre Dump werden beim Beenden entfernt. [Backup- und Restore-Runbook](BACKUP_RESTORE.md)
+
+Die EF-Migration `AddLibraryTemplates` legt die Tabellen für PC- und Monstervorlagen mit Besitzer-Fremdschlüssel an. Die Migration lässt bestehende Daten und Konten bestehen. [Bibliotheksmodell](../docs/DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2)
 
 ## HTTPS mit Caddy auf dem Linux-Host
 
@@ -80,7 +82,7 @@ dotnet build PathfinderElements.slnx --configuration Release
 dotnet test PathfinderElements.slnx --configuration Release --no-build
 ```
 
-Die Integrationstests starten den API-Einstiegspunkt mit `WebApplicationFactory` und prüfen Liveness, Readiness ohne DB-Konfiguration, Anmeldung, Sitzungsablauf, Passwort-Reset und CSRF-Schutz.
+Die API-Integrationstests starten den Einstiegspunkt mit `WebApplicationFactory` und prüfen Liveness, Readiness ohne DB-Konfiguration, Anmeldung, Sitzungsablauf, Passwort-Reset und CSRF-Schutz. Die Modelltests prüfen Validierung und den Abgleich des PostgreSQL-Modells mit dem Migrations-Snapshot. Der Test für EF-Schreib-/Lesezugriffe und Datenbank-Constraints läuft im isolierten Compose-Test.
 
 ## API starten
 

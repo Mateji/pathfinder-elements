@@ -8,7 +8,7 @@
 | OQ-02 | hoch | Wann sind Referenzen auf gelöschte/archivierte PC-/Monster-Vorlagen noch gültig? | M2/M3 |
 | OQ-03 | hoch | Welche Angriffstypen/Volle Angriffe müssen für v1 mit welchen PF1E-Ausnahmen automatisiert werden (z. B. Angriffe mehrerer Ziele, Iterative, Secondary Natural Attacks, Touch, AOOs, Concealment, Resistenz)? | M5 |
 | OQ-04 | hoch | Welche Zustände bilden den ersten Katalog? Was sind konkrete Start-/Ablaufzeitpunkte und erlaubte Sondermodifikatoren? | M6 |
-| OQ-05 | hoch | Welche Basiseinzelwerte/Bonusarten sind pro PC/Monster zwingend, damit Condition-Modifiers korrekt sind? | M2/M6 |
+| OQ-05 | hoch | Welche Basiseinzelwerte und Bonustypen braucht die Zustandsautomatik über die bereits erfassten [Gesamtwerte](DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2) hinaus? | M2/M6 |
 | OQ-06 | hoch | Welche Undo-Semantik: nur letzter Schritt oder beliebige frühere Aktion? Wie mit abhängigen Folgeschritten umgehen? | M4/M5 |
 | OQ-07 | hoch | Ready/Delay: Welche Bedienung/Trigger müssen automatisiert sein? Was bleibt manueller GM-Trigger? | M4 |
 | OQ-08 | mittel | Was ist eine „Position“: Freitext, Raum/Zonen oder nur farbliche Battlemap-Markerzuordnung? | M3/M7 |

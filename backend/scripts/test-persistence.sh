@@ -43,12 +43,31 @@ query() {
     "$@" exec -T db psql -X -v ON_ERROR_STOP=1 -U pathfinder -d pathfinder -Atc "$sql"
 }
 
+library_snapshot() {
+    local fields='template.id, template.name, owner."NormalizedUserName", template.max_hit_points,
+                  template.initiative_modifier, template.armor_class, template.touch_armor_class,
+                  template.flat_footed_armor_class, template.fortitude_save, template.reflex_save, template.will_save'
+    query "
+        SELECT $fields FROM character_templates AS template
+        JOIN \"AspNetUsers\" AS owner ON owner.\"Id\" = template.owner_user_id;
+        SELECT $fields FROM monster_templates AS template
+        JOIN \"AspNetUsers\" AS owner ON owner.\"Id\" = template.owner_user_id;
+    " "$@"
+}
+
 "${compose[@]}" up --build -d
 api_url="http://$("${compose[@]}" port api 8080)"
 wait_for_status live 200
 wait_for_status ready 200
 query "INSERT INTO application_metadata (key, value) VALUES ('compose-test', 'volume-ok')" "${compose[@]}"
 printf '%s\n' 'Synthetic-Backup-Test123!' | "${compose[@]}" exec -T api dotnet PathfinderElements.Api.dll account create backup-test
+docker run --rm --user "$(id -u):$(id -g)" --network "${project_name}_default" \
+    --env DOTNET_CLI_HOME=/tmp --env PATHFINDER_TEST_POSTGRES_HOST=db --env POSTGRES_PASSWORD \
+    --volume "$repository_root/backend:/source:ro" --workdir /source mcr.microsoft.com/dotnet/sdk:10.0 \
+    dotnet test PathfinderElements.slnx --configuration Release --artifacts-path /tmp/pathfinder-artifacts \
+    --filter 'FullyQualifiedName~LibraryTemplateTests.RoundTripsLibraryTemplatesInPostgreSql'
+expected_library_snapshot=$(library_snapshot "${compose[@]}")
+[[ $(wc -l <<< "$expected_library_snapshot") -eq 2 ]]
 original_container=$("${compose[@]}" ps -q db)
 "${compose[@]}" stop db
 wait_for_status ready 503
@@ -58,7 +77,8 @@ wait_for_status live 200
 [[ "$original_container" != "$("${compose[@]}" ps -q db)" ]]
 wait_for_status ready 200
 [[ "$(query "SELECT value FROM application_metadata WHERE key = 'compose-test'" "${compose[@]}")" == 'volume-ok' ]]
-echo "OK: Migration, Readiness, Liveness und Persistenz nach Containerwechsel."
+[[ "$(library_snapshot "${compose[@]}")" == "$expected_library_snapshot" ]]
+echo "OK: Migration, Readiness, Liveness und Persistenz der Bibliotheksvorlagen nach Containerwechsel."
 
 "${compose[@]}" exec -T db pg_dump -U pathfinder -d pathfinder --format=custom > "$backup_file"
 "${restore_compose[@]}" up -d --wait db
@@ -71,4 +91,5 @@ wait_for_status live 200
 wait_for_status ready 200
 [[ "$(query "SELECT value FROM application_metadata WHERE key = 'compose-test'" "${restore_compose[@]}")" == 'volume-ok' ]]
 [[ "$(query 'SELECT "NormalizedUserName" FROM "AspNetUsers" WHERE "PasswordHash" IS NOT NULL' "${restore_compose[@]}")" == 'BACKUP-TEST' ]]
-echo "OK: Backup und Restore in frischem Volume mit Datensatz und Identity-Konto."
+[[ "$(library_snapshot "${restore_compose[@]}")" == "$expected_library_snapshot" ]]
+echo "OK: Restore in frischem Volume mit Bibliotheksvorlagen, Datensatz und Identity-Konto."

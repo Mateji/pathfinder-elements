@@ -18,7 +18,21 @@ Der Initiative Tracker ist unter `http://localhost:4200/` erreichbar. Der Produk
 
 Im Tracker lässt sich die UI-Sprache direkt zwischen Deutsch und Englisch umschalten. Die Auswahl bleibt in diesem Browser gespeichert. Ohne gespeicherte Auswahl startet der Tracker in der ersten unterstützten Browsersprache, sonst auf Englisch.
 
-Neue UI-Texte in beiden Sprachkatalogen unter `frontend/src/app/i18n/messages.ts` ergänzen. `npm test` führt aus `frontend/` die Angular-Tests mit Vitest aus. [Lokalisierung für M1](docs/DECISIONS.md#d-027--ui-sprache-zur-laufzeit--25112026--v)
+Neue UI-Texte in beiden Sprachkatalogen unter `frontend/src/app/i18n/messages.ts` ergänzen. [Lokalisierung für M1](docs/DECISIONS.md#d-027--ui-sprache-zur-laufzeit--25112026--v)
+
+## Build, Lint und Tests
+
+| Bereich | Verzeichnis | Befehle |
+| --- | --- | --- |
+| Angular-Tests (Vitest) | `frontend/` | `npm test` |
+| Angular-Produktionsbuild | `frontend/` | `npm run build -- --configuration production` |
+| Biome-Lint für geänderte Frontend-Dateien | `frontend/` | `npm exec -- biome lint --vcs-use-ignore-file=false <Dateien>` |
+| Backend-Release-Build und xUnit-Tests mit .NET 10 | `backend/` | `dotnet test PathfinderElements.slnx --configuration Release` |
+| Migration, Persistenz und Restore mit PostgreSQL 17 | Repository-Root | `backend/scripts/test-persistence.sh` |
+
+Frontend-Specs liegen als `*.spec.ts` neben dem getesteten Code. Beim gezielten Biome-Lauf ersetzt die Dateiliste den Ignore-Filter, weil `.gitignore` im Repository-Root liegt. Backend-Tests liegen unter `backend/tests/`. Der Compose-Test verwendet eigene Projekte, Volumes und synthetische Daten. Er gehört zur Prüfung von Änderungen an Migrationen, Persistenz oder Backups. [Backend und Persistenztest](backend/README.md#automatischer-persistenztest)
+
+Tests wachsen mit den Features. Für M2 prüfen Integrationstests das Speichern und Wiederladen von Vorlagen, den Zugriffsschutz für fremde Besitzer und die atomare Ablehnung ungültiger Importe, sobald der jeweilige Zugriffsweg verfügbar ist. Neue PF1E-Regeln erhalten gezielte Unit-Tests für die vereinbarten Regelfälle. Ein durchgehender Browsertest folgt, sobald der Ablauf von der Anmeldung bis zum gespeicherten Kampf verfügbar ist.
 
 ## Lesereihenfolge
 

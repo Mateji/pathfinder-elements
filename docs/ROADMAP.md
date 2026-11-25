@@ -1,6 +1,6 @@
 # ROADMAP — Iterative Entwicklung mit Codex
 
-**Version:** 0.2 · **Stand:** 25.11.2026 · **Status:** M1 abgeschlossen, M0-Konventionen und Dokumentationsabgleich offen.
+**Version:** 0.2 · **Stand:** 25.11.2026 · **Status:** M1 abgeschlossen, M2 begonnen, M0-Dokumentationsabgleich offen.
 
 **Arbeitstakt:** Jeder Meilenstein in kleine, einzeln reviewbare Aufgaben zerlegen. Vor jedem Meilenstein Repository auditen und offene fachliche Fragen klären. Keine „implementiere das ganze Projekt“-Aufträge.
 
@@ -8,14 +8,14 @@
 
 - [x] Angular-Projektstruktur, vorhandene `EncounterStore`/Component/Services, Scripts, JSON-Demos und Git-Status prüfen.
 - [x] Bestehendes MVP lokal bauen und dokumentieren, was funktioniert und was fehlt.
-- [ ] Test-/Lint-/Build-Konventionen und Entwickler-Dokumentation festlegen.
+- [x] Test-/Lint-/Build-Konventionen und Entwickler-Dokumentation festlegen.
 - [ ] Dokumentationskonflikte und abweichenden Ist-Zustand benennen, nicht unkontrolliert überschreiben.
 
 **Abnahme:** Reproduzierbarer Frontend-Build, klare Bestandsliste, minimaler M1-Umsetzungsplan.
 
 **Vorbereitung vor M1, geprüft am 23.11.2026.** Angular liegt unter `frontend/`. Dort liefen `npm ci` und `npm run build -- --configuration production` erfolgreich. Der Build benötigt für das eingebundene Schrift-Stylesheet Zugriff auf Google Fonts. Im Chromium-Test des Produktionsbuilds lieferte der Encounter-Request neun Teilnehmer. Die Reihenfolge, die aktive Markierung beim Vor- und Zurückschalten sowie das RK-Symbol aus dem SVG-Sprite wurden geprüft. `docker compose config` validierte den Platzhalter im Root.
 
-**Frontend-Tests.** Seit M1, Schritt 6 führt `npm test` die vorhandenen Erzeugungstests und die DE/EN-Tests mit Angular und Vitest aus. Projektweite Test-, Lint- und Build-Konventionen bleiben Teil von M0.
+**Entwicklerkonventionen, festgehalten am 25.11.2026.** Das README dokumentiert Build, gezieltes Linting und Testläufe für Frontend, Backend und PostgreSQL. Neue Tests decken die Akzeptanzfälle des jeweiligen Features ab. [Build, Lint und Tests](../README.md#build-lint-und-tests)
 
 ## M1 — Infrastruktur, Login, Persistenz
 
@@ -42,12 +42,14 @@
 
 ## M2 — Bibliothek
 
-- [ ] PC- und Monster-Modelle mit kampfrelevanten Feldern präzisieren.
+- [ ] PC- und Monster-Modelle mit kampfrelevanten Feldern präzisieren. Das [Grundmodell](DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2) ist umgesetzt. Die Pflichtfelder für die Zustandsautomatik bleiben in OQ-05 offen.
 - [ ] CRUD und sicheres Archivieren/Löschen, owner-geschützte Endpunkte.
 - [ ] Angriffsdefinitionen und Vorlagenwerte; Import aus versioniertem JSON.
 - [ ] Responsive Formular-/Listen-UI in DE/EN, Tests und Datenvalidierung.
 
 **Abnahme:** 3 PCs und Goblins/Ork anlegen, speichern, ändern, importieren, nach Neustart wieder öffnen.
+
+**Grundmodell, geprüft am 25.11.2026.** Die EF-Migration `AddLibraryTemplates` ergänzt je eine Tabelle für PC- und Monstervorlagen. Der PostgreSQL-Test speicherte beide Typen über EF Core, las sämtliche Werte in einem neuen Kontext und prüfte Fremdschlüssel und Max-HP-Constraint. Besitzer, IDs und Kampfwerte blieben nach Neuerstellung des DB-Containers und nach Restore in ein frisches Volume erhalten. Der Angular-Produktionsbuild und sieben Frontend-Tests liefen erfolgreich. Elf Backend-Tests liefen im Standardlauf, der PostgreSQL-Test im Compose-Lauf. [Akzeptanzfälle des Grundmodells](REQUIREMENTS.md#fr-01-bibliothek-von-pcs-und-monstern)
 
 ## M3 — Encounter-Vorbereitung
 

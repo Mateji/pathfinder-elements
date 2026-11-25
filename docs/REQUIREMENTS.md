@@ -15,6 +15,8 @@
 
 **Akzeptanztests:** Ein Monster ändern; ein vorbereiteter Encounter zeigt aktualisierte Daten. Bereits gespielte Runden behalten alte Werte. Ungültiger JSON-Import erzeugt verständliche Fehlermeldung ohne Teildaten.
 
+**Akzeptanz für das Grundmodell in M2.** Je eine synthetische PC- und Monstervorlage wird mit eigener ID, Besitzer und allen Kampfwerten gespeichert und wieder geladen. Unterschiedliche RK-Werte, negative Modifikatoren und Modifikatoren von null bleiben unverändert. Das Modell lehnt leere Namen, leere Besitzer und maximale HP unter 1 ab. PostgreSQL verlangt einen Verweis auf ein vorhandenes Benutzerkonto. [Felder und Abgrenzung der Vorlagen](DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2)
+
 ## FR-02: Encounter-Vorbereitung und Wiederverwendung
 
 - **FR-02.1 MUSS:** Neuen Encounter anlegen, benennen, bearbeiten, speichern und später starten.
