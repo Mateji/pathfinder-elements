@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using PathfinderElements.Api.Access;
+using PathfinderElements.Api.Library;
 using PathfinderElements.Api.Persistence;
 
 var accountCommand = args.FirstOrDefault() == "account";
@@ -100,6 +101,7 @@ application.UseAuthentication();
 application.UseAuthorization();
 application.UseRateLimiter();
 application.MapAccountEndpoints();
+application.MapLibraryEndpoints();
 
 application.MapGet("/health/live", () =>
 {

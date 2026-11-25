@@ -16,8 +16,10 @@ internal static class LibraryMapping
         });
         characters.HasKey(template => template.Id);
         characters.Property(template => template.Id).HasColumnName("id").ValueGeneratedNever();
-        characters.Property(template => template.OwnerUserId).HasColumnName("owner_user_id").IsRequired();
+        characters.Property(template => template.OwnerUserId).HasColumnName("owner_user_id").IsRequired().IsConcurrencyToken();
         characters.Property(template => template.Name).HasColumnName("name").IsRequired();
+        characters.Property(template => template.IsArchived).HasColumnName("is_archived").HasDefaultValue(false);
+        characters.Property(template => template.Version).HasColumnName("version").HasDefaultValueSql("gen_random_uuid()").IsConcurrencyToken();
         characters.HasOne<IdentityUser>().WithMany()
             .HasForeignKey(template => template.OwnerUserId).OnDelete(DeleteBehavior.Restrict);
         characters.ComplexProperty(template => template.Statistics, ConfigureStatistics);
@@ -29,8 +31,10 @@ internal static class LibraryMapping
         });
         monsters.HasKey(template => template.Id);
         monsters.Property(template => template.Id).HasColumnName("id").ValueGeneratedNever();
-        monsters.Property(template => template.OwnerUserId).HasColumnName("owner_user_id").IsRequired();
+        monsters.Property(template => template.OwnerUserId).HasColumnName("owner_user_id").IsRequired().IsConcurrencyToken();
         monsters.Property(template => template.Name).HasColumnName("name").IsRequired();
+        monsters.Property(template => template.IsArchived).HasColumnName("is_archived").HasDefaultValue(false);
+        monsters.Property(template => template.Version).HasColumnName("version").HasDefaultValueSql("gen_random_uuid()").IsConcurrencyToken();
         monsters.HasOne<IdentityUser>().WithMany()
             .HasForeignKey(template => template.OwnerUserId).OnDelete(DeleteBehavior.Restrict);
         monsters.ComplexProperty(template => template.Statistics, ConfigureStatistics);

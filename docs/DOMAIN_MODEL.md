@@ -33,6 +33,8 @@
 
 Das Backend speichert die Vorlagen in `character_templates` und `monster_templates`. Beide Tabellen referenzieren ein vorhandenes Konto und indizieren den Besitzer für spätere Abfragen. Der Fremdschlüssel blockiert das Löschen eines Kontos mit vorhandenen Vorlagen.
 
+Jede Vorlage speichert den Archivstatus und eine Version für konkurrierende Schreibzugriffe. Archivierte Vorlagen bleiben über ihre UUID abrufbar und fehlen in der Standardauswahl. Vorbereitete Encounter behalten ihre Referenz. Beim Modellieren dieser Referenzen in M3 verhindert ein restriktiver Fremdschlüssel das Löschen verwendeter Vorlagen. [D-028](DECISIONS.md#d-028--archivieren-und-löschen-von-bibliotheksvorlagen--25112026--f)
+
 | Pflichtfelder des gemeinsamen `CombatStatistics`-Werts | Bedeutung |
 | --- | --- |
 | `MaxHitPoints` | Maximale TP/HP der Vorlage, mindestens 1 |

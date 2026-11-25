@@ -17,6 +17,8 @@
 
 **Akzeptanz für das Grundmodell in M2.** Je eine synthetische PC- und Monstervorlage wird mit eigener ID, Besitzer und allen Kampfwerten gespeichert und wieder geladen. Unterschiedliche RK-Werte, negative Modifikatoren und Modifikatoren von null bleiben unverändert. Das Modell lehnt leere Namen, leere Besitzer und maximale HP unter 1 ab. PostgreSQL verlangt einen Verweis auf ein vorhandenes Benutzerkonto. [Felder und Abgrenzung der Vorlagen](DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2)
 
+**Akzeptanz für die Bibliotheks-API in M2.** Der Besitzer kann beide Vorlagentypen anlegen, lesen, ändern und archivieren. Eine archivierte Vorlage fehlt in der Standardliste, bleibt über ihre ID abrufbar und erscheint nach Wiederherstellung wieder in der Standardliste. Eine Vorlage mit einem Verweis aus einem vorbereiteten Encounter kann erst nach Auflösung des Verweises endgültig gelöscht werden. M2 prüft die Löschsperre mit einem PostgreSQL-Testverweis. M3 prüft die Regel zusätzlich mit dem Encounter-Modell. Fremde Konten erhalten weder Listeneinträge noch Lese- oder Schreibzugriff über eine bekannte ID. Schreibzugriffe verlangen CSRF-Schutz, vollständige Vorlagendaten beim Anlegen oder Bearbeiten und die aktuelle Version bei Änderungen an einem bestehenden Eintrag. [HTTP-Vertrag](../backend/README.md#http-vertrag-der-bibliothek)
+
 ## FR-02: Encounter-Vorbereitung und Wiederverwendung
 
 - **FR-02.1 MUSS:** Neuen Encounter anlegen, benennen, bearbeiten, speichern und später starten.

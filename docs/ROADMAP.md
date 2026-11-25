@@ -43,7 +43,7 @@
 ## M2 — Bibliothek
 
 - [ ] PC- und Monster-Modelle mit kampfrelevanten Feldern präzisieren. Das [Grundmodell](DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2) ist umgesetzt. Die Pflichtfelder für die Zustandsautomatik bleiben in OQ-05 offen.
-- [ ] CRUD und sicheres Archivieren/Löschen, owner-geschützte Endpunkte.
+- [x] CRUD und sicheres Archivieren/Löschen, owner-geschützte Endpunkte.
 - [ ] Angriffsdefinitionen und Vorlagenwerte; Import aus versioniertem JSON.
 - [ ] Responsive Formular-/Listen-UI in DE/EN, Tests und Datenvalidierung.
 
@@ -51,11 +51,13 @@
 
 **Grundmodell, geprüft am 25.11.2026.** Die EF-Migration `AddLibraryTemplates` ergänzt je eine Tabelle für PC- und Monstervorlagen. Der PostgreSQL-Test speicherte beide Typen über EF Core, las sämtliche Werte in einem neuen Kontext und prüfte Fremdschlüssel und Max-HP-Constraint. Besitzer, IDs und Kampfwerte blieben nach Neuerstellung des DB-Containers und nach Restore in ein frisches Volume erhalten. Der Angular-Produktionsbuild und sieben Frontend-Tests liefen erfolgreich. Elf Backend-Tests liefen im Standardlauf, der PostgreSQL-Test im Compose-Lauf. [Akzeptanzfälle des Grundmodells](REQUIREMENTS.md#fr-01-bibliothek-von-pcs-und-monstern)
 
+**Bibliotheks-API, geprüft am 25.11.2026.** Beide Vorlagentypen unterstützen Anlegen, Listen, Lesen, Ändern, Archivieren, Wiederherstellen und endgültiges Löschen. Die Tests deckten Cookie-Sitzung, CSRF-Schutz, Besitzerisolation, Versionskonflikte und die Löschsperre mit einem PostgreSQL-Testverweis ab. Das Upgrade vorhandener Vorlagen erhielt IDs und Werte und ergänzte eine Version. 13 Backend-Tests liefen im Standardlauf, acht Tests im isolierten Compose-Lauf. Die Caddy-Konfiguration, der Angular-Produktionsbuild und sieben Frontend-Tests wurden erfolgreich geprüft. Die Anbindung echter Encounter-Referenzen nach D-028 folgt in M3. [HTTP-Vertrag](../backend/README.md#http-vertrag-der-bibliothek)
+
 ## M3 — Encounter-Vorbereitung
 
 - [ ] Encounter aus PCs/Monstern zusammenstellen; Mengenfunktion Default 1.
 - [ ] Stabile einzelne Teilnehmerinstanzen; Farbkennzeichnung und Kurzlabels.
-- [ ] Bibliotheksreferenzen/Override-Konfliktregel; Kopieren und Wiederverwenden.
+- [ ] Bibliotheksreferenzen mit restriktivem Fremdschlüssel nach D-028, Override-Konfliktregel, Kopieren und Wiederverwenden.
 - [ ] Start-HP je Teilnehmer mit Max-HP als Default; Starten und erneut vorbereiten.
 
 **Abnahme:** 3 PCs + 4 Goblins + 1 Ork; alle Goblins einzeln identifizierbar; Änderung einer Vorlage aktualisiert den vorbereiteten Encounter kontrolliert.

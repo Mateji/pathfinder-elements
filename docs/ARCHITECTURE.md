@@ -83,7 +83,7 @@ Keine eigenständigen Deployments pro Modul. Fachlogik sitzt weder im Controller
 
 PC-Vorlagen, Monstervorlagen, vorbereitete Encounter und Kämpfe erhalten beim Anlegen eine verpflichtende `OwnerUserId` aus der serverseitig authentifizierten Benutzeridentität. Die API begrenzt Listen und Einzelzugriffe auf diesen Besitzer. Änderungen und Löschvorgänge verwenden denselben Besitzerfilter. Referenzen auf andere private Ressourcen werden ebenfalls im Besitzkontext geprüft, etwa beim Hinzufügen einer Monstervorlage zu einem Encounter. Untergeordnete Daten wie Kampfaktionen werden über den zugehörigen Kampf autorisiert.
 
-Die ersten Persistenzmodelle für private Ressourcen setzen diese Regeln mit den jeweiligen Fachfunktionen um. Die vorhandene technische Tabelle `application_metadata` dient dem Persistenztest. Sie hat keinen privaten API-Endpunkt.
+Die Bibliotheks-API filtert nach dem Besitzer aus der Cookie-Sitzung. Für fremde IDs gilt dieselbe Antwort wie für fehlende IDs. Beim Ändern hängt die Speicherung von der aktuellen Vorlagenversion und dem Besitzer ab. Vorbereitete Encounter müssen in M3 einen restriktiven Fremdschlüssel zur Vorlage erhalten. Die vorhandene technische Tabelle `application_metadata` dient dem Persistenztest. [HTTP-Vertrag der Bibliothek](../backend/README.md#http-vertrag-der-bibliothek)
 
 **Akzeptanzfälle für private Endpunkte**
 

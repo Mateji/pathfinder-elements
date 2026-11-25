@@ -46,7 +46,8 @@ query() {
 library_snapshot() {
     local fields='template.id, template.name, owner."NormalizedUserName", template.max_hit_points,
                   template.initiative_modifier, template.armor_class, template.touch_armor_class,
-                  template.flat_footed_armor_class, template.fortitude_save, template.reflex_save, template.will_save'
+                  template.flat_footed_armor_class, template.fortitude_save, template.reflex_save, template.will_save,
+                  template.is_archived, template.version'
     query "
         SELECT $fields FROM character_templates AS template
         JOIN \"AspNetUsers\" AS owner ON owner.\"Id\" = template.owner_user_id;
@@ -61,11 +62,13 @@ wait_for_status live 200
 wait_for_status ready 200
 query "INSERT INTO application_metadata (key, value) VALUES ('compose-test', 'volume-ok')" "${compose[@]}"
 printf '%s\n' 'Synthetic-Backup-Test123!' | "${compose[@]}" exec -T api dotnet PathfinderElements.Api.dll account create backup-test
+"${compose[@]}" exec -T db createdb -U pathfinder pathfinder_api_tests
+"${compose[@]}" exec -T db createdb -U pathfinder pathfinder_upgrade_tests
 docker run --rm --user "$(id -u):$(id -g)" --network "${project_name}_default" \
     --env DOTNET_CLI_HOME=/tmp --env PATHFINDER_TEST_POSTGRES_HOST=db --env POSTGRES_PASSWORD \
     --volume "$repository_root/backend:/source:ro" --workdir /source mcr.microsoft.com/dotnet/sdk:10.0 \
     dotnet test PathfinderElements.slnx --configuration Release --artifacts-path /tmp/pathfinder-artifacts \
-    --filter 'FullyQualifiedName~LibraryTemplateTests.RoundTripsLibraryTemplatesInPostgreSql'
+    --filter 'FullyQualifiedName~LibraryTemplateTests.RoundTrips|FullyQualifiedName~LibraryTemplateTests.Existing|FullyQualifiedName~LibraryApiTests'
 expected_library_snapshot=$(library_snapshot "${compose[@]}")
 [[ $(wc -l <<< "$expected_library_snapshot") -eq 2 ]]
 original_container=$("${compose[@]}" ps -q db)

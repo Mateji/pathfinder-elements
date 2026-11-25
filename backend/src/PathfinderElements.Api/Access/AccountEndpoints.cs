@@ -8,31 +8,7 @@ internal static class AccountEndpoints
 {
     internal static void MapAccountEndpoints(this WebApplication application)
     {
-        var accounts = application.MapGroup("/api/auth")
-            .AddEndpointFilter(async (context, next) =>
-            {
-                var request = context.HttpContext.Request;
-                context.HttpContext.Response.Headers.CacheControl = "no-store";
-                if (!request.IsHttps)
-                {
-                    return Results.BadRequest();
-                }
-
-                if (HttpMethods.IsPost(request.Method))
-                {
-                    var antiforgery = context.HttpContext.RequestServices.GetRequiredService<IAntiforgery>();
-                    try
-                    {
-                        await antiforgery.ValidateRequestAsync(context.HttpContext);
-                    }
-                    catch (AntiforgeryValidationException)
-                    {
-                        return Results.BadRequest();
-                    }
-                }
-
-                return await next(context);
-            });
+        var accounts = application.MapGroup("/api/auth").ProtectCookieRequests();
 
         accounts.MapGet("/csrf", (HttpContext context, IAntiforgery antiforgery) =>
         {

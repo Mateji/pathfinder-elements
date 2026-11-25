@@ -1,6 +1,6 @@
 namespace PathfinderElements.Api.Library;
 
-public sealed class MonsterTemplate
+public sealed class MonsterTemplate : ILibraryTemplate
 {
     private MonsterTemplate()
     {
@@ -9,17 +9,31 @@ public sealed class MonsterTemplate
     public MonsterTemplate(string ownerUserId, string name, CombatStatistics statistics)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ownerUserId);
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-        ArgumentNullException.ThrowIfNull(statistics);
-
         Id = Guid.NewGuid();
         OwnerUserId = ownerUserId;
-        Name = name;
-        Statistics = statistics;
+        Update(name, statistics);
     }
 
     public Guid Id { get; private set; }
     public string OwnerUserId { get; private set; } = null!;
     public string Name { get; private set; } = null!;
     public CombatStatistics Statistics { get; private set; } = null!;
+    public bool IsArchived { get; private set; }
+    public Guid Version { get; private set; }
+
+    public void Update(string name, CombatStatistics statistics)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentNullException.ThrowIfNull(statistics);
+
+        Name = name;
+        Statistics = statistics;
+        Version = Guid.NewGuid();
+    }
+
+    public void SetArchived(bool isArchived)
+    {
+        IsArchived = isArchived;
+        Version = Guid.NewGuid();
+    }
 }

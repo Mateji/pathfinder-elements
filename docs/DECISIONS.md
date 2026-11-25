@@ -43,6 +43,12 @@ Der Angular-Client bündelt typisierte DE/EN-Textkataloge in einem Build. Ein An
 
 Die Auswahl gilt pro Browser und Origin. Beim Start hat eine gespeicherte Auswahl Vorrang, danach folgt die erste unterstützte Browsersprache und schließlich Englisch. Das Dokument übernimmt die gewählte Sprache. Formatierungen für künftige Datums- und Dezimalfelder verwenden die aktive Sprache explizit. Stabile IDs, Werte und eingegebene Inhalte bleiben beim Sprachwechsel erhalten. Wie kuratierte Bibliotheksinhalte und weitere PF1E-Regelbegriffe lokalisiert werden, bleibt in OQ-14 für M2 offen.
 
+### D-028 · Archivieren und Löschen von Bibliotheksvorlagen · 25.11.2026 · F
+
+Eine archivierte PC- oder Monstervorlage verschwindet aus der Neuauswahl. Bereits vorbereitete Encounter behalten ihren Verweis und können die Vorlage weiter nutzen. Archivieren ist umkehrbar. Endgültiges Löschen ist möglich, solange kein vorbereiteter Encounter die Vorlage referenziert. Laufende und abgeschlossene Kämpfe verwenden ihre Snapshots.
+
+Der Auftraggeber hat sich für den Erhalt bestehender Verweise entschieden. Ausschließliches Archivieren würde auch bei ungenutzten Vorlagen keinen endgültigen Löschweg bieten. Eine Pflicht zum vorherigen Auflösen aller Referenzen würde auch die reversible Archivierung blockieren. In M3 müssen die Vorlagenreferenzen vorbereiteter Encounter mit einem restriktiven Datenbank-Fremdschlüssel angelegt werden, damit auch paralleles Löschen und Referenzieren konsistent bleibt.
+
 ## Regeln für neue Entscheidungen
 
 Neue Architektur-/Fachentscheidungen erhalten fortlaufende IDs mit Datum, Problem, Alternativen, Begründung und Auswirkungen. `V` wird erst nach ausdrücklicher Prüfung in `F` überführt. Kein stillschweigendes Umschreiben früherer Entscheidungen.

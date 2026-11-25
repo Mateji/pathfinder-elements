@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql;
 using PathfinderElements.Api.Library;
 using PathfinderElements.Api.Persistence;
@@ -8,22 +11,11 @@ namespace PathfinderElements.Api.IntegrationTests;
 
 public sealed class LibraryTemplateTests
 {
-    private const string PostgreSqlHostVariable = "PATHFINDER_TEST_POSTGRES_HOST";
-
     [PostgreSqlFact]
     public async Task RoundTripsLibraryTemplatesInPostgreSql()
     {
-        var connectionString = new NpgsqlConnectionStringBuilder
-        {
-            Host = Environment.GetEnvironmentVariable(PostgreSqlHostVariable)
-                ?? throw new InvalidOperationException("Missing PostgreSQL test host."),
-            Database = "pathfinder",
-            Username = "pathfinder",
-            Password = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")
-                ?? throw new InvalidOperationException("Missing PostgreSQL test password.")
-        }.ConnectionString;
         var options = new DbContextOptionsBuilder<PathfinderDbContext>()
-            .UseNpgsql(connectionString).Options;
+            .UseNpgsql(PostgreSqlTestDatabase.ConnectionString()).Options;
         var characterStatistics = new CombatStatistics(24, -1, 17, 9, 18, 4, -2, 0);
         var monsterStatistics = new CombatStatistics(1, 3, 13, 12, 11, 0, 4, -1);
 
@@ -90,14 +82,44 @@ public sealed class LibraryTemplateTests
         Assert.False(database.Database.HasPendingModelChanges());
     }
 
-    private sealed class PostgreSqlFactAttribute : FactAttribute
+    [PostgreSqlFact]
+    public async Task ExistingTemplatesRemainActiveAndVersionChecksReachPostgreSql()
     {
-        public PostgreSqlFactAttribute()
-        {
-            if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(PostgreSqlHostVariable)))
-            {
-                Skip = "Runs against isolated PostgreSQL via backend/scripts/test-persistence.sh.";
-            }
-        }
+        var options = new DbContextOptionsBuilder<PathfinderDbContext>()
+            .UseNpgsql(PostgreSqlTestDatabase.ConnectionString("pathfinder_upgrade_tests")).Options;
+        var owner = new IdentityUser("upgrade-test");
+        var characterId = Guid.NewGuid();
+        var monsterId = Guid.NewGuid();
+        var statistics = new CombatStatistics(24, -1, 17, 9, 18, 4, -2, 0);
+        await using var database = new PathfinderDbContext(options);
+        await database.GetService<IMigrator>().MigrateAsync("AddLibraryTemplates");
+        database.Users.Add(owner);
+        await database.SaveChangesAsync();
+        await database.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO character_templates (id, owner_user_id, name, max_hit_points, initiative_modifier, armor_class,
+                touch_armor_class, flat_footed_armor_class, fortitude_save, reflex_save, will_save)
+            VALUES ({characterId}, {owner.Id}, 'Vorhandener PC', 24, -1, 17, 9, 18, 4, -2, 0);
+            INSERT INTO monster_templates (id, owner_user_id, name, max_hit_points, initiative_modifier, armor_class,
+                touch_armor_class, flat_footed_armor_class, fortitude_save, reflex_save, will_save)
+            VALUES ({monsterId}, {owner.Id}, 'Vorhandenes Monster', 24, -1, 17, 9, 18, 4, -2, 0);
+            """);
+        await database.Database.MigrateAsync();
+
+        var character = await database.CharacterTemplates.SingleAsync();
+        var monster = await database.MonsterTemplates.SingleAsync();
+        Assert.Equal((characterId, owner.Id, "Vorhandener PC", statistics, false),
+            (character.Id, character.OwnerUserId, character.Name, character.Statistics, character.IsArchived));
+        Assert.Equal((monsterId, owner.Id, "Vorhandenes Monster", statistics, false),
+            (monster.Id, monster.OwnerUserId, monster.Name, monster.Statistics, monster.IsArchived));
+        Assert.NotEqual(Guid.Empty, character.Version);
+        Assert.NotEqual(Guid.Empty, monster.Version);
+
+        await using var concurrentDatabase = new PathfinderDbContext(options);
+        var staleCharacter = await concurrentDatabase.CharacterTemplates.SingleAsync();
+        Assert.Equal(character.Version, staleCharacter.Version);
+        character.Update("Erste Änderung", statistics);
+        staleCharacter.SetArchived(true);
+        await database.SaveChangesAsync();
+        await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => concurrentDatabase.SaveChangesAsync());
     }
 }

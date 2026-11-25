@@ -159,15 +159,29 @@ namespace PathfinderElements.Api.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<bool>("IsArchived")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_archived");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
 
                     b.Property<string>("OwnerUserId")
+                        .IsConcurrencyToken()
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("owner_user_id");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("gen_random_uuid()");
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Statistics", "PathfinderElements.Api.Library.CharacterTemplate.Statistics#CombatStatistics", b1 =>
                         {
@@ -222,15 +236,29 @@ namespace PathfinderElements.Api.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<bool>("IsArchived")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_archived");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
 
                     b.Property<string>("OwnerUserId")
+                        .IsConcurrencyToken()
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("owner_user_id");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("gen_random_uuid()");
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Statistics", "PathfinderElements.Api.Library.MonsterTemplate.Statistics#CombatStatistics", b1 =>
                         {

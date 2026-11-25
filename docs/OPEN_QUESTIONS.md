@@ -5,7 +5,7 @@
 | ID | Priorität | Frage / Entscheidung | Betroffener Meilenstein |
 | --- | --- | --- | --- |
 | OQ-01 | hoch | Wie wirken lokale Feld-Overrides in vorbereiteten Encountern bei späteren Bibliotheksänderungen? Feldweise Vererbung? Warnung bei Konflikt? | M2/M3 |
-| OQ-02 | hoch | Wann sind Referenzen auf gelöschte/archivierte PC-/Monster-Vorlagen noch gültig? | M2/M3 |
+| OQ-02 | entschieden | Archivierte Vorlagen bleiben in vorbereiteten Encountern nutzbar. Endgültiges Löschen setzt voraus, dass keine Verweise aus vorbereiteten Encountern bestehen. [D-028](DECISIONS.md#d-028--archivieren-und-löschen-von-bibliotheksvorlagen--25112026--f) | M2/M3 |
 | OQ-03 | hoch | Welche Angriffstypen/Volle Angriffe müssen für v1 mit welchen PF1E-Ausnahmen automatisiert werden (z. B. Angriffe mehrerer Ziele, Iterative, Secondary Natural Attacks, Touch, AOOs, Concealment, Resistenz)? | M5 |
 | OQ-04 | hoch | Welche Zustände bilden den ersten Katalog? Was sind konkrete Start-/Ablaufzeitpunkte und erlaubte Sondermodifikatoren? | M6 |
 | OQ-05 | hoch | Welche Basiseinzelwerte und Bonustypen braucht die Zustandsautomatik über die bereits erfassten [Gesamtwerte](DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2) hinaus? | M2/M6 |
