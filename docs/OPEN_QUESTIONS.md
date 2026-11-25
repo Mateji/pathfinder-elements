@@ -17,7 +17,7 @@
 | OQ-11 | mittel | Wie verhält sich Kampfende/Abbruch/Neustart bei demselben vorbereiteten Encounter? | M3/M4 |
 | OQ-12 | mittel | Reihung und Farbvergabe: automatische Farbpalette vs. individuelle Farben; persistente Kurzlabels? | M3/M7 |
 | OQ-13 | entschieden | ASP.NET Core Identity, zwölf Stunden absolute Sitzungsdauer, Kontoanlage und Passwort-Reset per Server-CLI. [D-026](DECISIONS.md#d-026--login-und-wiederherstellung-für-release-1--24112026--f) | M1 |
-| OQ-14 | mittel | M1 nutzt typisierte Laufzeitkataloge für UI-Texte ([D-027](DECISIONS.md#d-027--ui-sprache-zur-laufzeit--25112026--v)). Wie werden kuratierte Bibliotheksinhalte und weitere PF1E-Regelbegriffe lokalisiert? | M2 |
+| OQ-14 | mittel | Die Bibliotheksoberfläche übersetzt Feldnamen, Status- und Validierungstexte. Namen, Schadensarten als Freitext und andere eingegebene Inhalte bleiben im Original. Wie werden kuratierte Inhalte und künftige PF1E-Regelbegriffe lokalisiert? [D-027](DECISIONS.md#d-027--ui-sprache-zur-laufzeit--25112026--v) | Bei kuratierten Inhalten und weiteren Regelfunktionen |
 | OQ-15 | mittel | API-Betrieb: Caddy bereits auf Host? Welche Domain/Netzwerke/Containergrenzen/Backup-Retention? | M1 |
 | OQ-16 | hoch | Konfliktverhalten bei zwei Browser-Tabs oder wiederholten Mobilfunk-Requests: Fehlermeldung, Neu laden, Konfliktlösung? | M1/M4 |
 | OQ-17 | entschieden | Versionierter, atomarer JSON-Import. Identische Importdaten werden pro Konto einmal angelegt. Der JSON-Export folgt später. [D-030](DECISIONS.md#d-030--versionierter-bibliotheksimport--25112026--f) | M2 |

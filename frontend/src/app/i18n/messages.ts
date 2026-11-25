@@ -1,3 +1,5 @@
+import { libraryMessages } from './library-messages';
+
 export type Language = 'de' | 'en';
 
 interface Messages {
@@ -7,6 +9,8 @@ interface Messages {
     readonly previousTurn: string;
     readonly nextTurn: string;
     readonly armorClass: (value: number) => string;
+    readonly navigation: string;
+    readonly library: typeof libraryMessages.en;
 }
 
 export const messages: Readonly<Record<Language, Messages>> = {
@@ -16,6 +20,8 @@ export const messages: Readonly<Record<Language, Messages>> = {
         noCombatants: 'Keine Kampfteilnehmer verfügbar.',
         previousTurn: 'Vorheriger Zug',
         nextTurn: 'Nächster Zug',
+        navigation: 'Hauptnavigation',
+        library: libraryMessages.de,
         armorClass: (value) => {
             return `Rüstungsklasse ${value}`;
         }
@@ -26,6 +32,8 @@ export const messages: Readonly<Record<Language, Messages>> = {
         noCombatants: 'No combatants available.',
         previousTurn: 'Previous turn',
         nextTurn: 'Next turn',
+        navigation: 'Main navigation',
+        library: libraryMessages.en,
         armorClass: (value) => {
             return `Armor Class ${value}`;
         }

@@ -71,7 +71,7 @@ Alle Pfade liegen unter `/api/auth` und benötigen HTTPS. Cookies werden durch d
 | `GET /session` | Liefert `userId` und `username` für die aktive Sitzung, andernfalls 401. |
 | `POST /logout` | Löscht das Sitzungs-Cookie und antwortet mit 204. Vorher mit aktiver Sitzung einen neuen CSRF-Token abrufen und im Header mitsenden. |
 
-Ein fehlender oder ungültiger CSRF-Token ergibt bei den POST-Endpunkten HTTP 400. Fünf falsche Passworteingaben sperren das Konto für 15 Minuten. Die API begrenzt zusätzlich Login- und Token-Anfragen und liefert bei Überschreitung HTTP 429. Die Angular-Demo verwendet synthetische Daten und hat derzeit keine Login-Maske.
+Ein fehlender oder ungültiger CSRF-Token ergibt bei den POST-Endpunkten HTTP 400. Fünf falsche Passworteingaben sperren das Konto für 15 Minuten. Die API begrenzt zusätzlich Login- und Token-Anfragen und liefert bei Überschreitung HTTP 429. Die Angular-Bibliothek nutzt diese Anmeldung über denselben HTTPS-Origin. [Bibliothek lokal starten](../README.md#bibliothek-mit-anmeldung)
 
 ## HTTP-Vertrag der Bibliothek
 

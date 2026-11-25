@@ -1,5 +1,144 @@
 :root {
     --primary-color: #4CAF50;
     --secondary-color: #FF9800;
+    --library-accent: #245a4c;
+    --library-ink: #20322c;
+    --library-muted: #52685e;
+    --library-border: #cdd8cf;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--library-ink);
+    background: #f5f6f1;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
+
+:focus-visible {
+    outline: 3px solid #a87629;
+    outline-offset: 3px;
+}
+
+app-library-page button {
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid #afc1b5;
+    border-radius: 7px;
+    background: #fff;
+    color: var(--library-ink);
+    font: inherit;
+    font-weight: 600;
+    line-height: 1.3;
+    cursor: pointer;
+}
+
+app-library-page button:enabled:hover {
+    background: #e9f0ea;
+}
+
+app-library-page button:disabled {
+    cursor: default;
+    opacity: 0.56;
+}
+
+app-library-page button.primary-button {
+    border-color: var(--library-accent);
+    background: var(--library-accent);
+    color: #fff;
+}
+
+app-library-page button.primary-button:enabled:hover {
+    background: #193e34;
+}
+
+app-library-page button.text-button {
+    background: transparent;
+    border-color: transparent;
+    color: #235245;
+}
+
+.library-panel {
+    min-width: 0;
+    padding: clamp(12px, 2vw, 20px);
+    border: 1px solid var(--library-border);
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 9px #19383208;
+}
+
+.form-field {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+    color: var(--library-ink);
+    font-size: 0.91rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.form-field :is(input, select, textarea) {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 7px 9px;
+    border: 1px solid #aabdb1;
+    border-radius: 6px;
+    color: #162c24;
+    background: #fff;
+    font: inherit;
+    font-weight: 400;
+}
+
+.form-field textarea {
+    resize: vertical;
+}
+
+.form-field :is(input, select, textarea).ng-touched.ng-invalid {
+    border-color: #a33a2e;
+    background: #fff9f8;
+}
+
+.checkbox-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    font-size: 0.92rem;
+    overflow-wrap: anywhere;
+}
+
+.checkbox-field input {
+    flex: none;
+    width: 17px;
+    height: 17px;
+    margin: 0;
+    accent-color: var(--library-accent);
+}
+
+.library-feedback {
+    margin-block: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--library-border);
+    border-radius: 8px;
+    overflow-wrap: anywhere;
+}
+
+.library-feedback p, .library-feedback ul {
+    margin-block: 4px;
+}
+
+.library-feedback.failure {
+    border-color: #ddb9b2;
+    background: #fcf2f0;
+    color: #722c24;
+}
+
+.library-feedback.success {
+    border-color: #afcbb7;
+    background: #eff6ed;
+    color: #234e40;
 }

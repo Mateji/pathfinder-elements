@@ -1,6 +1,6 @@
 # ROADMAP — Iterative Entwicklung mit Codex
 
-**Version:** 0.2 · **Stand:** 25.11.2026 · **Status:** M1 abgeschlossen, M2 begonnen, M0-Dokumentationsabgleich offen.
+**Version:** 0.2 · **Stand:** 25.11.2026 · **Status:** M1 und M2 abgeschlossen, M0-Dokumentationsabgleich offen.
 
 **Arbeitstakt:** Jeder Meilenstein in kleine, einzeln reviewbare Aufgaben zerlegen. Vor jedem Meilenstein Repository auditen und offene fachliche Fragen klären. Keine „implementiere das ganze Projekt“-Aufträge.
 
@@ -45,7 +45,7 @@
 - [x] PC- und Monster-Modelle mit kampfrelevanten Feldern präzisieren. Die vorhandenen [Gesamtwerte](DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2) genügen als Pflichtfelder für M2. OQ-05 folgt mit dem Zustandskatalog in M6.
 - [x] CRUD und sicheres Archivieren/Löschen, owner-geschützte Endpunkte.
 - [x] Angriffsdefinitionen und Vorlagenwerte; Import aus versioniertem JSON. [D-030](DECISIONS.md#d-030--versionierter-bibliotheksimport--25112026--f)
-- [ ] Responsive Formular-/Listen-UI in DE/EN, Tests und Datenvalidierung.
+- [x] Responsive Formular-/Listen-UI in DE/EN, Tests und Datenvalidierung.
 
 **Abnahme:** 3 PCs und Goblins/Ork anlegen, speichern, ändern, importieren, nach Neustart wieder öffnen.
 
@@ -56,6 +56,8 @@
 **Angriffssequenzen, geprüft am 25.11.2026.** Monstervorlagen speichern geordnete Nah-, Fern- und natürliche Angriffe samt Krit- und Schadenswerten. Alte API-Clients können Grundwerte ändern und die Angriffe erhalten. Die Migration bestehender Vorlagen, der PostgreSQL-Containerwechsel und der Restore wurden geprüft. Der Angular-Produktionsbuild, sieben Frontend-Tests, 13 Backend-Tests im Standardlauf und neun Tests im isolierten Compose-Lauf waren erfolgreich. [Angriffssequenzen](../backend/README.md#angriffssequenzen)
 
 **JSON-Import, geprüft am 25.11.2026.** Die API importiert kompakte oder formatierte JSON-Dokumente der Version 1 mit PC- und Monstervorlagen. PostgreSQL verhindert parallele Doppelimporte pro Konto. Automatisierte Tests bestätigten gemischte Importe mit Angriffssequenzen, die Ablehnung ungültiger Dokumente ohne Teildaten und die getrennte Verarbeitung desselben Dokuments für zwei Konten. Der Angular-Produktionsbuild, sieben Frontend-Tests, 14 Backend-Tests im Standardlauf und zwölf Tests im isolierten Compose-Lauf waren erfolgreich. Die Caddy-Konfiguration wurde validiert. [HTTP-Vertrag des Imports](../backend/README.md#versionierter-json-import)
+
+**Bibliotheksoberfläche, geprüft am 25.11.2026.** Der Chrome-Test über HTTPS und Compose legte drei PCs und einen Goblin mit geordneter Angriffssequenz an. Er prüfte Änderungen, das Archiv, Wiederherstellung, die Bestätigung beim Löschen und den JSON-Dateiimport von Ork und Goblin-Späher. Ungültige Dateien und Wiederholungen wurden angezeigt. Beim Sprachwechsel und bei einem Versionskonflikt blieb der Formularentwurf erhalten. Nach Neustart der PostgreSQL-Testdatenbank ließen sich die Vorlagen wieder öffnen. Die Bedienung in DE/EN wurde bei 320 und 768 px sowie auf Laptop-Breite geprüft. Der Angular-Produktionsbuild, 13 Frontend-Tests, 14 Backend-Tests im Standardlauf und das gezielte Biome-Linting waren erfolgreich. [Bibliothek lokal starten](../README.md#bibliothek-mit-anmeldung)
 
 ## M3 — Encounter-Vorbereitung
 

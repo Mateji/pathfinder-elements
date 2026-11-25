@@ -2,7 +2,7 @@
 
 **Stand:** 19.11.2026 · **Status:** Arbeitsfassung, fachliche Anforderungen weitgehend abgestimmt · **Regelwerk:** Pathfinder First Edition (PF1E)
 
-Der Initiative Tracker liegt als Angular-21-Anwendung unter `frontend/`. Unter `backend/` liegt die ASP.NET Core 10 Web API mit ihrem Liveness-Endpunkt. Die Spezifikation liegt unter `docs/`. Für die lokale Entwicklung startet Docker Compose die API und PostgreSQL. [Backend starten und testen](backend/README.md)
+Der Initiative-Tracker und die Bibliothek liegen als Angular-21-Anwendung unter `frontend/`. Unter `backend/` liegt die ASP.NET Core 10 Web API. Die Spezifikation liegt unter `docs/`. Für die lokale Entwicklung startet Docker Compose die API und PostgreSQL. [Backend starten und testen](backend/README.md)
 
 ## Frontend lokal starten
 
@@ -18,7 +18,28 @@ Der Initiative Tracker ist unter `http://localhost:4200/` erreichbar. Der Produk
 
 Im Tracker lässt sich die UI-Sprache direkt zwischen Deutsch und Englisch umschalten. Die Auswahl bleibt in diesem Browser gespeichert. Ohne gespeicherte Auswahl startet der Tracker in der ersten unterstützten Browsersprache, sonst auf Englisch.
 
-Neue UI-Texte in beiden Sprachkatalogen unter `frontend/src/app/i18n/messages.ts` ergänzen. [Lokalisierung für M1](docs/DECISIONS.md#d-027--ui-sprache-zur-laufzeit--25112026--v)
+Neue UI-Texte in den DE/EN-Sprachkatalogen unter `frontend/src/app/i18n/` ergänzen. [Lokalisierung](docs/DECISIONS.md#d-027--ui-sprache-zur-laufzeit--25112026--v)
+
+### Bibliothek mit Anmeldung
+
+Starte zuerst API und PostgreSQL im Repository-Root. Richte bei einem frischen Stack das Datenbankpasswort und das einzige Anwendungskonto nach der Backend-Anleitung ein. Für die Anmeldung muss die API den lokalen HTTPS-Proxy als vertrauenswürdig erkennen. [Compose starten](backend/README.md#lokale-entwicklung-mit-compose) · [Konto einrichten](backend/README.md#konto-einrichten-und-passwort-zurücksetzen)
+
+```bash
+export AUTH_TRUSTED_PROXY="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.Gateway}}{{end}}' "$(docker compose ps -q api)")"
+docker compose up -d api
+```
+
+Starte anschließend aus `frontend/` die HTTPS-Konfiguration. Sie leitet API-Aufrufe an `127.0.0.1:5080` weiter. Bei einem abweichenden Compose-Port kann `PATHFINDER_API_PORT` für diesen Start gesetzt werden.
+
+```sh
+cd frontend
+npm ci
+npm run start:library
+```
+
+Öffne [https://localhost:4200/library](https://localhost:4200/library) und melde dich mit dem administrativ angelegten Konto an. Wenn du ein lokal vertrauenswürdiges Zertifikat für `localhost` hast, übergib es mit `npm run start:library -- --ssl-cert /pfad/zertifikat.pem --ssl-key /pfad/schluessel.pem`. Im Menü erreichst du auch den Tracker. Der normale Start mit `npm start` eignet sich für die Tracker-Demo. Wenn der Demo-Server schon auf Port 4200 läuft, kannst du die Bibliothek mit `npm run start:library -- --port 4201` starten und Port 4201 im Browser öffnen.
+
+In der Bibliothek kannst du PC- und Monstervorlagen anlegen, bearbeiten, archivieren, wiederherstellen, löschen und aus einer JSON-Datei importieren. Die Angriffssequenzen gehören zum Monsterformular. [JSON-Beispiel](backend/README.md#versionierter-json-import)
 
 ## Build, Lint und Tests
 
@@ -32,7 +53,7 @@ Neue UI-Texte in beiden Sprachkatalogen unter `frontend/src/app/i18n/messages.ts
 
 Frontend-Specs liegen als `*.spec.ts` neben dem getesteten Code. Beim gezielten Biome-Lauf ersetzt die Dateiliste den Ignore-Filter, weil `.gitignore` im Repository-Root liegt. Backend-Tests liegen unter `backend/tests/`. Der Compose-Test verwendet eigene Projekte, Volumes und synthetische Daten. Er gehört zur Prüfung von Änderungen an Migrationen, Persistenz oder Backups. [Backend und Persistenztest](backend/README.md#automatischer-persistenztest)
 
-Tests wachsen mit den Features. Für M2 prüfen Integrationstests das Speichern und Wiederladen von Vorlagen, den Zugriffsschutz für fremde Besitzer und die atomare Ablehnung ungültiger Importe, sobald der jeweilige Zugriffsweg verfügbar ist. Neue PF1E-Regeln erhalten gezielte Unit-Tests für die vereinbarten Regelfälle. Ein durchgehender Browsertest folgt, sobald der Ablauf von der Anmeldung bis zum gespeicherten Kampf verfügbar ist.
+Tests wachsen mit den Features. Die Bibliothekstests decken das Speichern und Wiederladen von Vorlagen, die Besitzerprüfung, die atomare Ablehnung ungültiger Importe und die Übersetzung des Formulars ab. Neue PF1E-Regeln erhalten gezielte Unit-Tests für die vereinbarten Regelfälle.
 
 ## Lesereihenfolge
 

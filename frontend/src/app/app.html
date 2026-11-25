@@ -1,9 +1,19 @@
+@let m = i18n.messages();
 <header class="app-header">
-    <label for="language">{{ i18n.messages().language }}</label>
-    <select id="language" #languageSelect [value]="i18n.language()" (change)="i18n.setLanguage(languageSelect.value)">
-        <option value="de" lang="de">Deutsch</option>
-        <option value="en" lang="en">English</option>
-    </select>
+    <div class="app-toolbar">
+        <a routerLink="/" class="wordmark">Pathfinder <span>Elements</span></a>
+        <nav [attr.aria-label]="m.navigation">
+            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page">{{ m.initiativeTracker }}</a>
+            <a routerLink="/library" routerLinkActive="active" ariaCurrentWhenActive="page">{{ m.library.title }}</a>
+        </nav>
+        <div class="language-control">
+            <label for="language">{{ m.language }}</label>
+            <select id="language" #languageSelect [value]="i18n.language()" (change)="i18n.setLanguage(languageSelect.value)">
+                <option value="de" lang="de">Deutsch</option>
+                <option value="en" lang="en">English</option>
+            </select>
+        </div>
+    </div>
 </header>
 
 <main>

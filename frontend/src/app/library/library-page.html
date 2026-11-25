@@ -1,0 +1,129 @@
+@let m = copy();
+@let session = store.session();
+<section class="library" aria-labelledby="library-heading">
+    <header class="library-heading">
+        <h1 id="library-heading">{{ m.title }}</h1>
+        @if (session.state === 'signedIn') {
+            <div class="session-controls">
+                <span class="account-name">{{ session.session.username }}</span>
+                <button type="button" (click)="store.logout()" [disabled]="store.busy()">{{ m.signOut }}</button>
+            </div>
+        }
+    </header>
+
+    @if (feedbackTitle(); as title) {
+        <div class="library-feedback" [class.failure]="!success()" [class.success]="success()" [attr.role]="success() ? 'status' : 'alert'">
+            <p>{{ title }}</p>
+            @if (feedbackIssues().length > 0) {
+                <ul>
+                    @for (issue of feedbackIssues(); track $index) { <li>{{ issue }}</li> }
+                </ul>
+            }
+        </div>
+    }
+
+    @if (!secureOrigin) {
+        <div class="library-panel session-panel"><p>{{ m.httpsRequired }}</p></div>
+    } @else if (session.state === 'checking') {
+        <p role="status">{{ m.checkingSession }}</p>
+    } @else if (session.state === 'unavailable') {
+        <button type="button" (click)="store.checkSession()" [disabled]="store.busy()">{{ m.retry }}</button>
+    } @else if (session.state === 'signedOut') {
+        <section class="library-panel session-panel" aria-labelledby="sign-in-heading">
+            <h2 id="sign-in-heading">{{ m.loginTitle }}</h2>
+            <p>{{ m.loginDescription }}</p>
+            <form [formGroup]="loginForm" (ngSubmit)="signIn()">
+                <fieldset class="login-fields" [disabled]="store.busy()">
+                    <label class="form-field">
+                        <span>{{ m.username }}</span>
+                        <input formControlName="username" autocomplete="username" required maxlength="256" />
+                    </label>
+                    <label class="form-field">
+                        <span>{{ m.password }}</span>
+                        <input type="password" formControlName="password" autocomplete="current-password" required maxlength="256" />
+                    </label>
+                    <button type="submit" class="primary-button" [disabled]="loginForm.invalid">{{ m.signIn }}</button>
+                </fieldset>
+            </form>
+        </section>
+    } @else {
+        @let kind = store.kind();
+        <div class="library-actions">
+            <div class="category-tabs">
+                <button type="button" (click)="store.selectKind('characters')" [attr.aria-pressed]="kind === 'characters'" [disabled]="store.busy()">
+                    {{ m.characters }}
+                </button>
+                <button type="button" (click)="store.selectKind('monsters')" [attr.aria-pressed]="kind === 'monsters'" [disabled]="store.busy()">
+                    {{ m.monsters }}
+                </button>
+            </div>
+            <button type="button" class="primary-button" (click)="store.newTemplate()" [disabled]="store.busy()">
+                {{ kind === 'characters' ? m.newCharacter : m.newMonster }}
+            </button>
+        </div>
+
+        <details class="library-panel import-panel">
+            <summary>{{ m.importTitle }}</summary>
+            <div class="import-fields">
+                <p>{{ m.importHelp }}</p>
+                <div class="form-field">
+                    <span>{{ m.importFile }}</span>
+                    <input #file type="file" hidden accept=".json,application/json" (change)="selectFile(file)" [disabled]="store.busy()" />
+                    <div class="file-selection">
+                        <button type="button" (click)="file.click()" [disabled]="store.busy()" aria-describedby="library-filename">{{ m.chooseFile }}</button>
+                        <span id="library-filename" aria-live="polite">{{ selectedFile()?.name ?? m.noFileSelected }}</span>
+                    </div>
+                </div>
+                <button type="button" (click)="importFile(file)" [disabled]="!selectedFile() || store.busy()">{{ m.importButton }}</button>
+            </div>
+        </details>
+
+        <div class="library-layout" [class.with-editor]="store.editor()">
+            <section class="library-panel templates" aria-labelledby="template-list-heading" [attr.aria-busy]="store.busy()">
+                <div class="list-heading">
+                    <div>
+                        <h2 id="template-list-heading">{{ kind === 'characters' ? m.characters : m.monsters }}</h2>
+                        @if (!store.busy() && store.feedback()?.code !== 'loadFailed') {
+                            <p class="template-count">{{ m.templateCount(store.templates().length) }}</p>
+                        }
+                    </div>
+                    <button type="button" class="text-button" (click)="store.reload()" [disabled]="store.busy()">{{ m.reload }}</button>
+                </div>
+                <label class="checkbox-field">
+                    <input #archived type="checkbox" [checked]="store.includeArchived()"
+                        (change)="store.setIncludeArchived(archived.checked)" [disabled]="store.busy()" />
+                    {{ m.includeArchived }}
+                </label>
+                @if (store.templates().length) {
+                    <ul class="template-list">
+                        @for (template of store.templates(); track template.id) {
+                            <li>
+                                <button type="button" class="template-row" (click)="store.editTemplate(template.id)" [disabled]="store.busy()"
+                                    [attr.aria-pressed]="store.editor()?.saved?.template?.id === template.id">
+                                    <span class="template-name">
+                                        <strong>{{ template.name }}</strong>
+                                        @if (template.isArchived) { <span class="archive-label">{{ m.archived }}</span> }
+                                    </span>
+                                    <span class="template-stats">
+                                        <span>{{ m.hitsShort }} <b>{{ template.statistics.maxHitPoints }}</b></span>
+                                        <span>{{ m.armorShort }} <b>{{ template.statistics.armorClass }}</b></span>
+                                        <span>{{ m.initiativeShort }} <b>{{ signedModifier(template.statistics.initiativeModifier) }}</b></span>
+                                    </span>
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                } @else if (store.busy()) {
+                    <p role="status">{{ m.loading }}</p>
+                } @else if (store.feedback()?.code !== 'loadFailed') {
+                    <p class="empty-list">{{ m.empty }}</p>
+                }
+            </section>
+
+            @if (store.editor(); as editor) {
+                <app-library-editor [selection]="editor" [busy]="store.busy()" (saveTemplate)="store.save($event)"
+                    (setArchived)="store.setArchived($event)" (deleteTemplate)="store.deleteTemplate()" (closeEditor)="store.closeEditor()" />
+            }
+        </div>
+    }
+</section>

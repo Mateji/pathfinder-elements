@@ -48,6 +48,11 @@
                         "development": {
                             "buildTarget": "demo:build:development"
                         },
+                        "library": {
+                            "buildTarget": "demo:build:development",
+                            "ssl": true,
+                            "proxyConfig": "proxy.library.cjs"
+                        },
                         "production": {
                             "buildTarget": "demo:build:production"
                         }

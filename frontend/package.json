@@ -4,6 +4,7 @@
     "scripts": {
         "ng": "ng",
         "start": "ng serve",
+        "start:library": "ng serve --configuration library",
         "build": "ng build",
         "test": "ng test --watch=false",
         "icons:optimize": "svgo -f src/icons --config svgo.config.cjs",

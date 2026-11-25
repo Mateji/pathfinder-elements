@@ -23,6 +23,8 @@
 
 **Akzeptanz für den JSON-Import in M2.** Ein gültiges Dokument der Version 1 legt PC- und Monstervorlagen samt Kampfwerten und Angriffssequenzen für den angemeldeten Besitzer an. Ein ungültiger Eintrag oder eine unbekannte Version ergibt eine Fehlermeldung und lässt den Datenbestand bestehen. Identische Dokumente ergeben bei Wiederholung oder paralleler Einreichung insgesamt einen Import pro Konto. Ein anderes Konto kann dieselben Daten für sich importieren. Gleichnamige Vorlagen bleiben separate Einträge. [Importvertrag und Fehlercodes](../backend/README.md#versionierter-json-import)
 
+**Akzeptanz für die Bibliotheksoberfläche in M2.** Nach Anmeldung sind PC- und Monsterlisten sowie das Formular mit Kampfwerten und geordneten Angriffssequenzen bei Smartphone-Breite bedienbar. Vorlagen lassen sich anlegen, erneut öffnen, ändern, archivieren, wiederherstellen und nach Bestätigung löschen. Ein Dateiimport meldet die importierten Mengen, ungültige Daten und Wiederholungen. Pflichtfelder und Würfelangaben werden vor dem Speichern geprüft. Sprachwechsel erhalten offene Eingaben, und ein Versionskonflikt lässt den Formularentwurf sichtbar. Nach Abmeldung verschwindet die private Liste.
+
 ## FR-02: Encounter-Vorbereitung und Wiederverwendung
 
 - **FR-02.1 MUSS:** Neuen Encounter anlegen, benennen, bearbeiten, speichern und später starten.

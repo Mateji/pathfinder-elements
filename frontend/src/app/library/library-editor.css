@@ -1,0 +1,111 @@
+:host {
+    display: block;
+    min-width: 0;
+}
+
+h2, h3, p {
+    margin: 0;
+}
+
+h2 {
+    font-size: 1.25rem;
+}
+
+h3 {
+    font-size: 1.05rem;
+}
+
+.editor-heading, .section-heading, .row-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+}
+
+.editor-heading, .section-heading {
+    justify-content: space-between;
+}
+
+.editor-content {
+    display: grid;
+    gap: 15px;
+    min-width: 0;
+    padding: 0;
+    margin: 4px 0 0;
+    border: 0;
+}
+
+.name-field {
+    max-width: 450px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 135px), 1fr));
+    gap: 9px 12px;
+}
+
+.nested-group {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+    padding: 8px 10px 10px;
+    margin: 0;
+    border: 1px solid var(--library-border);
+    border-radius: 8px;
+}
+
+legend {
+    padding-inline: 4px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.sequence-section, .attack-list, .damage-list {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+}
+
+.sequence {
+    background: #f3f7f2;
+}
+
+.attack {
+    background: #fff;
+}
+
+.damage {
+    background: #f7f8f3;
+}
+
+.field-help {
+    color: var(--library-muted);
+    font-size: 0.86rem;
+}
+
+button.compact-button {
+    min-width: 44px;
+    padding-inline: 6px;
+}
+
+.lifecycle-actions {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--library-border);
+}
+
+button.danger {
+    color: #8f3027;
+}
+
+button.danger-button {
+    background: #93362b;
+    color: #fff;
+    border-color: #93362b;
+}
+
+button.danger-button:enabled:hover {
+    background: #78271e;
+}

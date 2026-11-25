@@ -59,6 +59,7 @@ Keine eigenständigen Deployments pro Modul. Fachlogik sitzt weder im Controller
 - Data-Access-Services für API; keine HTTP-Aufrufe in Presentational Components.
 - Eingaben für ausstehende Angriffe lokal halten, bestätigte Serverantwort ist autoritativ. Erfolg/Fehler sichtbar anzeigen.
 - UI-Texte aus dem typisierten Katalog der aktiven Sprache beziehen. Locale-sensitive Zahlen und Datumsangaben mit der aktiven Sprache explizit formatieren. [D-027](DECISIONS.md#d-027--ui-sprache-zur-laufzeit--25112026--v)
+- Die Bibliotheksseite lädt Vorlagen nach erfolgreicher Sitzungsprüfung. Der Angular-HTTPS-Entwicklungsproxy bindet die Compose-API auf derselben Origin ein. Änderungen verwenden das ETag der geöffneten Vorlage. Bei einem Konflikt bleibt der Formularentwurf erhalten und die aktuelle Version kann ausdrücklich neu geöffnet werden. [Lokaler Start](../README.md#bibliothek-mit-anmeldung)
 
 ## API-Verträge und Konsistenz
 
