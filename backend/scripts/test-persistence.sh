@@ -51,7 +51,7 @@ library_snapshot() {
     query "
         SELECT $fields FROM character_templates AS template
         JOIN \"AspNetUsers\" AS owner ON owner.\"Id\" = template.owner_user_id;
-        SELECT $fields FROM monster_templates AS template
+        SELECT $fields, template.attack_sequences FROM monster_templates AS template
         JOIN \"AspNetUsers\" AS owner ON owner.\"Id\" = template.owner_user_id;
     " "$@"
 }

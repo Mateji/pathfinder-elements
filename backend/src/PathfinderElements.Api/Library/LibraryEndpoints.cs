@@ -9,51 +9,44 @@ namespace PathfinderElements.Api.Library;
 
 internal static class LibraryEndpoints
 {
+    private const string CharacterDetailRoute = "GetCharacterTemplate";
+    private const string MonsterDetailRoute = "GetMonsterTemplate";
+
     internal static void MapLibraryEndpoints(this WebApplication application)
     {
         var library = application.MapGroup("/api")
             .RequireAuthorization(policy => policy.RequireAuthenticatedUser().RequireClaim(ClaimTypes.NameIdentifier))
             .ProtectCookieRequests();
-        MapTemplates<CharacterTemplate>(library.MapGroup("/characters"), "GetCharacterTemplate",
-            (owner, name, statistics) => new CharacterTemplate(owner, name, statistics));
-        MapTemplates<MonsterTemplate>(library.MapGroup("/monsters"), "GetMonsterTemplate",
-            (owner, name, statistics) => new MonsterTemplate(owner, name, statistics));
+        var characters = library.MapGroup("/characters");
+        MapTemplates<CharacterTemplate>(characters, CharacterDetailRoute);
+        characters.MapPost("", (TemplateWriteRequest request, HttpContext context, PathfinderDbContext database) =>
+        {
+            return CreateAsync(request, context, database, request.ToCharacterTemplate, CharacterDetailRoute);
+        });
+        characters.MapPut("/{id:guid}", (Guid id, TemplateWriteRequest request, HttpContext context, PathfinderDbContext database) =>
+        {
+            return UpdateAsync<CharacterTemplate>(id, request, context, database,
+                template => template.Update(request.Name!, request.Statistics!.ToDomain()));
+        });
+
+        var monsters = library.MapGroup("/monsters");
+        MapTemplates<MonsterTemplate>(monsters, MonsterDetailRoute);
+        monsters.MapPost("", (MonsterWriteRequest request, HttpContext context, PathfinderDbContext database) =>
+        {
+            return CreateAsync(request, context, database, request.ToMonsterTemplate, MonsterDetailRoute);
+        });
+        monsters.MapPut("/{id:guid}", (Guid id, MonsterWriteRequest request, HttpContext context, PathfinderDbContext database) =>
+        {
+            return UpdateAsync<MonsterTemplate>(id, request, context, database,
+                template => template.Update(request.Name!, request.Statistics!.ToDomain(), request.ToAttackSequences()));
+        });
     }
 
-    private static void MapTemplates<TTemplate>(
-        RouteGroupBuilder group, string itemRouteName, Func<string, string, CombatStatistics, TTemplate> create)
+    private static void MapTemplates<TTemplate>(RouteGroupBuilder group, string itemRouteName)
         where TTemplate : class, ILibraryTemplate
     {
         group.MapGet("", ListAsync<TTemplate>);
         group.MapGet("/{id:guid}", GetAsync<TTemplate>).WithName(itemRouteName);
-        group.MapPost("", async (TemplateWriteRequest request, HttpContext context, PathfinderDbContext database,
-            CancellationToken cancellationToken) =>
-        {
-            var errors = request.Validate();
-            if (errors.Count != 0)
-            {
-                return Results.ValidationProblem(errors);
-            }
-
-            var template = create(OwnerId(context), request.Name!, request.Statistics!.ToDomain());
-            database.Set<TTemplate>().Add(template);
-            await database.SaveChangesAsync(cancellationToken);
-            var response = WriteRepresentation(context, template);
-            return Results.CreatedAtRoute(itemRouteName, new { id = template.Id }, response);
-        });
-
-        group.MapPut("/{id:guid}", (Guid id, TemplateWriteRequest request, HttpContext context, PathfinderDbContext database,
-            CancellationToken cancellationToken) =>
-        {
-            var errors = request.Validate();
-            if (errors.Count != 0)
-            {
-                return Task.FromResult(Results.ValidationProblem(errors));
-            }
-
-            return ChangeAsync<TTemplate>(id, context, database,
-                template => template.Update(request.Name!, request.Statistics!.ToDomain()), cancellationToken);
-        });
         group.MapPut("/{id:guid}/archive", (Guid id, TemplateArchiveRequest request, HttpContext context,
             PathfinderDbContext database, CancellationToken cancellationToken) =>
         {
@@ -61,6 +54,36 @@ internal static class LibraryEndpoints
                 cancellationToken);
         });
         group.MapDelete("/{id:guid}", DeleteAsync<TTemplate>);
+    }
+
+    private static async Task<IResult> CreateAsync<TTemplate>(TemplateWriteRequest request, HttpContext context,
+        PathfinderDbContext database, Func<string, TTemplate> create, string itemRouteName)
+        where TTemplate : class, ILibraryTemplate
+    {
+        var errors = request.Validate();
+        if (errors.Count != 0)
+        {
+            return Results.ValidationProblem(errors);
+        }
+
+        var template = create(OwnerId(context));
+        database.Set<TTemplate>().Add(template);
+        await database.SaveChangesAsync(context.RequestAborted);
+        var response = WriteRepresentation(context, template);
+        return Results.CreatedAtRoute(itemRouteName, new { id = template.Id }, response);
+    }
+
+    private static Task<IResult> UpdateAsync<TTemplate>(Guid id, TemplateWriteRequest request, HttpContext context,
+        PathfinderDbContext database, Action<TTemplate> update)
+        where TTemplate : class, ILibraryTemplate
+    {
+        var errors = request.Validate();
+        if (errors.Count != 0)
+        {
+            return Task.FromResult(Results.ValidationProblem(errors));
+        }
+
+        return ChangeAsync(id, context, database, update, context.RequestAborted);
     }
 
     private static async Task<IResult> ListAsync<TTemplate>(bool? includeArchived, HttpContext context,
@@ -182,7 +205,8 @@ internal static class LibraryEndpoints
     private static TemplateResponse WriteRepresentation(HttpContext context, ILibraryTemplate template)
     {
         context.Response.Headers.ETag = EntityTag(template.Version);
-        return new TemplateResponse(template.Id, template.Name, template.Statistics, template.IsArchived);
+        return new TemplateResponse(template.Id, template.Name, template.Statistics, template.IsArchived,
+            (template as MonsterTemplate)?.AttackSequences);
     }
 
     private static string EntityTag(Guid version)

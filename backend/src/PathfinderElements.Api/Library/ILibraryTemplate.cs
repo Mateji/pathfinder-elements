@@ -9,6 +9,5 @@ internal interface ILibraryTemplate
     bool IsArchived { get; }
     Guid Version { get; }
 
-    void Update(string name, CombatStatistics statistics);
     void SetArchived(bool isArchived);
 }

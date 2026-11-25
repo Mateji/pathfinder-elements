@@ -44,7 +44,15 @@ Jede Vorlage speichert den Archivstatus und eine Version für konkurrierende Sch
 
 Initiative und Rettungswürfe können auch negative Modifikatoren haben. Die drei RK-Werte werden einzeln aus dem Charakterbogen oder Statblock übernommen. [PF1E-Bestiary zur Struktur von Statblocks](https://legacy.aonprd.com/bestiary/introduction.html)
 
-Ausgewürfelte Initiative, aktuelle und temporäre HP, Zustände und Zugfolge gehören zur Kampf-Instanz. Die Angular-Demo enthält bereits ausgewürfelte Initiative und keine Max-HP. Ihre Daten sind ein Beispiel für die Tracker-Anzeige. Das Importformat für Vorlagen wird in OQ-17 geklärt. Angriffsdefinitionen folgen im dafür vorgesehenen M2-Schritt. Welche Attributswerte, Bonustypen und situativen Modifikatoren die Zustandsautomatik braucht, bleibt in OQ-05 offen.
+Ausgewürfelte Initiative, aktuelle und temporäre HP, Zustände und Zugfolge gehören zur Kampf-Instanz. Die Angular-Demo enthält bereits ausgewürfelte Initiative und keine Max-HP. Ihre Daten sind ein Beispiel für die Tracker-Anzeige. Welche Attributswerte, Bonustypen und situativen Modifikatoren die Zustandsautomatik braucht, bleibt in OQ-05 für M6 offen.
+
+### Angriffssequenzen von Monstervorlagen
+
+Eine `AttackSequence` benennt eine Auswahl aus einem oder mehreren geordneten `AttackDefinition`-Schritten. Ein Einzelangriff hat einen Schritt, ein voller Angriff kann mehrere Schritte mit unterschiedlichen Boni enthalten. Jeder Schritt speichert Nah- oder Fernkampf, das Merkmal natürlicher Angriff, den Gesamt-Angriffsbonus, die Ziel-RK (normal oder Berührung), die untere Grenze des Kritbereichs und den Kritmultiplikator.
+
+Jeder Schadensanteil speichert Würfelanzahl, Seitenzahl, festen Modifikator, die Schadensart als eingegebenen Text und die Angabe, ob der Anteil bei einem Krit multipliziert wird. Damit bleiben Grundschaden und zusätzliche Anteile wie Feuerschaden getrennt. Hinweise des GM können Sonderfälle festhalten. Die Angriffsberechnung und die unterstützten Sonderfälle folgen in M5 (OQ-03). [PF1E-Regeln zu Angriff und kritischem Schaden](https://legacy.aonprd.com/coreRulebook/combat.html)
+
+Die Sequenzen gehören zum Aggregat der Monstervorlage. PostgreSQL speichert sie geordnet in `monster_templates.attack_sequences`. Eine Änderung der Sequenzen ändert die Vorlagenversion. Beim Kampfstart gehören die Angriffsdefinitionen zum Snapshot der Kampf-Instanz.
 
 ## Combatant-Kerndaten
 

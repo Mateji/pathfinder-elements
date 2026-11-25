@@ -22,7 +22,8 @@ public sealed class LibraryTemplateTests
         await using var writer = new PathfinderDbContext(options);
         var owner = await writer.Users.SingleAsync(user => user.NormalizedUserName == "BACKUP-TEST");
         var character = new CharacterTemplate(owner.Id, "Testfigur", characterStatistics);
-        var monster = new MonsterTemplate(owner.Id, "Testfigur", monsterStatistics);
+        var monster = new MonsterTemplate(owner.Id, "Testfigur", monsterStatistics,
+            [new("Einzelangriff", [new("Klaue", AttackMode.Melee, true, 3, false, 20, 2, [new(1, 4, 1, "slashing", true)], null)])]);
         writer.CharacterTemplates.Add(character);
         writer.MonsterTemplates.Add(monster);
         await writer.SaveChangesAsync();
@@ -41,6 +42,9 @@ public sealed class LibraryTemplateTests
         Assert.Equal(monster.Name, storedMonster.Name);
         Assert.Equal(characterStatistics, storedCharacter.Statistics);
         Assert.Equal(monsterStatistics, storedMonster.Statistics);
+        var attack = Assert.Single(Assert.Single(storedMonster.AttackSequences).Attacks);
+        Assert.Equal(AttackMode.Melee, attack.Mode);
+        Assert.Equal(new AttackDamage(1, 4, 1, "slashing", true), Assert.Single(attack.Damage));
 
         var missingOwnerUserId = Guid.NewGuid().ToString();
         var invalidOwner = await Assert.ThrowsAsync<PostgresException>(() => reader.Database.ExecuteSqlInterpolatedAsync(
@@ -113,6 +117,7 @@ public sealed class LibraryTemplateTests
             (monster.Id, monster.OwnerUserId, monster.Name, monster.Statistics, monster.IsArchived));
         Assert.NotEqual(Guid.Empty, character.Version);
         Assert.NotEqual(Guid.Empty, monster.Version);
+        Assert.Empty(monster.AttackSequences);
 
         await using var concurrentDatabase = new PathfinderDbContext(options);
         var staleCharacter = await concurrentDatabase.CharacterTemplates.SingleAsync();

@@ -1,5 +1,8 @@
+using System.Collections.Immutable;
+using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PathfinderElements.Api.Library;
 
@@ -7,6 +10,8 @@ namespace PathfinderElements.Api.Persistence;
 
 internal static class LibraryMapping
 {
+    private static readonly JsonSerializerOptions AttackStorageJson = new(JsonSerializerDefaults.Web);
+
     internal static void Configure(ModelBuilder modelBuilder)
     {
         var characters = modelBuilder.Entity<CharacterTemplate>();
@@ -38,6 +43,14 @@ internal static class LibraryMapping
         monsters.HasOne<IdentityUser>().WithMany()
             .HasForeignKey(template => template.OwnerUserId).OnDelete(DeleteBehavior.Restrict);
         monsters.ComplexProperty(template => template.Statistics, ConfigureStatistics);
+        var attacks = monsters.Property(template => template.AttackSequences)
+            .HasColumnName("attack_sequences").HasColumnType("jsonb").HasDefaultValueSql("'[]'::jsonb")
+            .HasConversion(
+                sequences => JsonSerializer.Serialize(sequences, AttackStorageJson),
+                json => JsonSerializer.Deserialize<ImmutableArray<AttackSequence>>(json, AttackStorageJson));
+        // The sequence, attack and damage records contain only immutable values and collections.
+        attacks.Metadata.SetValueComparer(new ValueComparer<ImmutableArray<AttackSequence>>(
+            (left, right) => left.Equals(right), sequences => sequences.GetHashCode(), sequences => sequences));
     }
 
     private static void ConfigureStatistics(ComplexPropertyBuilder<CombatStatistics> statistics)

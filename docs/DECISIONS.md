@@ -49,6 +49,10 @@ Eine archivierte PC- oder Monstervorlage verschwindet aus der Neuauswahl. Bereit
 
 Der Auftraggeber hat sich für den Erhalt bestehender Verweise entschieden. Ausschließliches Archivieren würde auch bei ungenutzten Vorlagen keinen endgültigen Löschweg bieten. Eine Pflicht zum vorherigen Auflösen aller Referenzen würde auch die reversible Archivierung blockieren. In M3 müssen die Vorlagenreferenzen vorbereiteter Encounter mit einem restriktiven Datenbank-Fremdschlüssel angelegt werden, damit auch paralleles Löschen und Referenzieren konsistent bleibt.
 
+### D-029 · Pflichtfelder für Bibliotheksvorlagen · 25.11.2026 · F
+
+Für die Bibliothek in M2 genügen die Gesamtwerte des Grundmodells. Weitere Basiseinzelwerte und Bonustypen werden in M6 aus dem ersten Zustandskatalog abgeleitet. Wenn für eine Zustandswirkung nötige Angaben fehlen, greift der vereinbarte manuelle Modus. [Grundmodell](DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2) · [OQ-04 und OQ-05](OPEN_QUESTIONS.md)
+
 ## Regeln für neue Entscheidungen
 
 Neue Architektur-/Fachentscheidungen erhalten fortlaufende IDs mit Datum, Problem, Alternativen, Begründung und Auswirkungen. `V` wird erst nach ausdrücklicher Prüfung in `F` überführt. Kein stillschweigendes Umschreiben früherer Entscheidungen.

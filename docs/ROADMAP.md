@@ -42,9 +42,9 @@
 
 ## M2 — Bibliothek
 
-- [ ] PC- und Monster-Modelle mit kampfrelevanten Feldern präzisieren. Das [Grundmodell](DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2) ist umgesetzt. Die Pflichtfelder für die Zustandsautomatik bleiben in OQ-05 offen.
+- [x] PC- und Monster-Modelle mit kampfrelevanten Feldern präzisieren. Die vorhandenen [Gesamtwerte](DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2) genügen als Pflichtfelder für M2. OQ-05 folgt mit dem Zustandskatalog in M6.
 - [x] CRUD und sicheres Archivieren/Löschen, owner-geschützte Endpunkte.
-- [ ] Angriffsdefinitionen und Vorlagenwerte; Import aus versioniertem JSON.
+- [ ] Angriffsdefinitionen und Vorlagenwerte; Import aus versioniertem JSON. Angriffssequenzen sind umgesetzt. Die Importregeln zu wiederholten Dateien und Export bleiben in OQ-17 offen.
 - [ ] Responsive Formular-/Listen-UI in DE/EN, Tests und Datenvalidierung.
 
 **Abnahme:** 3 PCs und Goblins/Ork anlegen, speichern, ändern, importieren, nach Neustart wieder öffnen.
@@ -52,6 +52,8 @@
 **Grundmodell, geprüft am 25.11.2026.** Die EF-Migration `AddLibraryTemplates` ergänzt je eine Tabelle für PC- und Monstervorlagen. Der PostgreSQL-Test speicherte beide Typen über EF Core, las sämtliche Werte in einem neuen Kontext und prüfte Fremdschlüssel und Max-HP-Constraint. Besitzer, IDs und Kampfwerte blieben nach Neuerstellung des DB-Containers und nach Restore in ein frisches Volume erhalten. Der Angular-Produktionsbuild und sieben Frontend-Tests liefen erfolgreich. Elf Backend-Tests liefen im Standardlauf, der PostgreSQL-Test im Compose-Lauf. [Akzeptanzfälle des Grundmodells](REQUIREMENTS.md#fr-01-bibliothek-von-pcs-und-monstern)
 
 **Bibliotheks-API, geprüft am 25.11.2026.** Beide Vorlagentypen unterstützen Anlegen, Listen, Lesen, Ändern, Archivieren, Wiederherstellen und endgültiges Löschen. Die Tests deckten Cookie-Sitzung, CSRF-Schutz, Besitzerisolation, Versionskonflikte und die Löschsperre mit einem PostgreSQL-Testverweis ab. Das Upgrade vorhandener Vorlagen erhielt IDs und Werte und ergänzte eine Version. 13 Backend-Tests liefen im Standardlauf, acht Tests im isolierten Compose-Lauf. Die Caddy-Konfiguration, der Angular-Produktionsbuild und sieben Frontend-Tests wurden erfolgreich geprüft. Die Anbindung echter Encounter-Referenzen nach D-028 folgt in M3. [HTTP-Vertrag](../backend/README.md#http-vertrag-der-bibliothek)
+
+**Angriffssequenzen, geprüft am 25.11.2026.** Monstervorlagen speichern geordnete Nah-, Fern- und natürliche Angriffe samt Krit- und Schadenswerten. Alte API-Clients können Grundwerte ändern und die Angriffe erhalten. Die Migration bestehender Vorlagen, der PostgreSQL-Containerwechsel und der Restore wurden geprüft. Der Angular-Produktionsbuild, sieben Frontend-Tests, 13 Backend-Tests im Standardlauf und neun Tests im isolierten Compose-Lauf waren erfolgreich. [Angriffssequenzen](../backend/README.md#angriffssequenzen)
 
 ## M3 — Encounter-Vorbereitung
 

@@ -19,6 +19,8 @@
 
 **Akzeptanz für die Bibliotheks-API in M2.** Der Besitzer kann beide Vorlagentypen anlegen, lesen, ändern und archivieren. Eine archivierte Vorlage fehlt in der Standardliste, bleibt über ihre ID abrufbar und erscheint nach Wiederherstellung wieder in der Standardliste. Eine Vorlage mit einem Verweis aus einem vorbereiteten Encounter kann erst nach Auflösung des Verweises endgültig gelöscht werden. M2 prüft die Löschsperre mit einem PostgreSQL-Testverweis. M3 prüft die Regel zusätzlich mit dem Encounter-Modell. Fremde Konten erhalten weder Listeneinträge noch Lese- oder Schreibzugriff über eine bekannte ID. Schreibzugriffe verlangen CSRF-Schutz, vollständige Vorlagendaten beim Anlegen oder Bearbeiten und die aktuelle Version bei Änderungen an einem bestehenden Eintrag. [HTTP-Vertrag](../backend/README.md#http-vertrag-der-bibliothek)
 
+**Akzeptanz für Angriffsdefinitionen in M2.** Eine Monstervorlage speichert einen Einzelangriff und eine geordnete Sequenz aus mehreren Angriffen. Ihre Angriffsboni, Ziel-RK, Kritwerte und separat multiplizierbaren Schadensanteile bleiben beim Lesen erhalten. Eine Änderung der Grundwerte ohne Sequenzfeld erhält die Angriffe. Ein leeres Array entfernt die Angriffe ausdrücklich. Eine ungültige Sequenz wird abgelehnt, und bestehende Vorlagen erhalten bei der Migration eine leere Sequenzliste. [HTTP-Vertrag der Angriffssequenzen](../backend/README.md#angriffssequenzen)
+
 ## FR-02: Encounter-Vorbereitung und Wiederverwendung
 
 - **FR-02.1 MUSS:** Neuen Encounter anlegen, benennen, bearbeiten, speichern und später starten.

@@ -19,6 +19,22 @@ public sealed class LibraryApiTests
 {
     private const string TestPassword = "Synthetic-Library-Test123!";
     private static readonly CombatStatistics Statistics = new(24, -1, 17, 9, 18, 4, -2, 0);
+    private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web);
+    private static readonly AttackSequence[] ExampleSequences =
+    [
+        new("Voller Angriff",
+        [
+            new("Biss", AttackMode.Melee, true, 7, false, 19, 2,
+                [new(1, 6, 4, "piercing", true), new(1, 4, 0, "fire", false)], "Gift separat abwickeln."),
+            new("Klaue", AttackMode.Melee, true, 2, false, 20, 2,
+                [new(1, 4, 2, "slashing", true)], null)
+        ]),
+        new("Strahl",
+        [
+            new("Strahl", AttackMode.Ranged, false, -1, true, 20, 2,
+                [new(0, 0, 3, "cold", true)], null)
+        ])
+    ];
 
     [Theory]
     [InlineData("characters")]
@@ -196,6 +212,42 @@ public sealed class LibraryApiTests
         {
             await database.Database.ExecuteSqlRawAsync("DROP TABLE prepared_reference_probe");
         }
+    }
+
+    [PostgreSqlFact]
+    public async Task MonsterAttacksRoundTripAndAnUpdateWithoutAttacksPreservesThem()
+    {
+        await using var factory = new LibraryApiFactory();
+        var (owner, _) = await SeedUsersAsync(factory);
+        using var client = CreateClient(factory);
+        var csrf = await SignInAsync(client, owner.UserName!);
+        var expectedAttacks = JsonSerializer.SerializeToElement(ExampleSequences, WebJson);
+        using var created = await SendAsync(client, HttpMethod.Post, "/api/monsters",
+            new { name = "Testmonster mit Angriffen", Statistics, attackSequences = ExampleSequences }, csrf);
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var path = Assert.IsType<Uri>(created.Headers.Location).AbsolutePath;
+        var initialTag = GetTag(created);
+        using var fetched = await client.GetAsync(path);
+        Assert.Equal(HttpStatusCode.OK, fetched.StatusCode);
+        using var body = JsonDocument.Parse(await fetched.Content.ReadAsStringAsync());
+        Assert.True(JsonElement.DeepEquals(expectedAttacks, body.RootElement.GetProperty("attackSequences")));
+
+        using var invalidSequence = await SendAsync(client, HttpMethod.Put, path,
+            new { name = "Ungültig", Statistics, attackSequences = new[] { new { name = "Leer", attacks = Array.Empty<object>() } } },
+            csrf, initialTag);
+        Assert.Equal(HttpStatusCode.BadRequest, invalidSequence.StatusCode);
+
+        using var legacyUpdate = await SendAsync(client, HttpMethod.Put, path, new { name = "Neuer Name", Statistics }, csrf, initialTag);
+        Assert.Equal(HttpStatusCode.OK, legacyUpdate.StatusCode);
+        using var legacyBody = JsonDocument.Parse(await legacyUpdate.Content.ReadAsStringAsync());
+        Assert.True(JsonElement.DeepEquals(expectedAttacks, legacyBody.RootElement.GetProperty("attackSequences")));
+
+        using var cleared = await SendAsync(client, HttpMethod.Put, path,
+            new { name = "Ohne Angriffe", Statistics, attackSequences = Array.Empty<AttackSequence>() }, csrf, GetTag(legacyUpdate));
+        Assert.Equal(HttpStatusCode.OK, cleared.StatusCode);
+        using var withoutAttacks = await client.GetAsync(path);
+        using var clearedBody = JsonDocument.Parse(await withoutAttacks.Content.ReadAsStringAsync());
+        Assert.Equal(0, clearedBody.RootElement.GetProperty("attackSequences").GetArrayLength());
     }
 
     private static HttpClient CreateClient(WebApplicationFactory<Program> factory)

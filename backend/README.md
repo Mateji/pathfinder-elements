@@ -22,7 +22,7 @@ Compose startet PostgreSQL 17, wartet auf dessen Healthcheck und startet die API
 
 Vom Repository-Root aus `backend/scripts/test-persistence.sh` ausführen. Der Test benötigt Docker Compose, Bash, curl und OpenSSL. Er startet zwei isolierte Compose-Projekte mit zufälligem Datenbankpasswort und dynamischen API-Ports. Ein .NET-SDK-Container führt den EF-Integrationstest gegen die Testdatenbank aus. HTTP-Integrationstests und Test des Upgrades von bestehenden Vorlagen erhalten jeweils eine eigene Datenbank im selben PostgreSQL-Container. Das Skript prüft Readiness (503) und Liveness (200) während des Datenbankstopps sowie die Wiederherstellung des synthetischen Datensatzes, des Testkontos und zweier Bibliotheksvorlagen. Die Vorlagen werden nach Neuerstellung des DB-Containers und nach Restore in ein frisches Volume samt Besitzer, Kampfwerten, Archivstatus und Version geprüft. Die Testprojekte samt Volumes und der temporäre Dump werden beim Beenden entfernt. [Backup- und Restore-Runbook](BACKUP_RESTORE.md)
 
-Die EF-Migration `AddLibraryTemplates` legt die Tabellen für PC- und Monstervorlagen mit Besitzer-Fremdschlüssel an. `AddLibraryTemplateLifecycle` ergänzt Archivstatus und Version. Bestehende Vorlagen beginnen aktiv und erhalten eine Version. [Bibliotheksmodell](../docs/DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2)
+Die EF-Migration `AddLibraryTemplates` legt die Tabellen für PC- und Monstervorlagen mit Besitzer-Fremdschlüssel an. `AddLibraryTemplateLifecycle` ergänzt Archivstatus und Version. `AddMonsterAttackSequences` ergänzt die Angriffssequenzen. Bestehende Monstervorlagen erhalten eine leere Sequenzliste. [Bibliotheksmodell](../docs/DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2)
 
 ## HTTPS mit Caddy auf dem Linux-Host
 
@@ -107,6 +107,38 @@ Die Basisrouten sind `/api/characters` für PC-Vorlagen und `/api/monsters` für
 Der Name muss mindestens ein Zeichen außer Leerraum enthalten, darf höchstens 256 Zeichen lang sein und kein Nullzeichen enthalten. Alle acht Kampfwerte sind als Ganzzahlen Pflicht, und Max-HP muss positiv sein. Inhaltliche Validierungsfehler liefern HTTP 400 mit Feldpfaden und Fehlercodes in `errors`. Fehlende oder falsch typisierte Pflichtfelder im Statistikobjekt ergeben HTTP 400 beim Lesen der Anfrage.
 
 Für `PUT` und `DELETE` sendet der Client den aktuellen `ETag` einschließlich Anführungszeichen als einzelnen `If-Match`-Wert. Ein fehlender Wert ergibt 428. Ein abweichender Wert oder ein konkurrierender Schreibzugriff ergibt 412. Eine fehlende Sitzung ergibt 401. Eine fremde oder fehlende ID ergibt 404. Eine durch einen Fremdschlüssel referenzierte Vorlage ergibt beim Löschen 409 mit `code: templateReferenced`. M3 muss die vorbereiteten Encounter-Referenzen mit dieser Datenbanksperre verknüpfen. [HTTP-Semantik von If-Match](https://www.rfc-editor.org/rfc/rfc9110.html#name-if-match) · [Archivierungsregel](../docs/DECISIONS.md#d-028--archivieren-und-löschen-von-bibliotheksvorlagen--25112026--f)
+
+### Angriffssequenzen
+
+Monstervorlagen unterstützen das zusätzliche Feld `attackSequences` im Body von `POST` und `PUT /{id}`. Beim Ändern erhält eine ausgelassene Angabe oder `null` die gespeicherten Sequenzen. Ein Array ersetzt sie vollständig. Mit `[]` lassen sich alle Sequenzen entfernen. Die Detailantwort der Monstervorlage liefert das Feld einschließlich der Reihenfolge.
+
+```json
+{
+  "attackSequences": [
+    {
+      "name": "Einzelangriff",
+      "attacks": [
+        {
+          "name": "Biss",
+          "mode": "melee",
+          "isNatural": true,
+          "attackBonus": 7,
+          "targetsTouchArmorClass": false,
+          "criticalThreatMinimum": 19,
+          "criticalMultiplier": 2,
+          "damage": [
+            { "diceCount": 1, "dieSides": 6, "modifier": 4, "damageType": "piercing", "multipliesOnCritical": true },
+            { "diceCount": 1, "dieSides": 4, "modifier": 0, "damageType": "fire", "multipliesOnCritical": false }
+          ],
+          "notes": "Gift separat abwickeln."
+        }
+      ]
+    }
+  ]
+}
+```
+
+Eine Vorlage erlaubt bis zu 32 Sequenzen, jede Sequenz 1 bis 32 Angriffe. `mode` ist `melee` oder `ranged`. Kritgrenze und Multiplikator liegen in den Bereichen 2 bis 20 und 2 bis 10. `damage` ist eine Liste mit bis zu 16 Anteilen. Für einen festen Schadensanteil setzt der Client `diceCount` und `dieSides` auf 0 und gibt den Wert als `modifier` an. Für Würfel gelten 1 bis 100 Würfel mit jeweils 2 bis 100 Seiten. `notes` ist optional und erlaubt bis zu 1024 Zeichen.
 
 ## Lokal bauen und testen
 

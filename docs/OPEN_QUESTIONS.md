@@ -8,7 +8,7 @@
 | OQ-02 | entschieden | Archivierte Vorlagen bleiben in vorbereiteten Encountern nutzbar. Endgültiges Löschen setzt voraus, dass keine Verweise aus vorbereiteten Encountern bestehen. [D-028](DECISIONS.md#d-028--archivieren-und-löschen-von-bibliotheksvorlagen--25112026--f) | M2/M3 |
 | OQ-03 | hoch | Welche Angriffstypen/Volle Angriffe müssen für v1 mit welchen PF1E-Ausnahmen automatisiert werden (z. B. Angriffe mehrerer Ziele, Iterative, Secondary Natural Attacks, Touch, AOOs, Concealment, Resistenz)? | M5 |
 | OQ-04 | hoch | Welche Zustände bilden den ersten Katalog? Was sind konkrete Start-/Ablaufzeitpunkte und erlaubte Sondermodifikatoren? | M6 |
-| OQ-05 | hoch | Welche Basiseinzelwerte und Bonustypen braucht die Zustandsautomatik über die bereits erfassten [Gesamtwerte](DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2) hinaus? | M2/M6 |
+| OQ-05 | hoch | Welche Basiseinzelwerte und Bonustypen braucht der erste Zustandskatalog aus OQ-04? Für M2 genügen die vorhandenen Gesamtwerte. [D-029](DECISIONS.md#d-029--pflichtfelder-für-bibliotheksvorlagen--25112026--f) | M6 |
 | OQ-06 | hoch | Welche Undo-Semantik: nur letzter Schritt oder beliebige frühere Aktion? Wie mit abhängigen Folgeschritten umgehen? | M4/M5 |
 | OQ-07 | hoch | Ready/Delay: Welche Bedienung/Trigger müssen automatisiert sein? Was bleibt manueller GM-Trigger? | M4 |
 | OQ-08 | mittel | Was ist eine „Position“: Freitext, Raum/Zonen oder nur farbliche Battlemap-Markerzuordnung? | M3/M7 |
@@ -20,7 +20,7 @@
 | OQ-14 | mittel | M1 nutzt typisierte Laufzeitkataloge für UI-Texte ([D-027](DECISIONS.md#d-027--ui-sprache-zur-laufzeit--25112026--v)). Wie werden kuratierte Bibliotheksinhalte und weitere PF1E-Regelbegriffe lokalisiert? | M2 |
 | OQ-15 | mittel | API-Betrieb: Caddy bereits auf Host? Welche Domain/Netzwerke/Containergrenzen/Backup-Retention? | M1 |
 | OQ-16 | hoch | Konfliktverhalten bei zwei Browser-Tabs oder wiederholten Mobilfunk-Requests: Fehlermeldung, Neu laden, Konfliktlösung? | M1/M4 |
-| OQ-17 | mittel | Import-JSON-Schema, Versionierung, Validierung, Dublettenhandling und Export/Backup via UI? | M2 |
+| OQ-17 | mittel | Für den JSON-Import sind `schemaVersion`, getrennte PC- und Monsterlisten sowie atomare Validierung vorgesehen. Welches Verhalten gilt bei wiederholten Importen? Gehört ein JSON-Export über die UI zu M2? | M2 |
 | OQ-18 | mittel | PC-Schadenseingabe: nur Schaden/Zustand oder auch Heilung/mehrere Ziele im selben Dialog? | M5 |
 | OQ-19 | mittel | Welche GM-Overrides erscheinen im Protokoll und wie schützt man vertrauliche Abweichungen vor späteren Spieleransichten? | M5 |
 | OQ-20 | mittel | Wie detailliert sollen Todes-/Stabilisierungszustände angezeigt werden und welche manuelle Bestätigung ist nötig? | M5/M6 |
