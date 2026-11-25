@@ -20,7 +20,7 @@
 | OQ-14 | mittel | M1 nutzt typisierte Laufzeitkataloge für UI-Texte ([D-027](DECISIONS.md#d-027--ui-sprache-zur-laufzeit--25112026--v)). Wie werden kuratierte Bibliotheksinhalte und weitere PF1E-Regelbegriffe lokalisiert? | M2 |
 | OQ-15 | mittel | API-Betrieb: Caddy bereits auf Host? Welche Domain/Netzwerke/Containergrenzen/Backup-Retention? | M1 |
 | OQ-16 | hoch | Konfliktverhalten bei zwei Browser-Tabs oder wiederholten Mobilfunk-Requests: Fehlermeldung, Neu laden, Konfliktlösung? | M1/M4 |
-| OQ-17 | mittel | Für den JSON-Import sind `schemaVersion`, getrennte PC- und Monsterlisten sowie atomare Validierung vorgesehen. Welches Verhalten gilt bei wiederholten Importen? Gehört ein JSON-Export über die UI zu M2? | M2 |
+| OQ-17 | entschieden | Versionierter, atomarer JSON-Import. Identische Importdaten werden pro Konto einmal angelegt. Der JSON-Export folgt später. [D-030](DECISIONS.md#d-030--versionierter-bibliotheksimport--25112026--f) | M2 |
 | OQ-18 | mittel | PC-Schadenseingabe: nur Schaden/Zustand oder auch Heilung/mehrere Ziele im selben Dialog? | M5 |
 | OQ-19 | mittel | Welche GM-Overrides erscheinen im Protokoll und wie schützt man vertrauliche Abweichungen vor späteren Spieleransichten? | M5 |
 | OQ-20 | mittel | Wie detailliert sollen Todes-/Stabilisierungszustände angezeigt werden und welche manuelle Bestätigung ist nötig? | M5/M6 |

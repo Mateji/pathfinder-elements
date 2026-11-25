@@ -51,6 +51,14 @@ internal static class LibraryMapping
         // The sequence, attack and damage records contain only immutable values and collections.
         attacks.Metadata.SetValueComparer(new ValueComparer<ImmutableArray<AttackSequence>>(
             (left, right) => left.Equals(right), sequences => sequences.GetHashCode(), sequences => sequences));
+
+        var imports = modelBuilder.Entity<LibraryImportReceipt>();
+        imports.ToTable("library_import_receipts");
+        imports.HasKey(receipt => new { receipt.OwnerUserId, receipt.Fingerprint }).HasName(LibraryImportReceipt.PrimaryKeyName);
+        imports.Property(receipt => receipt.OwnerUserId).HasColumnName("owner_user_id");
+        imports.Property(receipt => receipt.Fingerprint).HasColumnName("fingerprint").HasMaxLength(64);
+        imports.HasOne<IdentityUser>().WithMany()
+            .HasForeignKey(receipt => receipt.OwnerUserId).OnDelete(DeleteBehavior.Cascade);
     }
 
     private static void ConfigureStatistics(ComplexPropertyBuilder<CombatStatistics> statistics)

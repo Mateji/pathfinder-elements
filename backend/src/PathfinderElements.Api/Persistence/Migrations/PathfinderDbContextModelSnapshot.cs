@@ -230,6 +230,23 @@ namespace PathfinderElements.Api.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("PathfinderElements.Api.Library.LibraryImportReceipt", b =>
+                {
+                    b.Property<string>("OwnerUserId")
+                        .HasColumnType("text")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<string>("Fingerprint")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("fingerprint");
+
+                    b.HasKey("OwnerUserId", "Fingerprint")
+                        .HasName("pk_library_import_receipts");
+
+                    b.ToTable("library_import_receipts", (string)null);
+                });
+
             modelBuilder.Entity("PathfinderElements.Api.Library.MonsterTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -364,6 +381,15 @@ namespace PathfinderElements.Api.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("OwnerUserId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PathfinderElements.Api.Library.LibraryImportReceipt", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

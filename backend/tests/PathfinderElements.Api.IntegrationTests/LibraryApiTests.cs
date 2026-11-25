@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -18,6 +19,7 @@ namespace PathfinderElements.Api.IntegrationTests;
 public sealed class LibraryApiTests
 {
     private const string TestPassword = "Synthetic-Library-Test123!";
+    private const string ImportPath = "/api/library/import";
     private static readonly CombatStatistics Statistics = new(24, -1, 17, 9, 18, 4, -2, 0);
     private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web);
     private static readonly AttackSequence[] ExampleSequences =
@@ -250,6 +252,123 @@ public sealed class LibraryApiTests
         Assert.Equal(0, clearedBody.RootElement.GetProperty("attackSequences").GetArrayLength());
     }
 
+    [Fact]
+    public async Task ImportRequiresAnAuthenticatedSession()
+    {
+        await using var factory = new WebApplicationFactory<Program>();
+        using var client = CreateClient(factory);
+        using var response = await SendAsync(client, HttpMethod.Post, ImportPath, new { schemaVersion = 1 });
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [PostgreSqlFact]
+    public async Task ImportsValidDocumentsOncePerOwnerAndKeepsExistingTemplates()
+    {
+        await using var factory = new LibraryApiFactory();
+        var (owner, otherOwner) = await SeedUsersAsync(factory);
+        using var client = CreateClient(factory);
+        var csrf = await SignInAsync(client, owner.UserName!);
+        var (_, existing, _) = await CreateTemplateAsync(client, "/api/characters", "Testfigur", csrf);
+        var characters = new[]
+        {
+            new { name = "Testfigur", statistics = Statistics with { InitiativeModifier = 5 } },
+            new { name = "Testfigur", statistics = Statistics with { InitiativeModifier = 0 } }
+        };
+        var monsters = new[] { new { name = "Testmonster", Statistics, attackSequences = ExampleSequences } };
+        var document = new { schemaVersion = 1, characters, monsters };
+        using var missingCsrf = await SendAsync(client, HttpMethod.Post, ImportPath, document);
+        Assert.Equal(HttpStatusCode.BadRequest, missingCsrf.StatusCode);
+
+        using var invalid = await SendAsync(client, HttpMethod.Post, ImportPath,
+            new { schemaVersion = 1, characters, monsters = new[] { new { name = " ", Statistics } } }, csrf);
+        Assert.Equal(HttpStatusCode.BadRequest, invalid.StatusCode);
+        using var error = JsonDocument.Parse(await invalid.Content.ReadAsStringAsync());
+        Assert.Equal("required", error.RootElement.GetProperty("errors").GetProperty("monsters[0].name")[0].GetString());
+        Assert.Equal(existing, Assert.Single((await client.GetFromJsonAsync<Template[]>("/api/characters"))!));
+        Assert.Empty((await client.GetFromJsonAsync<Template[]>("/api/monsters"))!);
+
+        using var created = await SendAsync(client, HttpMethod.Post, ImportPath, document, csrf);
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var result = Assert.IsType<ImportResult>(await created.Content.ReadFromJsonAsync<ImportResult>());
+        Assert.Equal(1, result.SchemaVersion);
+        Assert.Equal(2, result.CharacterIds.Length);
+        var monsterId = Assert.Single(result.MonsterIds);
+        for (var index = 0; index < characters.Length; index++)
+        {
+            var stored = await client.GetFromJsonAsync<Template>($"/api/characters/{result.CharacterIds[index]}");
+            Assert.Equal(characters[index].statistics, stored!.Statistics);
+        }
+
+        using var monster = await client.GetAsync($"/api/monsters/{monsterId}");
+        using var monsterBody = JsonDocument.Parse(await monster.Content.ReadAsStringAsync());
+        Assert.True(JsonElement.DeepEquals(JsonSerializer.SerializeToElement(ExampleSequences, WebJson),
+            monsterBody.RootElement.GetProperty("attackSequences")));
+
+        var reorderedProperties = JsonSerializer.Serialize(new { monsters, characters, schemaVersion = 1 },
+            new JsonSerializerOptions(WebJson) { WriteIndented = true });
+        using var replay = await SendAsync(client, HttpMethod.Post, ImportPath,
+            new StringContent(reorderedProperties, Encoding.UTF8, "application/json"), csrf);
+        Assert.Equal(HttpStatusCode.Conflict, replay.StatusCode);
+        using var conflict = JsonDocument.Parse(await replay.Content.ReadAsStringAsync());
+        Assert.Equal("importAlreadyProcessed", conflict.RootElement.GetProperty("code").GetString());
+        var ownedAfterReplay = (await client.GetFromJsonAsync<Template[]>("/api/characters"))!;
+        Assert.Equal(3, ownedAfterReplay.Length);
+        Assert.Contains(existing, ownedAfterReplay);
+        Assert.Equal(monsterId, Assert.Single((await client.GetFromJsonAsync<Template[]>("/api/monsters"))!).Id);
+
+        using var otherClient = CreateClient(factory);
+        var otherCsrf = await SignInAsync(otherClient, otherOwner.UserName!);
+        using var otherImport = await SendAsync(otherClient, HttpMethod.Post, ImportPath, document, otherCsrf);
+        Assert.Equal(HttpStatusCode.Created, otherImport.StatusCode);
+        var otherResult = Assert.IsType<ImportResult>(await otherImport.Content.ReadFromJsonAsync<ImportResult>());
+        Assert.NotEqual(monsterId, Assert.Single(otherResult.MonsterIds));
+        using var foreignMonster = await otherClient.GetAsync($"/api/monsters/{monsterId}");
+        Assert.Equal(HttpStatusCode.NotFound, foreignMonster.StatusCode);
+        Assert.Equal(2, (await otherClient.GetFromJsonAsync<Template[]>("/api/characters"))!.Length);
+    }
+
+    [PostgreSqlFact]
+    public async Task ImportRejectsUnsupportedFormatsAndSavesOnlyOneConcurrentImport()
+    {
+        await using var factory = new LibraryApiFactory();
+        var (owner, _) = await SeedUsersAsync(factory);
+        using var client = CreateClient(factory);
+        var csrf = await SignInAsync(client, owner.UserName!);
+        using var tooLarge = await SendAsync(client, HttpMethod.Post, ImportPath,
+            new StringContent(new string(' ', 1024 * 1024 + 1), Encoding.UTF8, "application/json"), csrf);
+        Assert.Equal(HttpStatusCode.RequestEntityTooLarge, tooLarge.StatusCode);
+        using var nonJson = await SendAsync(client, HttpMethod.Post, ImportPath,
+            new StringContent("{}", Encoding.UTF8, "text/plain"), csrf);
+        Assert.Equal(HttpStatusCode.UnsupportedMediaType, nonJson.StatusCode);
+        using var unsupported = await SendAsync(client, HttpMethod.Post, ImportPath, new { schemaVersion = 2, futureField = "value" }, csrf);
+        Assert.Equal(HttpStatusCode.BadRequest, unsupported.StatusCode);
+        using var versionError = JsonDocument.Parse(await unsupported.Content.ReadAsStringAsync());
+        Assert.Equal("unsupportedVersion", versionError.RootElement.GetProperty("errors").GetProperty("schemaVersion")[0].GetString());
+        using var malformed = await SendAsync(client, HttpMethod.Post, ImportPath,
+            new StringContent("""{"schemaVersion":1,"schemaVersion":2}""", Encoding.UTF8, "application/json"), csrf);
+        Assert.Equal(HttpStatusCode.BadRequest, malformed.StatusCode);
+        using var configuredOwner = await SendAsync(client, HttpMethod.Post, ImportPath,
+            new { schemaVersion = 1, characters = new[] { new { name = "Invalid", Statistics, ownerUserId = owner.Id } } }, csrf);
+        Assert.Equal(HttpStatusCode.BadRequest, configuredOwner.StatusCode);
+        Assert.Empty((await client.GetFromJsonAsync<Template[]>("/api/characters"))!);
+
+        var document = new
+        {
+            schemaVersion = 1,
+            characters = new[] { new { name = "Testfigur", Statistics } },
+            monsters = new[] { new { name = "Testmonster", Statistics } }
+        };
+        var responses = await Task.WhenAll(
+            SendAsync(client, HttpMethod.Post, ImportPath, document, csrf),
+            SendAsync(client, HttpMethod.Post, ImportPath, document, csrf));
+        using var firstResponse = responses[0];
+        using var secondResponse = responses[1];
+        Assert.Single(responses, response => response.StatusCode == HttpStatusCode.Created);
+        Assert.Single(responses, response => response.StatusCode == HttpStatusCode.Conflict);
+        Assert.Single((await client.GetFromJsonAsync<Template[]>("/api/characters"))!);
+        Assert.Single((await client.GetFromJsonAsync<Template[]>("/api/monsters"))!);
+    }
+
     private static HttpClient CreateClient(WebApplicationFactory<Program> factory)
     {
         return factory.CreateClient(new WebApplicationFactoryClientOptions
@@ -306,7 +425,7 @@ public sealed class LibraryApiTests
         using var request = new HttpRequestMessage(method, path);
         if (body is not null)
         {
-            request.Content = JsonContent.Create(body);
+            request.Content = body as HttpContent ?? JsonContent.Create(body);
         }
 
         if (csrf is not null)
@@ -324,6 +443,7 @@ public sealed class LibraryApiTests
 
     private sealed record Template(Guid Id, string Name, CombatStatistics Statistics, bool IsArchived);
     private sealed record CsrfToken(string Token);
+    private sealed record ImportResult(int SchemaVersion, Guid[] CharacterIds, Guid[] MonsterIds);
 
     private sealed class LibraryApiFactory : WebApplicationFactory<Program>
     {

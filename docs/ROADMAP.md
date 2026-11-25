@@ -44,7 +44,7 @@
 
 - [x] PC- und Monster-Modelle mit kampfrelevanten Feldern präzisieren. Die vorhandenen [Gesamtwerte](DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2) genügen als Pflichtfelder für M2. OQ-05 folgt mit dem Zustandskatalog in M6.
 - [x] CRUD und sicheres Archivieren/Löschen, owner-geschützte Endpunkte.
-- [ ] Angriffsdefinitionen und Vorlagenwerte; Import aus versioniertem JSON. Angriffssequenzen sind umgesetzt. Die Importregeln zu wiederholten Dateien und Export bleiben in OQ-17 offen.
+- [x] Angriffsdefinitionen und Vorlagenwerte; Import aus versioniertem JSON. [D-030](DECISIONS.md#d-030--versionierter-bibliotheksimport--25112026--f)
 - [ ] Responsive Formular-/Listen-UI in DE/EN, Tests und Datenvalidierung.
 
 **Abnahme:** 3 PCs und Goblins/Ork anlegen, speichern, ändern, importieren, nach Neustart wieder öffnen.
@@ -54,6 +54,8 @@
 **Bibliotheks-API, geprüft am 25.11.2026.** Beide Vorlagentypen unterstützen Anlegen, Listen, Lesen, Ändern, Archivieren, Wiederherstellen und endgültiges Löschen. Die Tests deckten Cookie-Sitzung, CSRF-Schutz, Besitzerisolation, Versionskonflikte und die Löschsperre mit einem PostgreSQL-Testverweis ab. Das Upgrade vorhandener Vorlagen erhielt IDs und Werte und ergänzte eine Version. 13 Backend-Tests liefen im Standardlauf, acht Tests im isolierten Compose-Lauf. Die Caddy-Konfiguration, der Angular-Produktionsbuild und sieben Frontend-Tests wurden erfolgreich geprüft. Die Anbindung echter Encounter-Referenzen nach D-028 folgt in M3. [HTTP-Vertrag](../backend/README.md#http-vertrag-der-bibliothek)
 
 **Angriffssequenzen, geprüft am 25.11.2026.** Monstervorlagen speichern geordnete Nah-, Fern- und natürliche Angriffe samt Krit- und Schadenswerten. Alte API-Clients können Grundwerte ändern und die Angriffe erhalten. Die Migration bestehender Vorlagen, der PostgreSQL-Containerwechsel und der Restore wurden geprüft. Der Angular-Produktionsbuild, sieben Frontend-Tests, 13 Backend-Tests im Standardlauf und neun Tests im isolierten Compose-Lauf waren erfolgreich. [Angriffssequenzen](../backend/README.md#angriffssequenzen)
+
+**JSON-Import, geprüft am 25.11.2026.** Die API importiert kompakte oder formatierte JSON-Dokumente der Version 1 mit PC- und Monstervorlagen. PostgreSQL verhindert parallele Doppelimporte pro Konto. Automatisierte Tests bestätigten gemischte Importe mit Angriffssequenzen, die Ablehnung ungültiger Dokumente ohne Teildaten und die getrennte Verarbeitung desselben Dokuments für zwei Konten. Der Angular-Produktionsbuild, sieben Frontend-Tests, 14 Backend-Tests im Standardlauf und zwölf Tests im isolierten Compose-Lauf waren erfolgreich. Die Caddy-Konfiguration wurde validiert. [HTTP-Vertrag des Imports](../backend/README.md#versionierter-json-import)
 
 ## M3 — Encounter-Vorbereitung
 

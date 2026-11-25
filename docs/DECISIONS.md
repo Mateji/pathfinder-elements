@@ -53,6 +53,12 @@ Der Auftraggeber hat sich für den Erhalt bestehender Verweise entschieden. Auss
 
 Für die Bibliothek in M2 genügen die Gesamtwerte des Grundmodells. Weitere Basiseinzelwerte und Bonustypen werden in M6 aus dem ersten Zustandskatalog abgeleitet. Wenn für eine Zustandswirkung nötige Angaben fehlen, greift der vereinbarte manuelle Modus. [Grundmodell](DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2) · [OQ-04 und OQ-05](OPEN_QUESTIONS.md)
 
+### D-030 · Versionierter Bibliotheksimport · 25.11.2026 · F
+
+M2 importiert PC- und Monstervorlagen aus JSON mit expliziter Schemaversion. Jeder Eintrag eines neuen Dokuments erhält eine eigene serverseitige ID. Gleiche Namen sind erlaubt und bereits vorhandene Vorlagen bleiben beim Import erhalten. Die API validiert das gesamte Dokument und speichert die Vorlagen zusammen mit dem kontobezogenen Importbeleg in einer Transaktion. Dasselbe Dokument wird pro Konto einmal angelegt. Ein Wiederholungsaufruf meldet den bereits verarbeiteten Import.
+
+Die bestätigte Regel verhindert versehentliche Doppelimporte auch bei Wiederholung einer Netzwerkanfrage. Eine Zuordnung nach Namen wäre wegen erlaubter Namensgleichheit mehrdeutig. Der JSON-Export ist für später vorgesehen. Für M2 deckt das bestehende PostgreSQL-Verfahren Backup und Wiederherstellung ab. [HTTP-Vertrag des Imports](../backend/README.md#versionierter-json-import)
+
 ## Regeln für neue Entscheidungen
 
 Neue Architektur-/Fachentscheidungen erhalten fortlaufende IDs mit Datum, Problem, Alternativen, Begründung und Auswirkungen. `V` wird erst nach ausdrücklicher Prüfung in `F` überführt. Kein stillschweigendes Umschreiben früherer Entscheidungen.

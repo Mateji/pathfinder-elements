@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 using Npgsql;
@@ -17,6 +18,11 @@ internal static class LibraryEndpoints
         var library = application.MapGroup("/api")
             .RequireAuthorization(policy => policy.RequireAuthenticatedUser().RequireClaim(ClaimTypes.NameIdentifier))
             .ProtectCookieRequests();
+        library.MapPost("/library/import", (HttpContext context, PathfinderDbContext database) =>
+        {
+            return LibraryImportEndpoint.ImportAsync(context.Request, OwnerId(context), database);
+        }).WithMetadata(new RequestSizeLimitAttribute(LibraryImportEndpoint.MaximumRequestBytes));
+
         var characters = library.MapGroup("/characters");
         MapTemplates<CharacterTemplate>(characters, CharacterDetailRoute);
         characters.MapPost("", (TemplateWriteRequest request, HttpContext context, PathfinderDbContext database) =>

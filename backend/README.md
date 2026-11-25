@@ -22,11 +22,11 @@ Compose startet PostgreSQL 17, wartet auf dessen Healthcheck und startet die API
 
 Vom Repository-Root aus `backend/scripts/test-persistence.sh` ausführen. Der Test benötigt Docker Compose, Bash, curl und OpenSSL. Er startet zwei isolierte Compose-Projekte mit zufälligem Datenbankpasswort und dynamischen API-Ports. Ein .NET-SDK-Container führt den EF-Integrationstest gegen die Testdatenbank aus. HTTP-Integrationstests und Test des Upgrades von bestehenden Vorlagen erhalten jeweils eine eigene Datenbank im selben PostgreSQL-Container. Das Skript prüft Readiness (503) und Liveness (200) während des Datenbankstopps sowie die Wiederherstellung des synthetischen Datensatzes, des Testkontos und zweier Bibliotheksvorlagen. Die Vorlagen werden nach Neuerstellung des DB-Containers und nach Restore in ein frisches Volume samt Besitzer, Kampfwerten, Archivstatus und Version geprüft. Die Testprojekte samt Volumes und der temporäre Dump werden beim Beenden entfernt. [Backup- und Restore-Runbook](BACKUP_RESTORE.md)
 
-Die EF-Migration `AddLibraryTemplates` legt die Tabellen für PC- und Monstervorlagen mit Besitzer-Fremdschlüssel an. `AddLibraryTemplateLifecycle` ergänzt Archivstatus und Version. `AddMonsterAttackSequences` ergänzt die Angriffssequenzen. Bestehende Monstervorlagen erhalten eine leere Sequenzliste. [Bibliotheksmodell](../docs/DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2)
+Die EF-Migration `AddLibraryTemplates` legt die Tabellen für PC- und Monstervorlagen mit Besitzer-Fremdschlüssel an. `AddLibraryTemplateLifecycle` ergänzt Archivstatus und Version. `AddMonsterAttackSequences` ergänzt die Angriffssequenzen. Bestehende Monstervorlagen erhalten eine leere Sequenzliste. `AddLibraryImportReceipts` ergänzt die kontobezogenen Importbelege. [Bibliotheksmodell](../docs/DOMAIN_MODEL.md#bibliotheksvorlagen-in-m2)
 
 ## HTTPS mit Caddy auf dem Linux-Host
 
-Die Caddy-Vorlage setzt voraus, dass Caddy und Docker Compose auf demselben Linux-Host laufen und Caddy den Host-Loopback erreicht. Die Vorlage leitet `/health/live`, `/api/auth/*` und die Bibliotheksrouten unter `/api/characters` und `/api/monsters` weiter. Readiness bleibt für lokale Betriebsprüfungen am API-Port erreichbar. [Caddy-Vorlage](../deploy/caddy/pathfinder.caddy)
+Die Caddy-Vorlage setzt voraus, dass Caddy und Docker Compose auf demselben Linux-Host laufen und Caddy den Host-Loopback erreicht. Die Vorlage leitet `/health/live`, `/api/auth/*` und die Bibliotheksrouten unter `/api/characters`, `/api/monsters` und `/api/library/import` weiter. Readiness bleibt für lokale Betriebsprüfungen am API-Port erreichbar. [Caddy-Vorlage](../deploy/caddy/pathfinder.caddy)
 
 1. Die Vorlage als Site-Block in die vorhandene Caddy-Konfiguration übernehmen. `pathfinder.example.com` durch den vorgesehenen DNS-Namen ersetzen. Bei abweichendem `API_PORT` auch den Upstream-Port im Site-Block anpassen.
 2. Die DNS-Einträge auf den Server zeigen lassen. Caddy braucht für das hier vorgesehene automatische HTTPS erreichbare TCP-Ports 80 und 443 sowie ein persistentes, beschreibbares Datenverzeichnis für Zertifikate. [Caddy-Dokumentation zu HTTPS](https://caddyserver.com/docs/automatic-https)
@@ -139,6 +139,51 @@ Monstervorlagen unterstützen das zusätzliche Feld `attackSequences` im Body vo
 ```
 
 Eine Vorlage erlaubt bis zu 32 Sequenzen, jede Sequenz 1 bis 32 Angriffe. `mode` ist `melee` oder `ranged`. Kritgrenze und Multiplikator liegen in den Bereichen 2 bis 20 und 2 bis 10. `damage` ist eine Liste mit bis zu 16 Anteilen. Für einen festen Schadensanteil setzt der Client `diceCount` und `dieSides` auf 0 und gibt den Wert als `modifier` an. Für Würfel gelten 1 bis 100 Würfel mit jeweils 2 bis 100 Seiten. `notes` ist optional und erlaubt bis zu 1024 Zeichen.
+
+### Versionierter JSON-Import
+
+`POST /api/library/import` akzeptiert ein UTF-8-JSON-Dokument mit `Content-Type: application/json`. Der Aufruf braucht HTTPS, das Sitzungscookie und den nach der Anmeldung geholten Header `X-CSRF-TOKEN`. Ein Dokument der Version 1 enthält insgesamt eine bis 250 Vorlagen und darf bis zu 1 MiB groß sein.
+
+```json
+{
+  "schemaVersion": 1,
+  "characters": [
+    {
+      "name": "Testfigur",
+      "statistics": {
+        "maxHitPoints": 24, "initiativeModifier": -1,
+        "armorClass": 17, "touchArmorClass": 9, "flatFootedArmorClass": 18,
+        "fortitudeSave": 4, "reflexSave": -2, "willSave": 0
+      }
+    }
+  ],
+  "monsters": [
+    {
+      "name": "Testmonster",
+      "statistics": {
+        "maxHitPoints": 12, "initiativeModifier": 2,
+        "armorClass": 15, "touchArmorClass": 12, "flatFootedArmorClass": 13,
+        "fortitudeSave": 3, "reflexSave": 2, "willSave": -1
+      },
+      "attackSequences": []
+    }
+  ]
+}
+```
+
+Beide Listen sind optional. Die Felder eines Eintrags entsprechen den jeweiligen Schreib-Anfragen der Bibliothek. Feldnamen sind in der Schreibweise des Beispiels anzugeben. Unbekannte oder doppelte JSON-Felder ergeben einen Validierungsfehler. Beim Erfolg liefert HTTP 201 die Felder `schemaVersion`, `characterIds` und `monsterIds`. Die IDs stehen in der Reihenfolge der jeweiligen Eingabeliste. Der Server vergibt neue IDs und ordnet die Vorlagen dem angemeldeten Konto zu.
+
+Der Import verwendet einen Fingerabdruck der normalisierten Daten. Leerraum und die Reihenfolge von JSON-Feldern spielen dabei keine Rolle. Optionale Listen gelten bei Auslassung, `null` und `[]` als leer. Die Reihenfolge der Einträge innerhalb der Arrays ist Teil des Dokuments. Ein erfolgreicher Import bleibt für dieses Konto vermerkt, auch wenn einzelne importierte Vorlagen später geändert oder gelöscht werden. Gleiche Namen sind erlaubt. [Entscheidung zum Bibliotheksimport](../docs/DECISIONS.md#d-030--versionierter-bibliotheksimport--25112026--f)
+
+| Status | Bedeutung |
+| --- | --- |
+| 400 | Ungültiges oder nicht unterstütztes Dokument. Die Antwort enthält Feldpfade und Fehlercodes unter `errors`, etwa `schemaVersion → unsupportedVersion` oder `monsters[0].name → required`. Ein fehlender oder ungültiger CSRF-Token ergibt ebenfalls 400. |
+| 401 | Keine gültige Sitzung. |
+| 409 | Dasselbe Dokument wurde für dieses Konto bereits importiert. Die Antwort enthält `code: importAlreadyProcessed`. |
+| 413 | Die Anfrage überschreitet 1 MiB. |
+| 415 | Der Medientyp ist kein JSON. |
+
+Die Vorlagen und der Importbeleg werden erst nach erfolgreicher Validierung gemeinsam gespeichert. Bei 400 oder 409 entstehen keine zusätzlichen Vorlagen aus dem Dokument.
 
 ## Lokal bauen und testen
 

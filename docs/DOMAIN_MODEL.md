@@ -54,6 +54,10 @@ Jeder Schadensanteil speichert Würfelanzahl, Seitenzahl, festen Modifikator, di
 
 Die Sequenzen gehören zum Aggregat der Monstervorlage. PostgreSQL speichert sie geordnet in `monster_templates.attack_sequences`. Eine Änderung der Sequenzen ändert die Vorlagenversion. Beim Kampfstart gehören die Angriffsdefinitionen zum Snapshot der Kampf-Instanz.
 
+### Bibliotheksimport
+
+Ein gültiges Importdokument legt eigene PC- und Monstervorlagen an. Die API ermittelt den Besitzer aus der Sitzung und vergibt für jeden Eintrag eine neue UUID. Der Importbeleg in `library_import_receipts` ist pro Besitzer und Fingerabdruck des versionierten Dokuments eindeutig. Er wird zusammen mit den Vorlagen gespeichert und bleibt beim späteren Bearbeiten oder Löschen einzelner Vorlagen erhalten. [D-030](DECISIONS.md#d-030--versionierter-bibliotheksimport--25112026--f)
+
 ## Combatant-Kerndaten
 
 - `id`, `combatId`, `sourceTemplateId?`, `sourceEncounterEntryId?`, `displayName`, `side` (PC/NPC), `color`, `shortLabel`.
@@ -85,4 +89,4 @@ Die Sequenzen gehören zum Aggregat der Monstervorlage. PostgreSQL speichert sie
 
 ## Offene fachliche Grenzfälle
 
-Mehrere Ziele für volle Angriffe; Angriff auf sich selbst; AOOs und freie Aktionen außerhalb regulärer Züge; Zustandsbeginn zum Zeitpunkt der Aktion statt Rundenende; Stack-Regeln für gleiche Bonusarten; zwei gleichzeitige Tabs; Undo nach nachfolgenden abhängigen Aktionen; Import-Versionierung; Feldkonflikte bei Vorlagenupdates. Diese Themen vor dem jeweiligen Implementierungspaket entscheiden und mit Tests dokumentieren.
+Mehrere Ziele für volle Angriffe; Angriff auf sich selbst; AOOs und freie Aktionen außerhalb regulärer Züge; Zustandsbeginn zum Zeitpunkt der Aktion statt Rundenende; Stack-Regeln für gleiche Bonusarten; zwei gleichzeitige Tabs; Undo nach nachfolgenden abhängigen Aktionen; Feldkonflikte bei Vorlagenupdates. Diese Themen vor dem jeweiligen Implementierungspaket entscheiden und mit Tests dokumentieren.

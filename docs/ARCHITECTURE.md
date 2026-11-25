@@ -63,6 +63,7 @@ Keine eigenständigen Deployments pro Modul. Fachlogik sitzt weder im Controller
 ## API-Verträge und Konsistenz
 
 - REST/OpenAPI dokumentieren. Beispiel-Ressourcen: `characters`, `monsters`, `encounter-templates`, `combats`, `combat-actions`. Konkrete Endpunkte erst aus der Domänenanalyse ableiten.
+- Der Bibliotheksimport verwendet eine explizite Schemaversion. PostgreSQL speichert importierte Vorlagen und den eindeutigen Importbeleg des Besitzers atomar. [HTTP-Vertrag des Imports](../backend/README.md#versionierter-json-import)
 - Autorisierung bei jeder ID-Ressource anhand eingeloggtem Owner prüfen.
 - Mutationen am Combat über explizite serverseitige Commands (z. B. `ApplyDamage`, `ConfirmAttack`, `EndTurn`, `UndoAction`), nicht unkontrollierte freie Patches auf alle Felder.
 - Jede Command-Anfrage besitzt Idempotency-/Action-ID und Combat-Version/Concurrency-Schutz. Backend schreibt Zustand und Log in **einer** Datenbanktransaktion.
@@ -104,6 +105,6 @@ Die Bibliotheks-API filtert nach dem Besitzer aus der Cookie-Sitzung. Für fremd
 - Lokalisierung kuratierter Bibliotheksinhalte und weiterer PF1E-Regelbegriffe (OQ-14).
 - Backup-Zeitplan/Retention, Domain/DNS und Caddy-Betriebsort;
 - Concurrent-Tab-Policy; Datenmigration bisheriger JSON-Dateien;
-- genaue Versionierung/Struktur von Persistenz-DTOs und Importformaten.
+- genaue Versionierung und Struktur weiterer Persistenz-DTOs.
 
 **Diese Punkte sind technische ADRs vor dem jeweiligen Meilenstein, nicht stillschweigende Vorgaben.**

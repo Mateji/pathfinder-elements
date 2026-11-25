@@ -21,6 +21,8 @@
 
 **Akzeptanz für Angriffsdefinitionen in M2.** Eine Monstervorlage speichert einen Einzelangriff und eine geordnete Sequenz aus mehreren Angriffen. Ihre Angriffsboni, Ziel-RK, Kritwerte und separat multiplizierbaren Schadensanteile bleiben beim Lesen erhalten. Eine Änderung der Grundwerte ohne Sequenzfeld erhält die Angriffe. Ein leeres Array entfernt die Angriffe ausdrücklich. Eine ungültige Sequenz wird abgelehnt, und bestehende Vorlagen erhalten bei der Migration eine leere Sequenzliste. [HTTP-Vertrag der Angriffssequenzen](../backend/README.md#angriffssequenzen)
 
+**Akzeptanz für den JSON-Import in M2.** Ein gültiges Dokument der Version 1 legt PC- und Monstervorlagen samt Kampfwerten und Angriffssequenzen für den angemeldeten Besitzer an. Ein ungültiger Eintrag oder eine unbekannte Version ergibt eine Fehlermeldung und lässt den Datenbestand bestehen. Identische Dokumente ergeben bei Wiederholung oder paralleler Einreichung insgesamt einen Import pro Konto. Ein anderes Konto kann dieselben Daten für sich importieren. Gleichnamige Vorlagen bleiben separate Einträge. [Importvertrag und Fehlercodes](../backend/README.md#versionierter-json-import)
+
 ## FR-02: Encounter-Vorbereitung und Wiederverwendung
 
 - **FR-02.1 MUSS:** Neuen Encounter anlegen, benennen, bearbeiten, speichern und später starten.
