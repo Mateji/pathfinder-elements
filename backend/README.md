@@ -6,12 +6,14 @@ Die ASP.NET Core 10 Web API stellt einen Liveness-Endpunkt bereit. `GET /health/
 
 ## Lokale Entwicklung mit Compose
 
-Im Repository-Root für ein neues Volume einmalig ein Passwort in der ignorierten `.env` hinterlegen. Der folgende Befehl hängt den Eintrag an eine bestehende Datei an. Vorher prüfen, ob sie bereits einen Eintrag für `POSTGRES_PASSWORD` enthält.
+Im Repository-Root für ein neues Volume einmalig ein Passwort in der von Git ignorierten `.env` hinterlegen. Die Befehle legen die Datei an, falls sie fehlt. Ist sie schon vorhanden, prüfe vor dem Start den Eintrag `POSTGRES_PASSWORD`. Bei einem bereits initialisierten Volume verwende das zugehörige Passwort.
 
 ```sh
-(umask 077 && printf 'POSTGRES_PASSWORD=%s\n' "$(openssl rand -hex 32)" >> .env)
+if [ ! -e .env ]; then
+    (umask 077 && printf 'POSTGRES_PASSWORD=%s\n' "$(openssl rand -hex 32)" > .env)
+fi
 docker compose up --build -d
-curl -i http://127.0.0.1:5080/health/ready
+curl -i --fail --retry 12 --retry-all-errors --retry-delay 1 http://127.0.0.1:5080/health/ready
 ```
 
 Compose startet PostgreSQL 17, wartet auf dessen Healthcheck und startet die API. Die API wendet offene EF-Core-Migrationen vor dem ersten HTTP-Request an. Der API-Port ist an Loopback gebunden. PostgreSQL ist über das Compose-Netz erreichbar. Die erste Migration legt die technische Tabelle `application_metadata` mit einem eindeutigen Textschlüssel und einem Textwert an. Der Abnahmetest verwendet sie für einen synthetischen Datensatz.

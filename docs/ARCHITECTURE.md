@@ -63,7 +63,7 @@ Keine eigenständigen Deployments pro Modul. Fachlogik sitzt weder im Controller
 
 ## API-Verträge und Konsistenz
 
-- REST/OpenAPI dokumentieren. Beispiel-Ressourcen: `characters`, `monsters`, `encounter-templates`, `combats`, `combat-actions`. Konkrete Endpunkte erst aus der Domänenanalyse ableiten.
+- Vorhandene REST-Ressourcen sind `/api/characters`, `/api/monsters` und `/api/encounters`. Die HTTP-Verträge dokumentieren Felder, Besitzprüfung und Versionsschutz. Die Zielarchitektur sieht zusätzlich eine OpenAPI-Spezifikation vor. Endpunkte für laufende Kämpfe folgen mit der Kampf-Domäne. [HTTP-Verträge](../backend/README.md#http-vertrag-der-bibliothek)
 - Der Bibliotheksimport verwendet eine explizite Schemaversion. PostgreSQL speichert importierte Vorlagen und den eindeutigen Importbeleg des Besitzers atomar. [HTTP-Vertrag des Imports](../backend/README.md#versionierter-json-import)
 - Autorisierung bei jeder ID-Ressource anhand eingeloggtem Owner prüfen.
 - Mutationen am Combat über explizite serverseitige Commands (z. B. `ApplyDamage`, `ConfirmAttack`, `EndTurn`, `UndoAction`), nicht unkontrollierte freie Patches auf alle Felder.
@@ -85,7 +85,7 @@ Keine eigenständigen Deployments pro Modul. Fachlogik sitzt weder im Controller
 
 PC-Vorlagen, Monstervorlagen, vorbereitete Encounter und Kämpfe erhalten beim Anlegen eine verpflichtende `OwnerUserId` aus der serverseitig authentifizierten Benutzeridentität. Die API begrenzt Listen und Einzelzugriffe auf diesen Besitzer. Änderungen und Löschvorgänge verwenden denselben Besitzerfilter. Referenzen auf andere private Ressourcen werden ebenfalls im Besitzkontext geprüft, etwa beim Hinzufügen einer Monstervorlage zu einem Encounter. Untergeordnete Daten wie Kampfaktionen werden über den zugehörigen Kampf autorisiert.
 
-Die Bibliotheks-API filtert nach dem Besitzer aus der Cookie-Sitzung. Für fremde IDs gilt dieselbe Antwort wie für fehlende IDs. Beim Ändern hängt die Speicherung von der aktuellen Vorlagenversion und dem Besitzer ab. Vorbereitete Encounter müssen in M3 einen restriktiven Fremdschlüssel zur Vorlage erhalten. Die vorhandene technische Tabelle `application_metadata` dient dem Persistenztest. [HTTP-Vertrag der Bibliothek](../backend/README.md#http-vertrag-der-bibliothek)
+Die Bibliotheks- und Encounter-API filtern nach dem Besitzer aus der Cookie-Sitzung. Für fremde IDs gilt dieselbe Antwort wie für fehlende IDs. Änderungen an gespeicherten Ressourcen setzen die aktuelle Version voraus. PostgreSQL blockiert das endgültige Löschen von Vorlagen mit einem restriktiven Fremdschlüssel aus `encounter_participants`. Die technische Tabelle `application_metadata` dient dem Persistenztest. [HTTP-Vertrag der Bibliothek](../backend/README.md#http-vertrag-der-bibliothek) · [HTTP-Vertrag der Encounter-Vorbereitung](../backend/README.md#http-vertrag-der-encounter-vorbereitung)
 
 **Akzeptanzfälle für private Endpunkte**
 

@@ -4,6 +4,8 @@
 
 Der Initiative-Tracker und die Bibliothek liegen als Angular-21-Anwendung unter `frontend/`. Unter `backend/` liegt die ASP.NET Core 10 Web API. Die Spezifikation liegt unter `docs/`. Für die lokale Entwicklung startet Docker Compose die API und PostgreSQL. [Backend starten und testen](backend/README.md)
 
+Für einen Rechnerwechsel oder einen neuen Codex-Chat steht die Übergabe mit aktuellem M3-Stand, Startprompt und Hinweisen zur Übernahme lokaler Daten bereit. [Mit Codex weiterarbeiten](docs/CODEX_START_PROMPT.md)
+
 ## Frontend lokal starten
 
 Im Repository-Root beginnen und den Entwicklungsserver starten:
@@ -22,12 +24,21 @@ Neue UI-Texte in den DE/EN-Sprachkatalogen unter `frontend/src/app/i18n/` ergän
 
 ### Bibliothek mit Anmeldung
 
-Starte zuerst API und PostgreSQL im Repository-Root. Richte bei einem frischen Stack das Datenbankpasswort und das einzige Anwendungskonto nach der Backend-Anleitung ein. Für die Anmeldung muss die API den lokalen HTTPS-Proxy als vertrauenswürdig erkennen. [Compose starten](backend/README.md#lokale-entwicklung-mit-compose) · [Konto einrichten](backend/README.md#konto-einrichten-und-passwort-zurücksetzen)
+Starte zuerst API und PostgreSQL im Repository-Root. Bei einem frischen Stack legst du vorher `POSTGRES_PASSWORD` in der lokalen `.env` an. Anschließend lässt sich die Verbindungsquelle des HTTPS-Proxys für die API eintragen. Unter Linux mit Compose-Bridge ermittelst du das Gateway am laufenden API-Container. [Compose starten](backend/README.md#lokale-entwicklung-mit-compose)
 
 ```bash
-export AUTH_TRUSTED_PROXY="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.Gateway}}{{end}}' "$(docker compose ps -q api)")"
-docker compose up -d api
+(
+    set -eu
+    api_container=$(docker compose ps -q api)
+    if [ -z "$api_container" ]; then
+        printf '%s\n' 'Starte zuerst den Compose-Dienst api.' >&2
+        exit 1
+    fi
+    docker inspect --format '{{range .NetworkSettings.Networks}}{{.Gateway}}{{end}}' "$api_container"
+)
 ```
+
+Trage die ausgegebene IP als `AUTH_TRUSTED_PROXY` in `.env` ein. `docker compose up -d api` übernimmt den Wert. Prüfe die IP erneut, wenn du das Compose-Netz neu erstellst. Bei einer frischen Datenbank legst du nun das Anwendungskonto für die Browser-Anmeldung an. [Konto einrichten](backend/README.md#konto-einrichten-und-passwort-zurücksetzen)
 
 Starte anschließend aus `frontend/` die HTTPS-Konfiguration. Sie leitet API-Aufrufe an `127.0.0.1:5080` weiter. Bei einem abweichenden Compose-Port kann `PATHFINDER_API_PORT` für diesen Start gesetzt werden.
 
@@ -67,7 +78,7 @@ Tests wachsen mit den Features. Die Bibliothekstests decken das Speichern und Wi
 6. [`docs/DECISIONS.md`](docs/DECISIONS.md) — begründete Entscheidungen
 7. [`docs/OPEN_QUESTIONS.md`](docs/OPEN_QUESTIONS.md) — fachliche/technische Unklarheiten, die nicht geraten werden dürfen
 8. [`docs/ROADMAP.md`](docs/ROADMAP.md) — phasenweise Umsetzung und Definition of Done
-9. [`docs/CODEX_START_PROMPT.md`](docs/CODEX_START_PROMPT.md) — erster Auftrag an Codex in VS Code
+9. [`docs/CODEX_START_PROMPT.md`](docs/CODEX_START_PROMPT.md) — aktueller Stand und Startprompt für eine neue Codex-Session
 
 **Statuskennzeichnung:** `FESTGELEGT` = vom Auftraggeber entschieden; `VORSCHLAG` = zu prüfende Umsetzung; `OFFEN` = vor Umsetzung entscheiden. Anforderungen mit `MUSS` sind für den beschriebenen Zielumfang verpflichtend; die Roadmap bestimmt, wann sie umgesetzt werden.
 

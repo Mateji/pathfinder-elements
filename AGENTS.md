@@ -4,6 +4,8 @@
 
 Du arbeitest am Repository **Pathfinder Elements**, zunächst an einem Combat Manager für **Pathfinder First Edition (PF1E)**. Ziel ist ein zuverlässiges Werkzeug für einen GM am Smartphone, Tablet oder Laptop. Führe keine PF2E-Mechaniken ein.
 
+Die [Codex-Übergabe](docs/CODEX_START_PROMPT.md) beschreibt den dokumentierten Arbeitsstand und den Einstieg für eine neue Session.
+
 Lies vor fachlichen oder architektonischen Änderungen:
 - `docs/VISION.md`
 - `docs/REQUIREMENTS.md`

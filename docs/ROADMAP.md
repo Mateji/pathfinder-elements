@@ -1,6 +1,6 @@
 # ROADMAP — Iterative Entwicklung mit Codex
 
-**Version:** 0.2 · **Stand:** 25.11.2026 · **Status:** M1 und M2 abgeschlossen, M0-Dokumentationsabgleich offen.
+**Version:** 0.2 · **Stand:** 25.11.2026 · **Status:** M1 und M2 abgeschlossen, M3 bis zur Teilnehmerkennzeichnung umgesetzt. Der M0-Dokumentationsabgleich ist offen. [Codex-Übergabe](CODEX_START_PROMPT.md)
 
 **Arbeitstakt:** Jeder Meilenstein in kleine, einzeln reviewbare Aufgaben zerlegen. Vor jedem Meilenstein Repository auditen und offene fachliche Fragen klären. Keine „implementiere das ganze Projekt“-Aufträge.
 
@@ -63,7 +63,7 @@
 
 - [x] Encounter aus PCs/Monstern zusammenstellen; Mengenfunktion Default 1.
 - [x] Stabile einzelne Teilnehmerinstanzen mit Farbkennzeichnung und festen Nummern. [D-031](DECISIONS.md#d-031--nummern-und-farben-für-encounter-teilnehmer--25112026--f)
-- [ ] Bibliotheksreferenzen mit restriktivem Fremdschlüssel nach D-028, Override-Konfliktregel, Kopieren und Wiederverwenden.
+- [ ] Bibliotheksreferenzen, Override-Konfliktregel, Kopieren und Wiederverwenden. Die restriktiven Fremdschlüssel nach D-028 sind umgesetzt. Für die Override-Konfliktregel gilt OQ-01. [Offene Fragen](OPEN_QUESTIONS.md)
 - [ ] Start-HP je Teilnehmer mit Max-HP als Default; Starten und erneut vorbereiten.
 
 **Abnahme:** 3 PCs + 4 Goblins + 1 Ork; alle Goblins einzeln identifizierbar; Änderung einer Vorlage aktualisiert den vorbereiteten Encounter kontrolliert.
