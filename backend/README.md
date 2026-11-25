@@ -26,7 +26,7 @@ Die EF-Migration `AddLibraryTemplates` legt die Tabellen für PC- und Monstervor
 
 ## HTTPS mit Caddy auf dem Linux-Host
 
-Die Caddy-Vorlage setzt voraus, dass Caddy und Docker Compose auf demselben Linux-Host laufen und Caddy den Host-Loopback erreicht. Die Vorlage leitet `/health/live`, `/api/auth/*` und die Bibliotheksrouten unter `/api/characters`, `/api/monsters` und `/api/library/import` weiter. Readiness bleibt für lokale Betriebsprüfungen am API-Port erreichbar. [Caddy-Vorlage](../deploy/caddy/pathfinder.caddy)
+Die Caddy-Vorlage setzt voraus, dass Caddy und Docker Compose auf demselben Linux-Host laufen und Caddy den Host-Loopback erreicht. Die Vorlage leitet `/health/live`, `/api/auth/*`, die Bibliotheksrouten und die Encounter-Routen unter `/api/encounters` weiter. Readiness bleibt für lokale Betriebsprüfungen am API-Port erreichbar. [Caddy-Vorlage](../deploy/caddy/pathfinder.caddy)
 
 1. Die Vorlage als Site-Block in die vorhandene Caddy-Konfiguration übernehmen. `pathfinder.example.com` durch den vorgesehenen DNS-Namen ersetzen. Bei abweichendem `API_PORT` auch den Upstream-Port im Site-Block anpassen.
 2. Die DNS-Einträge auf den Server zeigen lassen. Caddy braucht für das hier vorgesehene automatische HTTPS erreichbare TCP-Ports 80 und 443 sowie ein persistentes, beschreibbares Datenverzeichnis für Zertifikate. [Caddy-Dokumentation zu HTTPS](https://caddyserver.com/docs/automatic-https)
@@ -106,7 +106,7 @@ Die Basisrouten sind `/api/characters` für PC-Vorlagen und `/api/monsters` für
 
 Der Name muss mindestens ein Zeichen außer Leerraum enthalten, darf höchstens 256 Zeichen lang sein und kein Nullzeichen enthalten. Alle acht Kampfwerte sind als Ganzzahlen Pflicht, und Max-HP muss positiv sein. Inhaltliche Validierungsfehler liefern HTTP 400 mit Feldpfaden und Fehlercodes in `errors`. Fehlende oder falsch typisierte Pflichtfelder im Statistikobjekt ergeben HTTP 400 beim Lesen der Anfrage.
 
-Für `PUT` und `DELETE` sendet der Client den aktuellen `ETag` einschließlich Anführungszeichen als einzelnen `If-Match`-Wert. Ein fehlender Wert ergibt 428. Ein abweichender Wert oder ein konkurrierender Schreibzugriff ergibt 412. Eine fehlende Sitzung ergibt 401. Eine fremde oder fehlende ID ergibt 404. Eine durch einen Fremdschlüssel referenzierte Vorlage ergibt beim Löschen 409 mit `code: templateReferenced`. M3 muss die vorbereiteten Encounter-Referenzen mit dieser Datenbanksperre verknüpfen. [HTTP-Semantik von If-Match](https://www.rfc-editor.org/rfc/rfc9110.html#name-if-match) · [Archivierungsregel](../docs/DECISIONS.md#d-028--archivieren-und-löschen-von-bibliotheksvorlagen--25112026--f)
+Für `PUT` und `DELETE` sendet der Client den aktuellen `ETag` einschließlich Anführungszeichen als einzelnen `If-Match`-Wert. Ein fehlender Wert ergibt 428. Ein abweichender Wert oder ein konkurrierender Schreibzugriff ergibt 412. Eine fehlende Sitzung ergibt 401. Eine fremde oder fehlende ID ergibt 404. Eine von einem vorbereiteten Encounter referenzierte Vorlage ergibt beim Löschen 409 mit `code: templateReferenced`. [HTTP-Semantik von If-Match](https://www.rfc-editor.org/rfc/rfc9110.html#name-if-match) · [Archivierungsregel](../docs/DECISIONS.md#d-028--archivieren-und-löschen-von-bibliotheksvorlagen--25112026--f)
 
 ### Angriffssequenzen
 
@@ -185,6 +185,23 @@ Der Import verwendet einen Fingerabdruck der normalisierten Daten. Leerraum und 
 
 Die Vorlagen und der Importbeleg werden erst nach erfolgreicher Validierung gemeinsam gespeichert. Bei 400 oder 409 entstehen keine zusätzlichen Vorlagen aus dem Dokument.
 
+## HTTP-Vertrag der Encounter-Vorbereitung
+
+Die Basisroute `/api/encounters` benötigt HTTPS und die Sitzung des Besitzers. Schreibzugriffe verlangen den Header `X-CSRF-TOKEN`. Die Migration `AddPreparedEncounters` legt `prepared_encounters` und `encounter_participants` samt restriktiven Fremdschlüsseln zu den Bibliotheksvorlagen an.
+
+| Methode und Pfad relativ zur Basisroute | Ergebnis bei Erfolg |
+| --- | --- |
+| `GET` | 200 mit `id`, `name` und `participantCount` je Encounter des Kontos. |
+| `GET /{id}` | 200 mit `id`, `name` und `participants` sowie dem aktuellen `ETag`. |
+| `POST` | 201 mit leerem Encounter, `ETag` und `Location`. Der Body enthält `name`. |
+| `PUT /{id}` | 200 mit umbenanntem Encounter und neuem `ETag`. Der Body enthält `name`. |
+| `POST /{id}/participants` | 200 mit erweitertem Encounter und neuem `ETag`. Der Body enthält `kind`, `templateId` und optional `quantity`. |
+| `DELETE /{id}/participants/{participantId}` | 200 mit aktualisiertem Encounter und neuem `ETag`. |
+
+Encounter-Namen werden getrimmt und unterstützen bis zu 256 Zeichen. Für `kind` gilt `characters` oder `monsters`. PC-Vorlagen werden je Aufruf einmal hinzugefügt. Monster akzeptieren eine ganzzahlige Menge zwischen 1 und 100 mit Standardwert 1. Jede Kopie erhält eine eigene Teilnehmer-ID. Detailantworten enthalten je Teilnehmer `id`, `kind`, `templateId`, `name`, `maxHitPoints` und `isArchived`. Namen, Maximal-TP und Archivstatus werden beim Lesen aus der Bibliothek übernommen.
+
+Schreibzugriffe an einem gespeicherten Encounter verlangen den aktuellen `ETag` einschließlich Anführungszeichen als einzelnen `If-Match`-Wert. Ein fehlender Wert ergibt 428. Ein abweichender Wert oder eine konkurrierende Änderung ergibt 412. Änderungen an sichtbaren Bibliotheksdaten können den `ETag` beim nächsten Lesen ändern. Ungültige Eingaben ergeben 400. Bei einer fremden oder fehlenden Encounter- oder Teilnehmer-ID gilt 404. Eine fehlende, fremde oder archivierte Vorlage ergibt beim Hinzufügen 404 mit dem Fehlercode `templateUnavailable`.
+
 ## Lokal bauen und testen
 
 Im Verzeichnis `backend/` mit dem .NET-10-SDK ausführen:
@@ -194,7 +211,7 @@ dotnet build PathfinderElements.slnx --configuration Release
 dotnet test PathfinderElements.slnx --configuration Release --no-build
 ```
 
-Die Integrationstests starten den Einstiegspunkt mit `WebApplicationFactory`. Der Standardlauf prüft Healthchecks, Anmeldung, Sitzungsablauf, Passwort-Reset, Validierung und den Abgleich des PostgreSQL-Modells mit dem Migrations-Snapshot. Der isolierte Compose-Test führt zusätzlich EF-Schreib-/Lesezugriffe und die authentifizierten Bibliotheksabläufe mit PostgreSQL aus.
+Die Integrationstests starten den Einstiegspunkt mit `WebApplicationFactory`. Der Standardlauf prüft Healthchecks, Anmeldung, Sitzungsablauf, Passwort-Reset, Validierung und den Abgleich des PostgreSQL-Modells mit dem Migrations-Snapshot. Der isolierte Compose-Test führt zusätzlich EF-Schreib-/Lesezugriffe und die authentifizierten Bibliotheks- und Encounter-Abläufe mit PostgreSQL aus.
 
 ## API starten
 

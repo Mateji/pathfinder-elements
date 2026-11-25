@@ -26,7 +26,9 @@ export class App {
         effect(() => {
             this.document.documentElement.lang = this.i18n.language();
             const messages = this.i18n.messages();
-            const title = this.currentUrl().split(/[?#]/)[0] === '/library' ? messages.library.title : messages.initiativeTracker;
+            const path = this.currentUrl().split(/[?#]/)[0];
+            const pageTitles: Record<string, string> = { '/library': messages.library.title, '/encounters': messages.encounters.title };
+            const title = pageTitles[path] ?? messages.initiativeTracker;
             this.title.setTitle(`${title} | Pathfinder Elements`);
         });
     }

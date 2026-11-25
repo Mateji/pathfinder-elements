@@ -1,0 +1,136 @@
+@let m = i18n.messages().encounters;
+@let session = store.session();
+@let encounter = store.encounter();
+<section aria-labelledby="encounter-heading">
+    <header class="page-heading">
+        <h1 id="encounter-heading">{{ m.title }}</h1>
+        @if (session === 'ready' || session === 'unavailable') {
+            <button type="button" (click)="reload()" [disabled]="store.busy()">{{ m.reload }}</button>
+        }
+    </header>
+
+    @if (store.feedback(); as feedback) {
+        <p class="library-feedback" [class.success]="feedback === 'saved'" [class.failure]="feedback !== 'saved'"
+            [attr.role]="feedback === 'saved' ? 'status' : 'alert'">{{ m.feedback[feedback] }}</p>
+    }
+
+    @if (!secureOrigin) {
+        <p>{{ i18n.messages().library.httpsRequired }}</p>
+    } @else if (session === 'checking') {
+        <p role="status">{{ i18n.messages().library.checkingSession }}</p>
+    } @else if (session === 'signedOut') {
+        <a routerLink="/library">{{ m.signIn }}</a>
+    } @else if (session === 'ready') {
+        <div class="encounter-layout" [attr.aria-busy]="store.busy()">
+            <div class="encounter-sidebar">
+                <section class="library-panel" aria-labelledby="new-encounter-heading">
+                    <h2 id="new-encounter-heading">{{ m.newEncounter }}</h2>
+                    <form (ngSubmit)="create()" class="stacked-form">
+                        <label class="form-field">
+                            {{ m.name }}
+                            <input name="createName" [(ngModel)]="createName" required maxlength="256" [disabled]="store.busy()" />
+                        </label>
+                        <button type="submit" class="primary-button" [disabled]="store.busy() || !createName().trim()">{{ m.create }}</button>
+                    </form>
+                </section>
+
+                <section class="library-panel" aria-labelledby="saved-encounters-heading">
+                    <h2 id="saved-encounters-heading">{{ m.savedEncounters }}</h2>
+                    @if (store.savedEncounters().length === 0 && !store.busy()) {
+                        <p class="muted">{{ m.noEncounters }}</p>
+                    }
+                    <ul class="encounter-list">
+                        @for (saved of store.savedEncounters(); track saved.id) {
+                            <li>
+                                <button class="encounter-row" type="button" [attr.aria-pressed]="encounter?.id === saved.id"
+                                    [disabled]="store.busy()" (click)="open(saved.id)">
+                                    <strong>{{ saved.name }}</strong>
+                                    <small>{{ m.count(saved.participantCount) }}</small>
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                </section>
+            </div>
+
+            @if (encounter) {
+                <section class="library-panel encounter-detail" aria-labelledby="selected-encounter-heading">
+                    <header>
+                        <h2 id="selected-encounter-heading">{{ encounter.name }}</h2>
+                        <details>
+                            <summary>{{ m.rename }}</summary>
+                            <form class="inline-form" (ngSubmit)="rename()">
+                                <label class="form-field">
+                                    {{ m.name }}
+                                    <input name="renameName" [(ngModel)]="renameName" required maxlength="256" [disabled]="store.busy()" />
+                                </label>
+                                <button type="submit" [disabled]="store.busy() || !renameName().trim() || renameName().trim() === encounter.name">
+                                    {{ m.saveName }}
+                                </button>
+                            </form>
+                        </details>
+                    </header>
+
+                    <form class="add-form" (ngSubmit)="add()">
+                        <label class="form-field">
+                            {{ m.type }}
+                            <select name="kind" [ngModel]="kind()" (ngModelChange)="selectKind($event)" [disabled]="store.busy()">
+                                <option value="characters">{{ m.types.characters }}</option>
+                                <option value="monsters">{{ m.types.monsters }}</option>
+                            </select>
+                        </label>
+                        <label class="form-field">
+                            {{ m.template }}
+                            <select name="template" [ngModel]="templateId()" (ngModelChange)="selectTemplate($event)" [disabled]="store.busy()" required>
+                                <option value="">{{ m.chooseTemplate }}</option>
+                                @for (template of templates(); track template.id) {
+                                    <option [value]="template.id">{{ template.name }}</option>
+                                }
+                            </select>
+                        </label>
+                        @if (kind() === 'monsters') {
+                            <label class="form-field quantity-field">
+                                {{ m.quantity }}
+                                <input type="number" name="quantity" [(ngModel)]="quantity" [max]="maximumQuantity" min="1" step="1" required
+                                    [disabled]="store.busy()" />
+                            </label>
+                        }
+                        <button type="submit" class="primary-button" [disabled]="store.busy() || !hasSelection() || !validQuantity()">{{ m.add }}</button>
+                    </form>
+                    @if (templates().length === 0) {
+                        <p class="muted">{{ m.noTemplates }} <a routerLink="/library">{{ i18n.messages().library.title }}</a></p>
+                    }
+
+                    <div class="roster-heading">
+                        <h3>{{ m.roster }}</h3>
+                        <span class="muted">{{ m.count(participants().length) }}</span>
+                    </div>
+                    @if (participants().length === 0) {
+                        <p class="muted">{{ m.noParticipants }}</p>
+                    } @else {
+                        <ul class="roster">
+                            @for (participant of participants(); track participant.id) {
+                                <li>
+                                    <div>
+                                        <strong>{{ participant.name }}</strong>
+                                        <div class="muted participant-meta">
+                                            <span>{{ m.types[participant.kind] }}</span>
+                                            <span>{{ m.maxHitPoints(participant.maxHitPoints) }}</span>
+                                            @if (participant.isArchived) {
+                                                <span>{{ m.archived }}</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <button type="button" [attr.aria-label]="m.removeParticipant(participant.name)" [disabled]="store.busy()"
+                                        (click)="store.remove(participant.id)">{{ m.remove }}</button>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </section>
+            } @else if (!store.busy()) {
+                <p class="library-panel muted empty-detail">{{ m.chooseEncounter }}</p>
+            }
+        </div>
+    }
+</section>

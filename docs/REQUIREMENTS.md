@@ -37,6 +37,8 @@
 
 **Akzeptanztests:** Vier Kopien eines Goblins und ein Ork erzeugen fünf unabhängig identifizierbare Instanzen; eine HP-Änderung an Goblin 2 betrifft nicht Goblin 1. Vorlage lässt sich ohne alte Kampf-HP neu starten.
 
+**Akzeptanz für die Zusammenstellung in M3.** Ein angemeldeter GM kann einen Encounter benennen, umbenennen, mit drei PCs, vier Goblins und einem Ork zusammenstellen und später wieder öffnen. Je Auswahl wird ein PC hinzugefügt. Bei Monstern steht die Menge beim Auswählen auf 1 und lässt sich auf eine ganze Zahl von 1 bis 100 ändern. Jede Kopie hat eine eigene ID und lässt sich einzeln entfernen. Änderungen an Namen und Maximal-TP in der Bibliothek erscheinen beim erneuten Öffnen. Archivierte Vorlagen bleiben in vorhandenen Encountern sichtbar und fehlen in der Neuauswahl. Endgültiges Löschen ist erst nach Entfernen aller Referenzen möglich. Fremde Konten haben keinen Zugriff. Zwei Änderungen mit derselben Encounter-Version ergeben höchstens eine erfolgreiche Änderung. [HTTP-Vertrag](../backend/README.md#http-vertrag-der-encounter-vorbereitung)
+
 ## FR-03: Initiative, Runden und Zugfolge
 
 - **FR-03.1 MUSS:** Beim Start NPC-Initiative automatisiert aus d20 + jeweiligem Gesamt-Initiativemodifikator würfeln; PC-Initiativergebnisse manuell erfassen.

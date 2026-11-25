@@ -39,6 +39,8 @@ npm run start:library
 
 Öffne [https://localhost:4200/library](https://localhost:4200/library) und melde dich mit dem administrativ angelegten Konto an. Wenn du ein lokal vertrauenswürdiges Zertifikat für `localhost` hast, übergib es mit `npm run start:library -- --ssl-cert /pfad/zertifikat.pem --ssl-key /pfad/schluessel.pem`. Im Menü erreichst du auch den Tracker. Der normale Start mit `npm start` eignet sich für die Tracker-Demo. Wenn der Demo-Server schon auf Port 4200 läuft, kannst du die Bibliothek mit `npm run start:library -- --port 4201` starten und Port 4201 im Browser öffnen.
 
+Unter **Encounters** kannst du mit derselben Anmeldung PCs und Monster aus der Bibliothek zu einem vorbereiteten Encounter hinzufügen. Für ein vorhandenes Compose-Projekt baut `docker compose up --build -d api` die API neu. Beim Start ergänzt die Migration die Encounter-Tabellen im vorhandenen Datenbank-Volume. [Encounter-Vorbereitung öffnen](https://localhost:4200/encounters)
+
 In der Bibliothek kannst du PC- und Monstervorlagen anlegen, bearbeiten, archivieren, wiederherstellen, löschen und aus einer JSON-Datei importieren. Die Angriffssequenzen gehören zum Monsterformular. [JSON-Beispiel](backend/README.md#versionierter-json-import)
 
 ## Build, Lint und Tests

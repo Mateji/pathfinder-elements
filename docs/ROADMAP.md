@@ -61,12 +61,14 @@
 
 ## M3 — Encounter-Vorbereitung
 
-- [ ] Encounter aus PCs/Monstern zusammenstellen; Mengenfunktion Default 1.
+- [x] Encounter aus PCs/Monstern zusammenstellen; Mengenfunktion Default 1.
 - [ ] Stabile einzelne Teilnehmerinstanzen; Farbkennzeichnung und Kurzlabels.
 - [ ] Bibliotheksreferenzen mit restriktivem Fremdschlüssel nach D-028, Override-Konfliktregel, Kopieren und Wiederverwenden.
 - [ ] Start-HP je Teilnehmer mit Max-HP als Default; Starten und erneut vorbereiten.
 
 **Abnahme:** 3 PCs + 4 Goblins + 1 Ork; alle Goblins einzeln identifizierbar; Änderung einer Vorlage aktualisiert den vorbereiteten Encounter kontrolliert.
+
+**Zusammenstellung, geprüft am 25.11.2026.** Der Chrome-Test über HTTPS legte einen Encounter mit drei PCs, vier Goblins und einem Ork an. Er prüfte die Standardmenge 1, den Sprachwechsel bei offener Eingabe, das Umbenennen, Wiederöffnen und einzelne Entfernen bei 320, 768 und 1280 px. Die PostgreSQL-Tests prüften acht verschiedene Teilnehmer-IDs, aktuelle Bibliothekswerte, Archivierung und Löschsperre über die realen Fremdschlüssel. Sie prüften außerdem Besitzerisolation, CSRF und konkurrierende Änderungen. 13 Frontend-Tests, Angular-Produktionsbuild, 15 Backend-Tests im Standardlauf, 15 Tests im Compose-Lauf und die Caddy-Validierung waren erfolgreich. Farbvergabe und Kurzlabels für die Teilnehmer bleiben in OQ-12 offen. [HTTP-Vertrag](../backend/README.md#http-vertrag-der-encounter-vorbereitung)
 
 ## M4 — Kampfablauf und zuverlässige Wiederaufnahme
 

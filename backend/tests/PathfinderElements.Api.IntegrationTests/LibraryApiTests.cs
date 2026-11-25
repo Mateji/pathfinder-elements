@@ -16,7 +16,7 @@ using Xunit;
 
 namespace PathfinderElements.Api.IntegrationTests;
 
-public sealed class LibraryApiTests
+public sealed partial class LibraryApiTests
 {
     private const string TestPassword = "Synthetic-Library-Test123!";
     private const string ImportPath = "/api/library/import";

@@ -1,0 +1,72 @@
+const english = {
+    title: 'Encounters',
+    savedEncounters: 'Prepared encounters',
+    noEncounters: 'No encounters prepared yet.',
+    newEncounter: 'New encounter',
+    name: 'Encounter name',
+    create: 'Create encounter',
+    rename: 'Rename',
+    saveName: 'Save name',
+    reload: 'Refresh',
+    signIn: 'Sign in through the library',
+    chooseEncounter: 'Open or create an encounter to add participants.',
+    roster: 'Participants',
+    noParticipants: 'This encounter has no participants yet.',
+    count: (count: number) => `${count} ${count === 1 ? 'participant' : 'participants'}`,
+    type: 'Type',
+    types: { characters: 'PC', monsters: 'Monster' },
+    template: 'Library template',
+    chooseTemplate: 'Select a template',
+    noTemplates: 'Add an active template in the library to use it here.',
+    quantity: 'Quantity',
+    add: 'Add participants',
+    remove: 'Remove',
+    removeParticipant: (name: string) => `Remove ${name}`,
+    maxHitPoints: (value: number) => `${value} max HP`,
+    archived: 'Archived template',
+    feedback: {
+        saved: 'Changes saved.',
+        loadFailed: 'Could not load encounter data. Try refreshing.',
+        saveFailed: 'Could not save the change.',
+        unavailableTemplate: 'This template is no longer available for selection. Refresh the list.',
+        stale: 'The encounter or a referenced template has changed. Refresh before editing again.'
+    }
+};
+
+export const encounterMessages: { en: typeof english; de: typeof english } = {
+    en: english,
+    de: {
+        title: 'Encounters',
+        savedEncounters: 'Vorbereitete Encounters',
+        noEncounters: 'Noch keine Encounters vorbereitet.',
+        newEncounter: 'Neuer Encounter',
+        name: 'Encounter-Name',
+        create: 'Encounter anlegen',
+        rename: 'Umbenennen',
+        saveName: 'Name speichern',
+        reload: 'Aktualisieren',
+        signIn: 'In der Bibliothek anmelden',
+        chooseEncounter: 'Öffne oder erstelle einen Encounter, um Teilnehmer hinzuzufügen.',
+        roster: 'Teilnehmer',
+        noParticipants: 'Dieser Encounter hat noch keine Teilnehmer.',
+        count: (count) => `${count} Teilnehmer`,
+        type: 'Typ',
+        types: { characters: 'SC', monsters: 'Monster' },
+        template: 'Bibliotheksvorlage',
+        chooseTemplate: 'Vorlage auswählen',
+        noTemplates: 'Lege eine aktive Vorlage in der Bibliothek an, um sie hier zu verwenden.',
+        quantity: 'Anzahl',
+        add: 'Teilnehmer hinzufügen',
+        remove: 'Entfernen',
+        removeParticipant: (name) => `${name} entfernen`,
+        maxHitPoints: (value) => `${value} max. TP`,
+        archived: 'Archivierte Vorlage',
+        feedback: {
+            saved: 'Änderungen gespeichert.',
+            loadFailed: 'Die Encounter-Daten konnten nicht geladen werden. Versuche es erneut.',
+            saveFailed: 'Die Änderung konnte nicht gespeichert werden.',
+            unavailableTemplate: 'Diese Vorlage ist für die Auswahl nicht mehr verfügbar. Aktualisiere die Liste.',
+            stale: 'Der Encounter oder eine seiner Vorlagen wurde geändert. Aktualisiere die Ansicht vor der nächsten Änderung.'
+        }
+    }
+};

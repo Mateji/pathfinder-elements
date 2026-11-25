@@ -1,5 +1,5 @@
 pathfinder.example.com {
-	@api path /health/live /api/auth/* /api/characters /api/characters/* /api/monsters /api/monsters/* /api/library/import
+	@api path /health/live /api/auth/* /api/characters /api/characters/* /api/monsters /api/monsters/* /api/library/import /api/encounters /api/encounters/*
 	handle @api {
 		reverse_proxy 127.0.0.1:5080
 	}

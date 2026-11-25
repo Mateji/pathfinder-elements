@@ -33,7 +33,7 @@
 
 Das Backend speichert die Vorlagen in `character_templates` und `monster_templates`. Beide Tabellen referenzieren ein vorhandenes Konto und indizieren den Besitzer für spätere Abfragen. Der Fremdschlüssel blockiert das Löschen eines Kontos mit vorhandenen Vorlagen.
 
-Jede Vorlage speichert den Archivstatus und eine Version für konkurrierende Schreibzugriffe. Archivierte Vorlagen bleiben über ihre UUID abrufbar und fehlen in der Standardauswahl. Vorbereitete Encounter behalten ihre Referenz. Beim Modellieren dieser Referenzen in M3 verhindert ein restriktiver Fremdschlüssel das Löschen verwendeter Vorlagen. [D-028](DECISIONS.md#d-028--archivieren-und-löschen-von-bibliotheksvorlagen--25112026--f)
+Jede Vorlage speichert den Archivstatus und eine Version für konkurrierende Schreibzugriffe. Archivierte Vorlagen bleiben über ihre UUID abrufbar und fehlen in der Standardauswahl. Vorbereitete Encounter behalten ihre Referenz. Restriktive Fremdschlüssel verhindern das Löschen verwendeter Vorlagen. [D-028](DECISIONS.md#d-028--archivieren-und-löschen-von-bibliotheksvorlagen--25112026--f)
 
 | Pflichtfelder des gemeinsamen `CombatStatistics`-Werts | Bedeutung |
 | --- | --- |
@@ -57,6 +57,10 @@ Die Sequenzen gehören zum Aggregat der Monstervorlage. PostgreSQL speichert sie
 ### Bibliotheksimport
 
 Ein gültiges Importdokument legt eigene PC- und Monstervorlagen an. Die API ermittelt den Besitzer aus der Sitzung und vergibt für jeden Eintrag eine neue UUID. Der Importbeleg in `library_import_receipts` ist pro Besitzer und Fingerabdruck des versionierten Dokuments eindeutig. Er wird zusammen mit den Vorlagen gespeichert und bleibt beim späteren Bearbeiten oder Löschen einzelner Vorlagen erhalten. [D-030](DECISIONS.md#d-030--versionierter-bibliotheksimport--25112026--f)
+
+## Vorbereitete Encounter in M3
+
+`PreparedEncounter` entspricht dem konzeptionellen `EncounterTemplate`. Er hat eine UUID, einen Besitzer, einen Namen und eine Version. `EncounterParticipant` entspricht `EncounterEntry`. Jede Kopie hat ihre eigene UUID und genau einen Fremdschlüssel zu einer PC- oder Monstervorlage. Die API prüft bei neuen Teilnehmern unter einer Datenbanksperre, dass die Vorlage aktiv ist und demselben Konto gehört. Sie liest Anzeigename, Maximal-TP und Archivstatus beim Öffnen aus der aktuellen Vorlage. Kampfdaten wie aktuelle TP entstehen beim späteren Kampfstart. [HTTP-Vertrag](../backend/README.md#http-vertrag-der-encounter-vorbereitung)
 
 ## Combatant-Kerndaten
 

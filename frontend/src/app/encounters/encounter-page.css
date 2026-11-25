@@ -1,0 +1,159 @@
+:host {
+    display: block;
+}
+
+.page-heading, .roster-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+}
+
+.page-heading {
+    margin-bottom: 18px;
+}
+
+h1 {
+    margin: 0;
+    font: 700 clamp(2.05rem, 5vw, 3.1rem)/1.1 Georgia, serif;
+    letter-spacing: -0.02em;
+}
+
+h2, h3 {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+h2 {
+    font-size: 1.25rem;
+}
+
+h3 {
+    font-size: 1.05rem;
+}
+
+a, summary {
+    color: var(--library-accent);
+    font-weight: 600;
+}
+
+a:only-child, summary {
+    display: inline-block;
+    min-height: 44px;
+    padding-block: 11px;
+}
+
+summary {
+    display: list-item;
+    cursor: pointer;
+}
+
+.encounter-layout {
+    display: grid;
+    grid-template-columns: minmax(230px, 1fr) minmax(0, 2.2fr);
+    align-items: start;
+    gap: 16px;
+}
+
+.encounter-sidebar, .stacked-form {
+    display: grid;
+    gap: 12px;
+}
+
+.encounter-sidebar {
+    min-width: 0;
+}
+
+.stacked-form, .encounter-list {
+    margin-top: 12px;
+}
+
+.encounter-list, .roster {
+    padding: 0;
+    margin-bottom: 0;
+    list-style: none;
+}
+
+.encounter-list {
+    display: grid;
+    gap: 6px;
+}
+
+button.encounter-row {
+    display: grid;
+    gap: 2px;
+    width: 100%;
+    text-align: start;
+    overflow-wrap: anywhere;
+}
+
+button.encounter-row[aria-pressed='true'] {
+    border-color: var(--library-accent);
+    background: #e9f1e8;
+}
+
+.encounter-row small, .muted {
+    color: var(--library-muted);
+    font-weight: 400;
+}
+
+.inline-form, .add-form {
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.inline-form {
+    margin-bottom: 12px;
+}
+
+.add-form {
+    padding-block: 12px;
+    border-top: 1px solid var(--library-border);
+    border-bottom: 1px solid var(--library-border);
+}
+
+.inline-form label, .add-form label {
+    flex: 1 1 130px;
+}
+
+.add-form .quantity-field {
+    flex: 0 1 90px;
+}
+
+.roster-heading {
+    margin-top: 20px;
+}
+
+.roster li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding-block: 9px;
+    border-top: 1px solid #e4ebe4;
+    overflow-wrap: anywhere;
+}
+
+.participant-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    font-size: 0.86rem;
+}
+
+.empty-detail {
+    margin: 0;
+}
+
+@media (max-width: 680px) {
+    .encounter-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .add-form button, .inline-form button {
+        flex: 1 0 100%;
+    }
+}

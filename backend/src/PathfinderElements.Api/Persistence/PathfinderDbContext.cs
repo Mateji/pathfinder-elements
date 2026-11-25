@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using PathfinderElements.Api.Encounters;
 using PathfinderElements.Api.Library;
 
 namespace PathfinderElements.Api.Persistence;
@@ -10,6 +11,8 @@ public sealed class PathfinderDbContext(DbContextOptions<PathfinderDbContext> op
     public DbSet<ApplicationMetadata> ApplicationMetadata => Set<ApplicationMetadata>();
     public DbSet<CharacterTemplate> CharacterTemplates => Set<CharacterTemplate>();
     public DbSet<MonsterTemplate> MonsterTemplates => Set<MonsterTemplate>();
+    internal DbSet<PreparedEncounter> PreparedEncounters => Set<PreparedEncounter>();
+    internal DbSet<EncounterParticipant> EncounterParticipants => Set<EncounterParticipant>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -21,6 +24,7 @@ public sealed class PathfinderDbContext(DbContextOptions<PathfinderDbContext> op
         metadata.Property(entry => entry.Value).HasColumnName("value");
 
         LibraryMapping.Configure(modelBuilder);
+        EncounterMapping.Configure(modelBuilder);
     }
 }
 

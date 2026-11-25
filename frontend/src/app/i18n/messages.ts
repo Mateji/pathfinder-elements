@@ -1,3 +1,4 @@
+import { encounterMessages } from './encounter-messages';
 import { libraryMessages } from './library-messages';
 
 export type Language = 'de' | 'en';
@@ -11,6 +12,7 @@ interface Messages {
     readonly armorClass: (value: number) => string;
     readonly navigation: string;
     readonly library: typeof libraryMessages.en;
+    readonly encounters: typeof encounterMessages.en;
 }
 
 export const messages: Readonly<Record<Language, Messages>> = {
@@ -22,6 +24,7 @@ export const messages: Readonly<Record<Language, Messages>> = {
         nextTurn: 'Nächster Zug',
         navigation: 'Hauptnavigation',
         library: libraryMessages.de,
+        encounters: encounterMessages.de,
         armorClass: (value) => {
             return `Rüstungsklasse ${value}`;
         }
@@ -34,6 +37,7 @@ export const messages: Readonly<Record<Language, Messages>> = {
         nextTurn: 'Next turn',
         navigation: 'Main navigation',
         library: libraryMessages.en,
+        encounters: encounterMessages.en,
         armorClass: (value) => {
             return `Armor Class ${value}`;
         }

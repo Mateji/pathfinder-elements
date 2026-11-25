@@ -1,6 +1,7 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, type Observable, switchMap } from 'rxjs';
+import { loadCsrfHeaders } from '../api/csrf-headers';
 import type { ImportResult, LibrarySession, LibraryTemplate, TemplateKind, TemplateWrite, VersionedTemplate } from './library-model';
 
 @Injectable({ providedIn: 'root' })
@@ -12,13 +13,13 @@ export class LibraryApi {
     }
 
     login(username: string, password: string): Observable<void> {
-        return this.csrfHeaders().pipe(switchMap((headers) => {
+        return loadCsrfHeaders(this.http).pipe(switchMap((headers) => {
             return this.http.post<void>('/api/auth/login', { username, password }, { headers });
         }));
     }
 
     logout(): Observable<void> {
-        return this.csrfHeaders().pipe(switchMap((headers) => {
+        return loadCsrfHeaders(this.http).pipe(switchMap((headers) => {
             return this.http.post<void>('/api/auth/logout', null, { headers });
         }));
     }
@@ -38,41 +39,34 @@ export class LibraryApi {
     }
 
     create(kind: TemplateKind, template: TemplateWrite): Observable<LibraryTemplate> {
-        return this.csrfHeaders().pipe(switchMap((headers) => {
+        return loadCsrfHeaders(this.http).pipe(switchMap((headers) => {
             return this.http.post<LibraryTemplate>(`/api/${kind}`, template, { headers });
         }));
     }
 
     update(kind: TemplateKind, saved: VersionedTemplate, template: TemplateWrite): Observable<LibraryTemplate> {
-        return this.csrfHeaders(saved.etag).pipe(switchMap((headers) => {
+        return loadCsrfHeaders(this.http, saved.etag).pipe(switchMap((headers) => {
             return this.http.put<LibraryTemplate>(this.detailPath(kind, saved.template.id), template, { headers });
         }));
     }
 
     archive(kind: TemplateKind, saved: VersionedTemplate, isArchived: boolean): Observable<LibraryTemplate> {
-        return this.csrfHeaders(saved.etag).pipe(switchMap((headers) => {
+        return loadCsrfHeaders(this.http, saved.etag).pipe(switchMap((headers) => {
             return this.http.put<LibraryTemplate>(`${this.detailPath(kind, saved.template.id)}/archive`, { isArchived }, { headers });
         }));
     }
 
     delete(kind: TemplateKind, saved: VersionedTemplate): Observable<void> {
-        return this.csrfHeaders(saved.etag).pipe(switchMap((headers) => {
+        return loadCsrfHeaders(this.http, saved.etag).pipe(switchMap((headers) => {
             return this.http.delete<void>(this.detailPath(kind, saved.template.id), { headers });
         }));
     }
 
     importDocument(document: string): Observable<ImportResult> {
-        return this.csrfHeaders().pipe(switchMap((headers) => {
+        return loadCsrfHeaders(this.http).pipe(switchMap((headers) => {
             return this.http.post<ImportResult>('/api/library/import', document, {
                 headers: headers.set('Content-Type', 'application/json')
             });
-        }));
-    }
-
-    private csrfHeaders(etag?: string): Observable<HttpHeaders> {
-        return this.http.get<{ token: string }>('/api/auth/csrf').pipe(map(({ token }) => {
-            const headers = new HttpHeaders({ 'X-CSRF-TOKEN': token });
-            return etag ? headers.set('If-Match', etag) : headers;
         }));
     }
 

@@ -23,7 +23,7 @@ body {
     outline-offset: 3px;
 }
 
-app-library-page button {
+:is(app-library-page, app-encounter-page) button {
     min-height: 44px;
     padding: 8px 12px;
     border: 1px solid #afc1b5;
@@ -36,22 +36,22 @@ app-library-page button {
     cursor: pointer;
 }
 
-app-library-page button:enabled:hover {
+:is(app-library-page, app-encounter-page) button:enabled:hover {
     background: #e9f0ea;
 }
 
-app-library-page button:disabled {
+:is(app-library-page, app-encounter-page) button:disabled {
     cursor: default;
     opacity: 0.56;
 }
 
-app-library-page button.primary-button {
+:is(app-library-page, app-encounter-page) button.primary-button {
     border-color: var(--library-accent);
     background: var(--library-accent);
     color: #fff;
 }
 
-app-library-page button.primary-button:enabled:hover {
+:is(app-library-page, app-encounter-page) button.primary-button:enabled:hover {
     background: #193e34;
 }
 

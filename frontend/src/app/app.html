@@ -5,6 +5,7 @@
         <nav [attr.aria-label]="m.navigation">
             <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page">{{ m.initiativeTracker }}</a>
             <a routerLink="/library" routerLinkActive="active" ariaCurrentWhenActive="page">{{ m.library.title }}</a>
+            <a routerLink="/encounters" routerLinkActive="active" ariaCurrentWhenActive="page">{{ m.encounters.title }}</a>
         </nav>
         <div class="language-control">
             <label for="language">{{ m.language }}</label>

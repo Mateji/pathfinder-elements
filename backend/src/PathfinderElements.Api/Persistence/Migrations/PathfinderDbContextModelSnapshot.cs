@@ -153,6 +153,68 @@ namespace PathfinderElements.Api.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("PathfinderElements.Api.Encounters.EncounterParticipant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("CharacterTemplateId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("character_template_id");
+
+                    b.Property<Guid>("EncounterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("encounter_id");
+
+                    b.Property<Guid?>("MonsterTemplateId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("monster_template_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterTemplateId");
+
+                    b.HasIndex("EncounterId");
+
+                    b.HasIndex("MonsterTemplateId");
+
+                    b.ToTable("encounter_participants", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_encounter_participants_one_template", "(character_template_id IS NULL) <> (monster_template_id IS NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("PathfinderElements.Api.Encounters.PreparedEncounter", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("OwnerUserId")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uuid")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerUserId");
+
+                    b.ToTable("prepared_encounters", (string)null);
+                });
+
             modelBuilder.Entity("PathfinderElements.Api.Library.CharacterTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -375,6 +437,38 @@ namespace PathfinderElements.Api.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("PathfinderElements.Api.Encounters.EncounterParticipant", b =>
+                {
+                    b.HasOne("PathfinderElements.Api.Library.CharacterTemplate", "CharacterTemplate")
+                        .WithMany()
+                        .HasForeignKey("CharacterTemplateId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("PathfinderElements.Api.Encounters.PreparedEncounter", null)
+                        .WithMany("Participants")
+                        .HasForeignKey("EncounterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PathfinderElements.Api.Library.MonsterTemplate", "MonsterTemplate")
+                        .WithMany()
+                        .HasForeignKey("MonsterTemplateId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CharacterTemplate");
+
+                    b.Navigation("MonsterTemplate");
+                });
+
+            modelBuilder.Entity("PathfinderElements.Api.Encounters.PreparedEncounter", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("PathfinderElements.Api.Library.CharacterTemplate", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
@@ -400,6 +494,11 @@ namespace PathfinderElements.Api.Persistence.Migrations
                         .HasForeignKey("OwnerUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("PathfinderElements.Api.Encounters.PreparedEncounter", b =>
+                {
+                    b.Navigation("Participants");
                 });
 #pragma warning restore 612, 618
         }
