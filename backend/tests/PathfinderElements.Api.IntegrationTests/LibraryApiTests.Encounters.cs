@@ -96,8 +96,19 @@ public sealed partial class LibraryApiTests
         Assert.Equal(roster.Where(entry => entry.Id != orcEntry.Id).Select(entry => entry.Id), saved.Detail.Participants.Select(entry => entry.Id));
         using var deleteAfterRemoval = await SendAsync(client, HttpMethod.Delete, orcPath, csrf: csrf, etag: orcTag);
         Assert.Equal(HttpStatusCode.NoContent, deleteAfterRemoval.StatusCode);
+
+        var removedGoblin = saved.Detail.Participants.Where(entry => entry.TemplateId == goblin.Id).ElementAt(1);
+        var remaining = saved.Detail.Participants.Where(entry => entry.Id != removedGoblin.Id).ToArray();
+        using var removeGoblin = await SendAsync(client, HttpMethod.Delete, $"{path}/participants/{removedGoblin.Id}",
+            csrf: csrf, etag: saved.Tag);
+        saved = await ReadEncounterAsync(removeGoblin);
+        Assert.Equal(remaining, saved.Detail.Participants);
+        Assert.Equal(3, saved.Detail.Participants.Count(entry => entry.TemplateId == goblin.Id));
+        using var stillReferenced = await SendAsync(client, HttpMethod.Delete, goblinPath, csrf: csrf, etag: GetTag(archived));
+        Assert.Equal(HttpStatusCode.Conflict, stillReferenced.StatusCode);
+
         var summaries = await client.GetFromJsonAsync<EncounterSummary[]>(EncountersPath);
-        Assert.Equal(new EncounterSummary(saved.Detail.Id, "Am Nordtor", 7), Assert.Single(summaries!));
+        Assert.Equal(new EncounterSummary(saved.Detail.Id, "Am Nordtor", 6), Assert.Single(summaries!));
     }
 
     [PostgreSqlFact]
